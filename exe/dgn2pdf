@@ -1,0 +1,50 @@
+
+#!/usr/bin/env ruby
+$LOAD_PATH.unshift("../lib")
+require "optparse_plus"
+require "autocad"
+
+class App
+  include OptparsePlus::Main
+  include OptparsePlus::CLILogging
+
+  main do |directory, output_dir|
+    directory_path = Pathname.new(directory).expand_path
+    mode = options[:f] ? :file : :dir
+    odir = case [mode, output_dir]
+    in _, String => dir_out
+      dir_out
+    in :dir, nil
+      directory_path
+    in :file, nil
+      Pathname.getwd
+    end
+
+    if mode == :dir
+      exit_now! "arg directory: #{directory_path} doesn't exist" unless directory_path.directory?
+    else
+      exit_now! "arg file: #{directory_path} doesn't exist" unless directory_path.file?
+    end
+
+    Autocad.dgn2pdf(directory_path, outdir: odir, mode: mode)
+    # your program code here
+    # You can access CLI options via
+    # the options Hash
+  end
+
+  # supplemental methods here
+
+  # Declare command-line interface here
+
+  description "Convert a directory of Autocad files (*.dgn) to pdf"
+
+  on("-o", "--output_dir", "Output Dir")
+  on("-f", "Single file mode")
+
+  arg :directory
+  arg :output_dir, :optional
+
+  use_log_level_option
+
+  go!
+end
