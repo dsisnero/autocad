@@ -30,8 +30,8 @@ module Autocad
     #
     # @return [<Type>] <description>
     #
-    def register_handler(event, &block)
-      @event_handler.add_handler(event, &block) unless event == "OnQuit"
+    def register_handler(event, &)
+      @event_handler.add_handler(event, &) unless event == "OnQuit"
     end
 
     # save the drawing as a pdf file
@@ -66,6 +66,29 @@ module Autocad
     def pdf_name(name = nil)
       name ||= self.name
       Pathname(name).sub_ext(".pdf")
+    end
+
+    # copy the drawing
+    # @param [String] name of the file
+    # @param [String,Pathname] dir
+    def copy(name: nil, dir: nil)
+      if dir.nil?
+        lname = name || copy_name
+        dir_path = dirname
+      else
+        lname = name || self.name
+        dir_path = Pathname(dir)
+      end
+      copy_path = dir_path + lname
+      FileUtils.copy path.to_s, copy_path.to_s, verbose: true
+    end
+
+    # If you copy the file the name to use
+    # @param backup_str [String] the bqckup string to use
+    def copy_name(backup_str = ".copy")
+      lname = name.dup
+      ext = File.extname(lname)
+      name = "#{File.basename(lname, ext)}#{backup_str}#{ext}"
     end
 
     def paper_space?

@@ -46,6 +46,39 @@ module Autocad
       end
     end
 
+    # save the current drawing
+    # @param dir [String,Dir] the dir to save drawing to
+    # return [void]
+    def save_current_drawing(dir, exit: true)
+      if exit
+        run do |app|
+          drawing = app.current_drawing
+          return unless drawing
+          drawing.copy(dir: dir)
+          drawing.save_as_pdf(dir: dir)
+          drawing.close
+        end
+      else
+        app = App.new
+        drawing = app.current_drawing
+        return unless drawing
+        drawing.copy(dir: dir)
+        drawing.save_as_pdf(dir: dir)
+        app
+      end
+    end
+
+    # save the current drawing as pdf
+    # @param dir [String,Dir] the dir to save drawing to
+    # return [void]
+    def save_current_drawing_as_pdf(dir)
+      App.run do |app|
+        drawing = app.current_drawing
+        drawing.save_as_pdf(dir: dir)
+        drawing.close
+      end
+    end
+
     # gets all dwg and dgn dfiles in a directory
     # @param dir
     def drawings_in_dir(dir)

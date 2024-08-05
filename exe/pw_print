@@ -1,6 +1,6 @@
 
 #!/usr/bin/env ruby
-require "optparse_parse"
+require "optparse_plus"
 
 require "autocad"
 # require "autocad/extensions/faa"
@@ -13,8 +13,6 @@ class PwApp
   main do
     directory_path = Pathname(options["save-dir"]).expand_path
     exit_now! "arg directory: #{directory_path} doesn't exist" unless directory_path.directory?
-
-
     app = Autocad.save_current_drawing(directory_path, exit: options["exit"])
     binding.break unless options["exit"]
   end
