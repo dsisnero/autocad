@@ -1,4 +1,13 @@
 module Autocad
+  module Common
+    def method_missing(method, ...)
+      if /^[A-Z]/.match?(method.to_s)
+        ole_obj.send(method, ...)
+      else
+        super
+      end
+    end
+  end
 end
 
 module ACAD
@@ -17,7 +26,7 @@ def Point3d(...)
 end
 
 module Autocad
-  ROOT = Pathname(__dir__).parent
+  ROOT = Pathname.new(__dir__).parent
 
   class << self
     # @yield [Autocad::App]

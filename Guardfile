@@ -27,22 +27,22 @@ guard :bundler do
   files.each { |file| watch(helper.real_path(file)) }
 end
 
-guard 'yard', :port => '8808' do
-  watch(%r{app\/.+\.rb})
-  watch(%r{lib\/.+\.rb})
-  watch(%r{ext\/.+\.c})
-end
-
-guard :minitest do
+#   guard 'yard', :port => '8808' do
+# watch(%r{app\/.+\.rb})
+# watch(%r{lib\/.+\.rb})
+# watch(%r{ext\/.+\.c})
+#   end
+#
+guard :minitest, test_folders: "spec/unit", env: {"EXCLUDE_DIR" => "spec/ui"} do
   # with Minitest::Unit
   # watch(%r{^test/(.*)\/?test_(.*)\.rb$})
   # watch(%r{^lib/(.*/)?([^/]+)\.rb$})     { |m| "test/#{m[1]}test_#{m[2]}.rb" }
   # watch(%r{^test/test_helper\.rb$})      { 'test' }
 
   # with Minitest::Spec
-  watch(%r{^spec/(.*)_spec\.rb$})
-  watch(%r{^lib/(.+)\.rb$})         { |m| "spec/#{m[1]}_spec.rb" }
-  watch(%r{^spec/spec_helper\.rb$}) { 'spec' }
+  watch(%r{^spec/unit/(.*)_spec\.rb$})
+  watch(%r{^lib/(.+)\.rb$}) { |m| "spec/unit/#{m[1]}_spec.rb" }
+  watch(%r{^spec/(.+)spec_helper\.rb$}) { "spec" }
 
   # Rails 4
   # watch(%r{^app/(.+)\.rb$})                               { |m| "test/#{m[1]}_test.rb" }

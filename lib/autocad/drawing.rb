@@ -1,7 +1,15 @@
 require_relative "event_handler"
+require_relative "enumerator"
+require_relative "model"
+require "debug"
 module Autocad
   class Drawing
+    include Common
     attr_reader :app
+
+    def self.from_ole_obj(app, ole)
+      new(app, ole)
+    end
 
     def initialize(app, ole)
       @app = app
@@ -53,7 +61,7 @@ module Autocad
 
     def pdf_path(name: nil, dir: nil)
       name ||= self.name
-      dir = Pathname(dir || dirname).expand_path
+      dir = Pathname.new(dir || dirname).expand_path
       dir.mkpath unless dir.directory?
       dir + pdf_name(name)
     end
@@ -65,7 +73,7 @@ module Autocad
     # @param name [String, nil] @return a Pathname from the name or drawing name
     def pdf_name(name = nil)
       name ||= self.name
-      Pathname(name).sub_ext(".pdf")
+      Pathname.new(name).sub_ext(".pdf")
     end
 
     # copy the drawing
@@ -77,7 +85,7 @@ module Autocad
         dir_path = dirname
       else
         lname = name || self.name
-        dir_path = Pathname(dir)
+        dir_path = Pathname.new(dir)
       end
       copy_path = dir_path + lname
       FileUtils.copy path.to_s, copy_path.to_s, verbose: true
@@ -114,12 +122,12 @@ module Autocad
 
     # @return [Pathname] the name as Pathname
     def basename
-      Pathname(name)
+      Pathname.new(name)
     end
 
     # @return [Pathname] the directory of the file
     def dirname
-      Pathname(ole_obj.Path).expand_path
+      Pathname.new(ole_obj.Path).expand_path
     end
 
     # @return [Pathname] the complete path of file
@@ -141,23 +149,40 @@ module Autocad
       app.plot_configs.find { |p| p =~ /faa.+high/i }
     end
 
+    def active_layer
+      ole_obj.ActiveLayer
+    end
+
+    def active_space
+      ole = ole_obj.ActiveSpace
+      if ole == ACAD::AcPaperSpace
+        PaperSpace.new(ole_obj, app)
+      else
+        ModelSpace.new(ole_obj, app)
+      end
+    end
+
     # Close the drawing
-    def close
+    def close(save: true)
       @drawing_closed = true
       begin
-        ole_obj.Close
+        ole_obj.Close(save)
       rescue
         nil
       end
       @ole_obj = nil
     end
 
-    def close
-      ole_obj.Close
+    def blocks
+      Autocad::Enumerator.new(ole_obj.Blocks, app)
     end
 
     def model_space
-      ole_obj.ModelSpace
+      ModelSpace.new(ole_obj.ModelSpace, app)
+    end
+
+    def paper_space
+      PaperSpace.new(ole_obj.PaperSpace, app)
     end
 
     alias_method :model, :model_space

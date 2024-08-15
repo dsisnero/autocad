@@ -3,6 +3,12 @@
 require_relative "event_handler"
 require_relative "drawing"
 require_relative "paths"
+require_relative "element"
+require_relative "line"
+require_relative "text"
+require_relative "viewport"
+require_relative "block"
+require_relative "block_reference"
 
 require "win32ole"
 module Windows
@@ -26,10 +32,10 @@ module Windows
 end
 
 module Autocad
-  class Error < StandardError; end
   # Your code goes here...
 
   class App
+    include Common
     @default_error_proc = ->(e, f) {
       puts "Couldn't open drawing #{f}" if f
       debug_error if $DEBUG
@@ -55,7 +61,7 @@ module Autocad
       # the app when done
       #
       # [source]
-      # dir = Pathname('C:/templates')
+      # dir = Pathname.new('C:/templates')
       # drawings = Pathname.glob(dir + '/**/*.dgn')
       # App.with_drawings(drawings) do |drawing|
       #   drawing.save_as_pdf(dir: 'c:/output/')
@@ -136,7 +142,7 @@ module Autocad
         err_fn = opts.fetch(:error_proc, default_error_proc)
         begin
           the_app = new(**opts)
-          binding.break if the_app.nil?
+          # binding.break if the_app.nil?
           yield the_app
         rescue => e
           if e.respond_to? :drawing
@@ -145,10 +151,19 @@ module Autocad
             err_fn.call(e, nil)
           end
         ensure
-          the_app.quit if the_app.respond_to? :quit
-          the_app = nil
+          the_app&.quit
           GC.start
-          nil
+        end
+      end
+
+      # Calls #run to get an app instance then call open drawing with
+      # that app
+      # (see #open_drawing)
+      # @yield Drawing
+      # @return [void]
+      def open_drawing(drawing, **options, &block)
+        run(**options) do |app|
+          app.open_drawing(drawing, **options, &block)
         end
       end
     end
@@ -192,6 +207,10 @@ module Autocad
 
     def windows_path(path)
       @windows.windows_path(path)
+    end
+
+    def wrap(item, cell = nil)
+      Element.convert_item(item, self, cell)
     end
 
     # the default EventHandler
@@ -294,11 +313,10 @@ module Autocad
     end
 
     def quit
-      close_active_drawing
-      begin
-        ole_obj.Quit
-      rescue
-      end
+      close_all_drawings
+      @ole_obj&.Quit
+    rescue
+      nil
     end
 
     def close_all_drawings
@@ -314,9 +332,7 @@ module Autocad
 
     def close_active_drawing
       drawing = active_drawing
-      if drawing
-        drawing.close
-      end
+      drawing&.close
     end
 
     # create a new drawing
@@ -332,7 +348,7 @@ module Autocad
     def new_drawing(filename, open: true, options: {}, &block)
       opts = default_app_options.merge(options)
       err_fn = opts.fetch(:error_proc, error_proc)
-      file_path = Pathname(filename).expand_path
+      file_path = Pathname.new(filename).expand_path
       raise ExistingFile, file_path if file_path.exist?
 
       # drawing_name = normalize_name(filename)
@@ -365,8 +381,8 @@ module Autocad
     def open_drawing(filename, options: {})
       opts = default_app_options.merge(options)
       err_fn = opts.fetch(:error_proc, error_proc)
-      filename = Pathname(filename)
-      raise FileNotFound unless filename.file?
+      file_path = Pathname.new(filename)
+      raise FileNotFound unless file_path.file?
 
       begin
         ole = ole_open_drawing(windows_path(filename), readonly: opts[:readonly], wait_time: opts[:wait_time], wait_interval: opts[:wait_interval])
@@ -386,10 +402,6 @@ module Autocad
       ensure
         drawing.close
       end
-    end
-
-    def drawing_opened?
-      @drawing_opened
     end
 
     alias_method :doc, :active_drawing
@@ -452,24 +464,32 @@ module Autocad
     end
 
     # @return [Pathname] Autocad Files.TemplateDwgPath
-    def template_dwg_path
-      Pathname(ole_preferences_files.TemplateDwgPath)
+    def templates_path
+      Pathname.new(ole_preferences_files.TemplateDwgPath)
+    end
+
+    def templates
+      return enum_for(:templates) unless block_given?
+
+      templates_path.children.each do |template|
+        yield template if template.file?
+      end
     end
 
     # Set Autocad Files.TemplateDwgPath
     # @param path [Pathname, String] the location on disk for Autocad templates
-    def template_dwg_path=(path)
+    def template_path=(path)
       ole_preferences_files.TemplateDwgPath = path.to_s
     end
 
     # @return [Array<Pathname>] all paths in Files.SupportPath
     def support_paths
-      ole_preferences_files.SupportPath.split(";").map { |f| Pathname(f) }
+      ole_preferences_files.SupportPath.split(";").map { |f| Pathname.new(f) }
     end
 
     # @return [Array<Pathname>] all paths in Files.PrinterConfigPath
     def printer_config_paths
-      ole_preferences_files.PrinterConfigPath.split(";").map { |f| Pathname(f) }
+      ole_preferences_files.PrinterConfigPath.split(";").map { |f| Pathname.new(f) }
     end
 
     # from the printer_config_paths, return all plotcfg files
@@ -483,19 +503,15 @@ module Autocad
       end
     end
 
+    private
+
     def ole_preferences_files
       @ole_preferences_files ||= ole_obj.Preferences.Files
     end
 
-    def method_missing(method, ...)
-      if /^[A-Z]/.match?(method.to_s)
-        ole_obj.send(method, ...)
-      else
-        super
-      end
+    def send_command(command)
+      ole_obj.SendCommand command
     end
-
-    private
 
     def init_ole_and_app_event(visible: @visible, event_handler: @event_handler, tries: 5, sleep_duration: 1)
       ole = nil

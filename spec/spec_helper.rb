@@ -5,3 +5,4 @@ require "autocad"
 
 require "minitest/autorun"
 require "minitest/spec"
+require "pathname"

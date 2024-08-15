@@ -3,16 +3,16 @@ module Autocad
   NonDGNFile = Class.new(Error)
   FileNotFound = Class.new(Error)
   MultipleUpdateError = Class.new(Error)
-  class RetryableError < StandardError
-    attr_reader :num_tries
 
-    def initialize(message, num_tries)
-      @num_tries = num_tries
-      super("#{message} (##{num_tries})")
-    end
-  end
+  # class RetryableError < Error
+  #   attr_reader :num_tries
+  #   def initialize(message, num_tries)
+  #     @num_tries = num_tries
+  #     super("#{message} (##{num_tries})")
+  #   end
+  # end
 
-  class DrawingError < StandardError
+  class DrawingError < Error
     attr_reader :drawing
 
     def initialize(message, drawing)
