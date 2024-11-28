@@ -10,18 +10,43 @@ describe Autocad::App do
     @app.quit
   end
 
-  describe "it can open drawing read_only as class method" do
-    with_drawing("test_drawing.dwg") do |drawing|
-      app.open_drawing(drawing, readonly: true) do |dwg|
-        dwg.must_be_instance_of Autocad::Drawing
+  let(:fixtures_dir) { Pathname.new(__dir__).join("../fixtures").expand_path }
+  
+  describe "drawing operations" do
+    it "can open drawing read_only as class method" do
+      drawing_path = fixtures_dir.join("test.dwg")
+      app.open_drawing(drawing_path, options: { read_only: true }) do |dwg|
+        _(dwg).must_be_instance_of Autocad::Drawing
+      end
+    end
+
+    it "handles batch processing with with_drawings" do
+      drawings = [
+        fixtures_dir.join("test.dwg"),
+        fixtures_dir.join("test.dgn")
+      ]
+      
+      processed = []
+      Autocad::App.with_drawings(drawings) do |drawing|
+        processed << drawing.path
+      end
+      
+      _(processed.size).must_equal 2
+      _(processed.all? { |p| p.to_s.end_with?(".dwg", ".dgn") }).must_equal true
+    end
+
+    it "converts dgn to pdf" do
+      Dir.mktmpdir do |dir|
+        outdir = Pathname.new(dir)
+        source = fixtures_dir.join("test.dgn")
+        
+        Autocad::App.dgn2pdf(source, outdir: outdir, mode: :file)
+        
+        pdf_path = outdir.join("test.pdf")
+        _(pdf_path.exist?).must_equal true
       end
     end
   end
-
-      
-
-    
-    
   
   describe "#get_point" do
     before do
