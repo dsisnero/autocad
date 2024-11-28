@@ -1,3 +1,4 @@
+# frozen_string_literal
 require_relative "../../spec_helper"
 
 describe Autocad::App do
@@ -9,6 +10,19 @@ describe Autocad::App do
     @app.quit
   end
 
+  describe "it can open drawing read_only as class method" do
+    with_drawing("test_drawing.dwg") do |drawing|
+      app.open_drawing(drawing, readonly: true) do |dwg|
+        dwg.must_be_instance_of Autocad::Drawing
+      end
+    end
+  end
+
+      
+
+    
+    
+  
   describe "#get_point" do
     before do
       @app.Documents.Add unless @app.has_documents?
