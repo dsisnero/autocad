@@ -163,7 +163,7 @@ module Autocad
     end
 
     # Close the drawing
-    def close(save: true)
+    def close(save = true)
       @drawing_closed = true
       begin
         ole_obj.Close(save)

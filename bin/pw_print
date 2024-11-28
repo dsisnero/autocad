@@ -1,0 +1,39 @@
+# !/usr/bin/env ruby
+require "optparse"
+require "optparse_plus"
+require "debug"
+
+$:.unshift File.join(__dir__, "../lib")
+require "autocad"
+# require "autocad/extensions/faa"
+
+class PwApp
+  include OptparsePlus::Main
+  include OptparsePlus::CLILogging
+
+  main do |dir|
+    save_dir = dir || Pathname.getwd
+    directory_path = Pathname(save_dir).expand_path
+    unless directory_path.directory?
+      exit_now! "arg directory: #{directory_path} doesn't exist"
+    end
+    binding.irb
+    Autocad.save_current_drawing(directory_path, exit: options["exit"])
+    unless options["exit"]
+      require "debug"; binding.break
+    end
+  end
+
+  description "Save the currently open projectwise drawing"
+
+  on("-e", "--[no-]exit", TrueClass, "Close the Autocad instance")
+  options["exit"] = true
+
+  version Autocad::VERSION
+
+  use_log_level_option
+  description "Saves the current autocad drawing that is opened"
+
+  arg :save_dir, :optional
+  go!
+end
