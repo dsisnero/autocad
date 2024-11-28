@@ -1,0 +1,220 @@
+# Generated from lib/autocad/app.rb with RBS::Inline
+
+module Windows
+  class FileSystem
+    def self.windows_path: (untyped path) -> untyped
+
+    # Convert path to windows path
+    # @rbs path: String, Pathname the path you want to convert
+    def windows_path: (String path) -> untyped
+
+    def fs_object: () -> untyped
+  end
+end
+
+module Autocad
+  class App
+    include Common
+
+    attr_accessor default_error_proc: untyped
+
+    def self.default_app_options: () -> untyped
+
+    def self.debug_error: () -> untyped
+
+    # Runs the app, opening the filenames
+    # and yielding each open drawing to the
+    # supplied block
+    # it automatically closes the drawing and
+    # the app when done
+    #
+    # [source]
+    # dir = Pathname.new('C:/templates')
+    # drawings = Pathname.glob(dir + '/**/*.dgn')
+    # App.with_drawings(drawings) do |drawing|
+    #   drawing.save_as_pdf(dir: 'c:/output/')
+    # end
+    #
+    # @rbs *files: Array[String|Pathname]
+    # @rbs **options: Hash[Symbol,Object]
+    # @rbs &: (Drawing) -> Void
+    def self.with_drawings: (*Array[String | Pathname] files, **Hash[Symbol, Object] options) { (Drawing) -> Void } -> void
+
+    # gets all dwg and dgn files in the directory given by
+    # dir_or_file or gets the file given by dir_or_file
+    # and saves them as pdf files in the outdir
+    # @rbs dir_or_file: String the directory of drawing [dgn,dwg] to convert
+    # @rbs outdir: String the output dir for converted pdf files
+    # @rbs return Void
+    def self.dgn2pdf: (String dir_or_file, ?outdir: String, ?mode: untyped) -> Void
+
+    # Initialize an instance of app with the options
+    # @rbs : Hash] options the options to create the app with
+    # @option options Boolean :visible Is the app visible
+    #
+    # [source]
+    # ----
+    # App.run do |app|
+    #   drawing = app.open_drawing('test.dgn')
+    #   drawing.scan_all_text do |model,text|
+    #   puts "#{model} #{text}"
+    #   end
+    # end
+    # @rbs options: Hash[Symbol,Object]
+    # @rbs &: (App) -> Void -- the_app yields the instanciated app
+    def self.run: (?Hash[Symbol, Object] options) { (App) -> Void } -> Void
+
+    # Calls #run to get an app instance then call open drawing with
+    # that app
+    # (see #open_drawing)
+    # @rbs &block: { (Drawing) -> Void }
+    def self.open_drawing: (untyped drawing, **untyped options) ?{ (?) -> untyped } -> Void
+
+    # @rbs return Boolean -- true if there is an active drawing
+    def active_drawing?: () -> Boolean
+
+    # @rbs return Drawing | Nil -- returns drawing if active_drawing
+    def active_drawing: () -> (Drawing | Nil)
+
+    def drawing_from_ole: (untyped ole) -> Drawing
+
+    attr_reader error_proc: untyped
+
+    attr_reader visible: untyped
+
+    attr_reader logger: untyped
+
+    # Constructor for app
+    # @rbs visible: Boolean -- do you want the app to be visible 
+    # @rbs event_handler: EventHandler
+    def initialize: (?visible: Boolean, ?error_proc: untyped, ?event_handler: EventHandler, ?wait_interval: untyped, ?wait_time: untyped) -> untyped
+
+    def windows_path: (untyped path) -> untyped
+
+    def wrap: (untyped item, ?untyped cell) -> untyped
+
+    # the default EventHandler
+    #
+    # @rbs return EventHandler -- returns the default EventHandler
+    def default_event_handler: () -> EventHandler
+
+    def default_app_options: () -> untyped
+
+    # register an handler
+    #
+    # @rbs event: String -- event to registor for
+    def register_handler: (String event) ?{ (?) -> untyped } -> untyped
+
+    #
+    #  return a Handler
+    #
+    #  @rbs : String,Symbol] event the event key
+    #
+    #  @rbs return Proc returns the Proc given by event name
+    def get_handler: (untyped event) -> Proc
+
+    def load_constants: (untyped ole) -> untyped
+
+    def run_loop: () -> untyped
+
+    def stop_loop: () -> untyped
+
+    def exit_message_loop: () -> untyped
+
+    def visible?: () -> untyped
+
+    def visible=: (untyped value) -> untyped
+
+    def make_visible: (untyped visible) -> untyped
+
+    def ole_obj: () -> untyped
+
+    def quit: () -> untyped
+
+    def close_all_drawings: () -> untyped
+
+    def close_active_drawing: () -> untyped
+
+    # create a new drawing
+    #
+    # @rbs filename: String | Pathname -- The name of the drawing.
+    # @rbs seedfile: String -- The name of the seed file.
+    #  should not include a path. The default ggextension is ".dgn".
+    #  Typical values are "seed2d" or "seed3d".
+    # @rbs open: Boolean -- If the open argument is True,
+    #   CreateDesignFile returns the newly-opened DesignFile object;
+    #   this is the same value as ActiveDesignFile. If the Open argument is False,
+    #   CreateDesignFile returns Nothing.
+    # @rbs returns Drawing -- returns the new drawing
+    def new_drawing: (String | Pathname filename, ?open: Boolean, ?options: untyped) ?{ (?) -> untyped } -> untyped
+
+    # open the drawing
+    # @rbs filename: String the name of the file to open
+    # @rbs : Boolean :readonly  (false)
+    # @rbs : Proc :error_proc (raise) a proc to run
+    # @rbs wait_time: Integer the total amount of time to wait to open file (500)
+    # @rbs wait_interval: Float the amount of time in seconds to wait before retry (0.5)
+    # @yield [Drawing] drawing
+    # @rbs return Void
+    def open_drawing: (String filename, ?options: untyped) -> Void
+
+    def model_space: () -> untyped
+
+    def prompt: (untyped message) -> untyped
+
+    # In a running Autocad instance, prompts the user for a point.
+    # Uses the prompt argument as the prompt string.
+    # If base_point is provided, it is used as the base point and a
+    # stretched line is drawn from the base point to the returned point.
+    # @rbs prompt: String
+    # @rbs base_point: Array, Point3d, nil
+    # @rbs return [Point3d]
+    def get_point: (?prompt: String, ?base_point: Array) -> [ Point3d ]
+
+    # In autocad prompts the user for a selection.
+    # @rbs prompt: String the prompt that displays in Autocad
+    # @rbs name: String the name of the selection
+    # @rbs return [SelectionSet]
+    def get_selection: (?prompt: String, ?name: String) -> [ SelectionSet ]
+
+    def has_documents?: () -> untyped
+
+    # @rbs return [Boolean] true
+    def drawing_opened?: () -> [ Boolean ]
+
+    # @rbs return [Pathname] Autocad Files.TemplateDwgPath
+    def templates_path: () -> [ Pathname ]
+
+    def templates: () -> untyped
+
+    # Set Autocad Files.TemplateDwgPath
+    # @rbs path: Pathname, String the location on disk for Autocad templates
+    def template_path=: (Pathname path) -> untyped
+
+    # @rbs return [Array<Pathname>] all paths in Files.SupportPath
+    def support_paths: () -> untyped
+
+    # @rbs return [Array<Pathname>] all paths in Files.PrinterConfigPath
+    def printer_config_paths: () -> untyped
+
+    # from the printer_config_paths, return all plotcfg files
+    # @rbs return [Enumerator[String]]
+    def plot_configs: () -> [ Enumerator[String] ]
+
+    private
+
+    def ole_preferences_files: () -> untyped
+
+    def send_command: (untyped command) -> untyped
+
+    def init_ole_and_app_event: (?visible: untyped, ?event_handler: untyped, ?tries: untyped, ?sleep_duration: untyped) -> untyped
+
+    def doc_ole: () -> untyped
+
+    def new_ole_drawing: (untyped filename, ?open: untyped, ?wait_time: untyped, ?wait_interval: untyped) -> untyped
+
+    def ole_open_drawing: (untyped filename, ?readonly: untyped, ?wait_time: untyped, ?wait_interval: untyped) -> untyped
+
+    def wait_drawing_opened: (untyped secs, ?untyped interval) -> untyped
+  end
+end

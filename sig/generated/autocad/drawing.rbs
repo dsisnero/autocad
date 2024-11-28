@@ -1,0 +1,91 @@
+# Generated from lib/autocad/drawing.rb with RBS::Inline
+
+module Autocad
+  class Drawing
+    include Common
+
+    attr_reader app: untyped
+
+    def self.from_ole_obj: (untyped app, untyped ole) -> Drawing
+
+    def initialize: (untyped app, untyped ole) -> untyped
+
+    def event_handler: () -> EventHandler
+
+    def default_event_handler: () -> untyped
+
+    def app_ole: () -> untyped
+
+    # register an handler
+    #
+    # @rbs event: String -- event key for handler
+    # @rbs &: {() -> Void} - handler Proc
+    def register_handler: (String event) ?{ (?) -> untyped } -> Void
+
+    # save the drawing as a pdf file
+    # if the name or directory is given it uses
+    # those params. If not it uses the drawing name
+    # and the drawing directory
+    # @rbs name: String? - the name of the file
+    # @rbs dir: String? - the directory to save the drawing
+    def save_as_pdf: (?name: String?, ?dir: String?, ?model: untyped) -> Void
+
+    def pdf_path: (?name: untyped, ?dir: untyped) -> untyped
+
+    # Return the pdf name for the drawing.
+    #
+    # If a name is provided use the name provided otherwise use the drawing name
+    #
+    # @rbs name: String | Nil -- change ext to pdf and return Pathname from 
+    # the name or drawing name
+    def pdf_name: (?String | Nil name) -> Pathname
+
+    # copy the drawing
+    # @rbs name: String | Pathname --name of the file
+    # @rbs dir: String|Pathname -- dir
+    def copy: (?name: String | Pathname, ?dir: String | Pathname) -> Void
+
+    # If you copy the file the name to use
+    # @rbs backup_str: String -- the bqckup string to use for copies
+    def copy_name: (?String backup_str) -> untyped
+
+    def paper_space?: () -> Bool
+
+    def model_space?: () -> Bool
+
+    def to_paper_space: () -> Void
+
+    def to_model_space: () -> Void
+
+    # @rbs return String -- the name of the drawing
+    def name: () -> String
+
+    # @rbs return Pathname -- the name as Pathname
+    def basename: () -> Pathname
+
+    # @rbs return Pathname -- the directory of the file
+    def dirname: () -> Pathname
+
+    # @rbs return Pathname -- the complete path of file
+    def path: () -> Pathname
+
+    def print_pdf: (untyped print_path, ?model: untyped) -> untyped
+
+    def pdf_plot_config: () -> untyped
+
+    def active_layer: () -> untyped
+
+    def active_space: () -> untyped
+
+    # Close the drawing
+    def close: (?save: untyped) -> untyped
+
+    def blocks: () -> untyped
+
+    def model_space: () -> untyped
+
+    def paper_space: () -> untyped
+
+    def ole_obj: () -> untyped
+  end
+end

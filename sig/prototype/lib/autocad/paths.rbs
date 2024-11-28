@@ -1,0 +1,19 @@
+module Autocad
+  class Paths
+    @paths: untyped
+
+    include Enumerable
+
+    def initialize: (untyped path) -> void
+
+    def <<: (untyped path) -> untyped
+
+    def append: (untyped path) -> untyped
+
+    def prepend: (untyped path) -> untyped
+
+    def each: (*untyped) ?{ (?) -> untyped } -> untyped
+
+    def to_s: () -> untyped
+  end
+end

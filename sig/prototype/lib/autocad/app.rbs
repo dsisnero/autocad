@@ -1,0 +1,34 @@
+module Windows
+  class FileSystem
+    @fs_object: untyped
+  end
+end
+
+module Autocad
+  class App
+    self.@default_error_proc: untyped
+
+    @event_handler: untyped
+
+    @ole_obj: untyped
+
+    @app_event: untyped
+
+    @run_loop: untyped
+
+    @windows: untyped
+
+    #  make_visible(visible)
+    @scanners: untyped
+
+    @ole_preferences_files: untyped
+
+    attr_accessor self.default_error_proc: untyped
+
+    alias doc active_drawing
+
+    alias current_drawing active_drawing
+
+    alias model model_space
+  end
+end

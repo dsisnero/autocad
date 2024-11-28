@@ -65,7 +65,7 @@ module Autocad
           return unless drawing
           drawing.copy(dir: dir)
           drawing.save_as_pdf(dir: dir)
-          drawing.close
+          drawing.close(false)
         end
       else
         app = App.new

@@ -1,4 +1,4 @@
-# frozen_string_literal: true
+# rbs_inline: enabled
 
 require_relative "event_handler"
 require_relative "drawing"
@@ -19,7 +19,7 @@ module Windows
     end
 
     # Convert path to windows path
-    # @param path [String, Pathname] the path you want to convert
+    # @rbs path: String, Pathname the path you want to convert
     def windows_path(path)
       path = path.to_path if path.respond_to? :to_path
       fs_object.GetAbsolutePathName(path.to_str)
@@ -67,13 +67,10 @@ module Autocad
       #   drawing.save_as_pdf(dir: 'c:/output/')
       # end
       #
-      # @param files [Array<String,Pathname>]
-      # @param visible [Boolean]
-      # @param readonly [Boolean]
-      # @param error_proc [Proc]
-      # @yield [Drawing]
-      # @return [void]
-      def with_drawings(*files, **options, &block)
+      # @rbs *files: Array[String|Pathname]
+      # @rbs **options: Hash[Symbol,Object]
+      # @rbs &: (Drawing) -> Void
+      def with_drawings(*files, **options, &block) #: void
         # drawing_options = default_drawing_options.merge(options)
         # app_options = default_app_options
         opts = default_app_options.merge(options)
@@ -105,9 +102,9 @@ module Autocad
       # gets all dwg and dgn files in the directory given by
       # dir_or_file or gets the file given by dir_or_file
       # and saves them as pdf files in the outdir
-      # @param dir_or_file [String] the directory of drawing [dgn,dwg] to convert
-      # @param outdir [String] the output dir for converted pdf files
-      # @return [void]
+      # @rbs dir_or_file: String the directory of drawing [dgn,dwg] to convert
+      # @rbs outdir: String the output dir for converted pdf files
+      # @rbs return Void
       def dgn2pdf(dir_or_file, outdir: dir_or_file, mode: :dir)
         raise "Mode on of :dir or :file" unless [:dir, :file].include? mode
         if mode == :dir
@@ -123,8 +120,8 @@ module Autocad
       end
 
       # Initialize an instance of app with the options
-      # @param [Hash] options the options to create the app with
-      # @option options [Boolean] :visible Is the app visible
+      # @rbs : Hash] options the options to create the app with
+      # @option options Boolean :visible Is the app visible
       #
       # [source]
       # ----
@@ -134,10 +131,9 @@ module Autocad
       #   puts "#{model} #{text}"
       #   end
       # end
-      #
-      # @yield [App] the_app yields the instanciated app
-      # @return [void]
-      def run(options = {})
+      # @rbs options: Hash[Symbol,Object]
+      # @rbs &: (App) -> Void -- the_app yields the instanciated app
+      def run(options = {}) #: Void
         opts = default_app_options.merge(options)
         err_fn = opts.fetch(:error_proc, default_error_proc)
         begin
@@ -159,37 +155,35 @@ module Autocad
       # Calls #run to get an app instance then call open drawing with
       # that app
       # (see #open_drawing)
-      # @yield Drawing
-      # @return [void]
-      def open_drawing(drawing, **options, &block)
+      # @rbs &block: { (Drawing) -> Void }
+      def open_drawing(drawing, **options, &block) #: Void
         run(**options) do |app|
           app.open_drawing(drawing, **options, &block)
         end
       end
     end
 
-    # @return [Boolean] true if there is an active drawing
+    # @rbs return Boolean -- true if there is an active drawing
     def active_drawing?
       ole_obj.Documents.count > 0
     end
 
-    # @return [Drawing] the active drawing
-    # @return [nil] if there is no active drawing
+    # @rbs return Drawing | Nil -- returns drawing if active_drawing
     def active_drawing
       return unless active_drawing?
       ole = ole_obj.ActiveDocument
       drawing_from_ole(ole)
     end
 
-    def drawing_from_ole(ole)
+    def drawing_from_ole(ole) #: Drawing
       Drawing.new(self, ole)
     end
 
     attr_reader :error_proc, :visible, :logger
 
     # Constructor for app
-    # @param [Boolean] visible
-    # @param event_handler [EventHandler]
+    # @rbs visible: Boolean -- do you want the app to be visible 
+    # @rbs event_handler: EventHandler
     def initialize(visible: true, error_proc: self.class.default_error_proc, event_handler: default_event_handler, wait_interval: nil, wait_time: nil)
       @visible = visible
       @logger = Logger.new("autocad.log")
@@ -215,9 +209,8 @@ module Autocad
 
     # the default EventHandler
     #
-    # @return [EventHandler] returns the default EventHandler
-    #
-    def default_event_handler
+    # @rbs return EventHandler -- returns the default EventHandler
+        def default_event_handler
       event_handler = EventHandler.new
       # event_handler.add_handler("BeginOpen") do |*args|
       #   puts "begining opening drawing #{args}"
@@ -244,11 +237,7 @@ module Autocad
 
     # register an handler
     #
-    # @param [String] event key for handler
-    # @param [<Type>] &block <description>
-    #
-    # @return [<Type>] <description>
-    #
+    # @rbs event: String -- event to registor for
     def register_handler(event, &)
       @event_handler.add_handler(event, &) unless event == "OnQuit"
     end
@@ -256,9 +245,9 @@ module Autocad
     #
     # return a Handler
     #
-    # @param [String,Symbol] event the event key
+    # @rbs : String,Symbol] event the event key
     #
-    # @return [Proc] returns the Proc given by event name
+    # @rbs return Proc returns the Proc given by event name
     #
     def get_handler(event)
       @event_handler.get_handler(event)
@@ -336,15 +325,16 @@ module Autocad
     end
 
     # create a new drawing
-    # @param filename [String,Pathname] the name of the file
-    # @param seedfile [String] The name of the seed file.
+    #
+    # @rbs filename: String | Pathname -- The name of the drawing.
+    # @rbs seedfile: String -- The name of the seed file.
     #  should not include a path. The default ggextension is ".dgn".
     #  Typical values are "seed2d" or "seed3d".
-    # @param open [Boolean] .If the open argument is True,
+    # @rbs open: Boolean -- If the open argument is True,
     #   CreateDesignFile returns the newly-opened DesignFile object;
     #   this is the same value as ActiveDesignFile. If the Open argument is False,
     #   CreateDesignFile returns Nothing.
-    # @return [Drawing]
+    # @rbs returns Drawing -- returns the new drawing
     def new_drawing(filename, open: true, options: {}, &block)
       opts = default_app_options.merge(options)
       err_fn = opts.fetch(:error_proc, error_proc)
@@ -371,13 +361,13 @@ module Autocad
     end
 
     # open the drawing
-    # @param filename [String] the name of the file to open
-    # @param  [Boolean] :readonly  (false)
-    # @param  [Proc] :error_proc (raise) a proc to run
-    # @param wait_time [Integer] the total amount of time to wait to open file (500)
-    # @param wait_interval [Float] the amount of time in seconds to wait before retry (0.5)
+    # @rbs filename: String the name of the file to open
+    # @rbs : Boolean :readonly  (false)
+    # @rbs : Proc :error_proc (raise) a proc to run
+    # @rbs wait_time: Integer the total amount of time to wait to open file (500)
+    # @rbs wait_interval: Float the amount of time in seconds to wait before retry (0.5)
     # @yield [Drawing] drawing
-    # @return [void]
+    # @rbs return Void
     def open_drawing(filename, options: {})
       opts = default_app_options.merge(options)
       err_fn = opts.fetch(:error_proc, error_proc)
@@ -422,9 +412,9 @@ module Autocad
     # Uses the prompt argument as the prompt string.
     # If base_point is provided, it is used as the base point and a
     # stretched line is drawn from the base point to the returned point.
-    # @param prompt [String]
-    # @param base_point [Array, Point3d, nil]
-    # @return [Point3d]
+    # @rbs prompt: String
+    # @rbs base_point: Array, Point3d, nil
+    # @rbs return [Point3d]
     def get_point(prompt: "Get point", base_point: nil)
       if base_point
         array_pt = base_point.to_ary.map { |x| x.to_f } unless base_point.nil?
@@ -438,9 +428,9 @@ module Autocad
     end
 
     # In autocad prompts the user for a selection.
-    # @param prompt [String] the prompt that displays in Autocad
-    # @param name [String] the name of the selection
-    # @return [SelectionSet]
+    # @rbs prompt: String the prompt that displays in Autocad
+    # @rbs name: String the name of the selection
+    # @rbs return [SelectionSet]
     def get_selection(prompt: "Select objects", name: "_SS1")
       prompt(prompt)
       begin
@@ -458,12 +448,12 @@ module Autocad
       ole_obj.Documents.Count > 0
     end
 
-    # @return [Boolean] true
+    # @rbs return [Boolean] true
     def drawing_opened?
       @drawing_opened
     end
 
-    # @return [Pathname] Autocad Files.TemplateDwgPath
+    # @rbs return [Pathname] Autocad Files.TemplateDwgPath
     def templates_path
       Pathname.new(ole_preferences_files.TemplateDwgPath)
     end
@@ -477,23 +467,23 @@ module Autocad
     end
 
     # Set Autocad Files.TemplateDwgPath
-    # @param path [Pathname, String] the location on disk for Autocad templates
+    # @rbs path: Pathname, String the location on disk for Autocad templates
     def template_path=(path)
       ole_preferences_files.TemplateDwgPath = path.to_s
     end
 
-    # @return [Array<Pathname>] all paths in Files.SupportPath
+    # @rbs return [Array<Pathname>] all paths in Files.SupportPath
     def support_paths
       ole_preferences_files.SupportPath.split(";").map { |f| Pathname.new(f) }
     end
 
-    # @return [Array<Pathname>] all paths in Files.PrinterConfigPath
+    # @rbs return [Array<Pathname>] all paths in Files.PrinterConfigPath
     def printer_config_paths
       ole_preferences_files.PrinterConfigPath.split(";").map { |f| Pathname.new(f) }
     end
 
     # from the printer_config_paths, return all plotcfg files
-    # @return [Enumerator[String]]
+    # @rbs return [Enumerator[String]]
     def plot_configs
       return enum_for(:plot_configs) unless block_given?
       printer_config_paths.each do |path|

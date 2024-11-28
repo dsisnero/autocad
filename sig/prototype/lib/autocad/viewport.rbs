@@ -1,0 +1,9 @@
+module Autocad
+  class Viewport < Element
+    def width: () -> untyped
+
+    def height: () -> untyped
+
+    def each: () ?{ (untyped) -> untyped } -> untyped
+  end
+end

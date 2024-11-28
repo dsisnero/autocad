@@ -1,13 +1,16 @@
+# rbs_inline: enabled
+
 require_relative "event_handler"
 require_relative "enumerator"
 require_relative "model"
 require "debug"
+
 module Autocad
   class Drawing
     include Common
     attr_reader :app
 
-    def self.from_ole_obj(app, ole)
+    def self.from_ole_obj(app, ole) #: Drawing
       new(app, ole)
     end
 
@@ -17,7 +20,7 @@ module Autocad
       @app_event = WIN32OLE_EVENT.new(ole)
     end
 
-    def event_handler
+    def event_handler #: EventHandler
       @event_handler ||= default_event_handler
     end
 
@@ -33,12 +36,9 @@ module Autocad
 
     # register an handler
     #
-    # @param [String] event key for handler
-    # @param [<Type>] &block <description>
-    #
-    # @return [<Type>] <description>
-    #
-    def register_handler(event, &)
+    # @rbs event: String -- event key for handler
+    # @rbs &: {() -> Void} - handler Proc
+    def register_handler(event, &) #: Void
       @event_handler.add_handler(event, &) unless event == "OnQuit"
     end
 
@@ -46,10 +46,9 @@ module Autocad
     # if the name or directory is given it uses
     # those params. If not it uses the drawing name
     # and the drawing directory
-    # @param name - the name of the file
-    # @param dir - the directory to save the drawing
-    # @return [void]
-    def save_as_pdf(name: nil, dir: nil, model: false)
+    # @rbs name: String? - the name of the file
+    # @rbs dir: String? - the directory to save the drawing
+    def save_as_pdf(name: nil, dir: nil, model: false) #: Void
       out_name = pdf_path(name: name, dir: dir)
       windows_name = app.windows_path(out_name)
       loop do
@@ -70,16 +69,17 @@ module Autocad
     #
     # If a name is provided use the name provided otherwise use the drawing name
     #
-    # @param name [String, nil] @return a Pathname from the name or drawing name
-    def pdf_name(name = nil)
+    # @rbs name: String | Nil -- change ext to pdf and return Pathname from 
+    # the name or drawing name
+    def pdf_name(name = nil) #: Pathname
       name ||= self.name
       Pathname.new(name).sub_ext(".pdf")
     end
 
     # copy the drawing
-    # @param [String] name of the file
-    # @param [String,Pathname] dir
-    def copy(name: nil, dir: nil)
+    # @rbs name: String | Pathname --name of the file
+    # @rbs dir: String|Pathname -- dir
+    def copy(name: nil, dir: nil) #: Void
       if dir.nil?
         lname = name || copy_name
         dir_path = dirname
@@ -92,45 +92,45 @@ module Autocad
     end
 
     # If you copy the file the name to use
-    # @param backup_str [String] the bqckup string to use
+    # @rbs backup_str: String -- the bqckup string to use for copies
     def copy_name(backup_str = ".copy")
       lname = name.dup
       ext = File.extname(lname)
       name = "#{File.basename(lname, ext)}#{backup_str}#{ext}"
     end
 
-    def paper_space?
+    def paper_space? #: Bool
       ole_obj.ActiveSpace == ACAD::AcPaperSpace
     end
 
-    def model_space?
+    def model_space? #: Bool
       ole_obj.ActiveSpace == ACAD::AcModelSpace
     end
 
-    def to_paper_space
+    def to_paper_space #: Void
       ole_obj.ActiveSpace = ACAD::AcPaperSpace
     end
 
-    def to_model_space
-      ole_obj.ActiveSpace = ACAD::AcModelSpace
+    def to_model_space #: Void
+       ole_obj.ActiveSpace = ACAD::AcModelSpace
     end
 
-    # @return [String] the name of the drawing
+    # @rbs return String -- the name of the drawing
     def name
       ole_obj.Name
     end
 
-    # @return [Pathname] the name as Pathname
+    # @rbs return Pathname -- the name as Pathname
     def basename
       Pathname.new(name)
     end
 
-    # @return [Pathname] the directory of the file
+    # @rbs return Pathname -- the directory of the file
     def dirname
       Pathname.new(ole_obj.Path).expand_path
     end
 
-    # @return [Pathname] the complete path of file
+    # @rbs return Pathname -- the complete path of file
     def path
       dirname + basename
     end

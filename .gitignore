@@ -8,3 +8,7 @@
 /spec/reports/
 /tmp/
 /lib/.rbnext/
+.aider*
+.env
+drawings
+drawings

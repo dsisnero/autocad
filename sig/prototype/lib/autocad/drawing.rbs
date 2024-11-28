@@ -1,0 +1,13 @@
+module Autocad
+  class Drawing
+    @ole_obj: untyped
+
+    @app_event: untyped
+
+    @event_handler: untyped
+
+    @drawing_closed: untyped
+
+    alias model model_space
+  end
+end

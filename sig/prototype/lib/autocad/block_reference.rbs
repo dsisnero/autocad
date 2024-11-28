@@ -1,0 +1,59 @@
+module Autocad
+  class BlockReference < Element
+    def each: () ?{ (untyped) -> untyped } -> untyped
+
+    def has_attributes?: () -> untyped
+
+    def name: () -> untyped
+
+    def layout?: () -> untyped
+
+    def attribute_hash: () -> untyped
+
+    def inspect: () -> ::String
+
+    def attributes: () -> (::Array[untyped] | untyped)
+  end
+
+  class Attributes
+    @block: untyped
+
+    @elements: untyped
+
+    include Enumerable
+
+    attr_reader elements: untyped
+
+    def initialize: (untyped blk, untyped elements) -> void
+
+    def update_element: (untyped name, untyped value) -> (untyped | nil)
+
+    def each: () ?{ (untyped) -> untyped } -> untyped
+
+    def find_attribute: (untyped name) -> untyped
+
+    def []: (untyped name) -> untyped
+
+    def []=: (untyped name, untyped value) -> untyped
+
+    def keys: () -> untyped
+
+    def values: () -> untyped
+
+    def to_h: () -> untyped
+
+    def inspect: () -> ::String
+  end
+
+  class Attribute < Element
+    def write_ole: (untyped value) -> untyped
+
+    def read_ole: (untyped value) -> untyped
+
+    def key: () -> untyped
+
+    def value: () -> untyped
+
+    def inspect: () -> ::String
+  end
+end
