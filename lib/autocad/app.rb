@@ -70,7 +70,7 @@ module Autocad
       # @rbs *files: Array[String|Pathname]
       # @rbs **options: Hash[Symbol,Object]
       # @rbs &: (Drawing) -> Void
-      def with_drawings(*files, **options, &block) #: void
+      def with_drawings(*files, **options, &block) # : void
         # drawing_options = default_drawing_options.merge(options)
         # app_options = default_app_options
         opts = default_app_options.merge(options)
@@ -133,7 +133,7 @@ module Autocad
       # end
       # @rbs options: Hash[Symbol,Object]
       # @rbs &: (App) -> Void -- the_app yields the instanciated app
-      def run(options = {}) #: Void
+      def run(options = {}) # : Void
         opts = default_app_options.merge(options)
         err_fn = opts.fetch(:error_proc, default_error_proc)
         begin
@@ -156,7 +156,7 @@ module Autocad
       # that app
       # (see #open_drawing)
       # @rbs &block: { (Drawing) -> Void }
-      def open_drawing(drawing, **options, &block) #: Void
+      def open_drawing(drawing, **options, &block) # : Void
         run(**options) do |app|
           app.open_drawing(drawing, **options, &block)
         end
@@ -175,14 +175,14 @@ module Autocad
       drawing_from_ole(ole)
     end
 
-    def drawing_from_ole(ole) #: Drawing
+    def drawing_from_ole(ole) # : Drawing
       Drawing.new(self, ole)
     end
 
     attr_reader :error_proc, :visible, :logger
 
     # Constructor for app
-    # @rbs visible: Boolean -- do you want the app to be visible 
+    # @rbs visible: Boolean -- do you want the app to be visible
     # @rbs event_handler: EventHandler
     def initialize(visible: true, error_proc: self.class.default_error_proc, event_handler: default_event_handler, wait_interval: nil, wait_time: nil)
       @visible = visible
@@ -210,7 +210,7 @@ module Autocad
     # the default EventHandler
     #
     # @rbs return EventHandler -- returns the default EventHandler
-        def default_event_handler
+    def default_event_handler
       event_handler = EventHandler.new
       # event_handler.add_handler("BeginOpen") do |*args|
       #   puts "begining opening drawing #{args}"
@@ -362,7 +362,7 @@ module Autocad
 
     # open the drawing
     # @rbs filename: String the name of the file to open
-    # @rbs : Boolean :readonly  (false)
+    # @rbs : Boolean :read_only  (false)
     # @rbs : Proc :error_proc (raise) a proc to run
     # @rbs wait_time: Integer the total amount of time to wait to open file (500)
     # @rbs wait_interval: Float the amount of time in seconds to wait before retry (0.5)
@@ -375,7 +375,7 @@ module Autocad
       raise FileNotFound unless file_path.file?
 
       begin
-        ole = ole_open_drawing(windows_path(filename), readonly: opts[:readonly], wait_time: opts[:wait_time], wait_interval: opts[:wait_interval])
+        ole = ole_open_drawing(windows_path(filename), read_only: opts[:read_only], wait_time: opts[:wait_time], wait_interval: opts[:wait_interval])
       rescue DrawingError => e
         raise e unless err_fn
 
@@ -537,8 +537,8 @@ module Autocad
       raise DrawingError.new("New drawing not opened in #{wait_time} seconds", filename)
     end
 
-    def ole_open_drawing(filename, readonly: false, wait_time: 500, wait_interval: 0.5)
-      ole = ole_obj.Documents.Open(filename, readonly: readonly)
+    def ole_open_drawing(filename, read_only: false, wait_time: 500, wait_interval: 0.5)
+      ole = ole_obj.Documents.Open(filename, read_only: read_only)
       wait_drawing_opened(wait_time: wait_time, wait_interval: wait_interval)
       return ole if drawing_opened?
       raise DrawingError.new("drewing not opened in #{wait_time}", path) unless drawing_opened?

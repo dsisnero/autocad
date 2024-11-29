@@ -49,7 +49,7 @@ module Autocad
           drawing.save_as_pdf(name: drawing.name, dir: outdir)
         end
       else
-        open_drawing(dir_or_file) do |drawing|
+        open_drawing(dir_or_file, read_only: true) do |drawing|
           drawing.save_as_pdf(name: drawing.name, dir: outdir)
         end
       end

@@ -25,3 +25,5 @@ group :development, :test do
 end
 
 gem "optparse-plus", "~> 3.0"
+
+gem "webrick", "~> 1.9", :groups => [:development, :test]
