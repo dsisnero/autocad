@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "autocad"
 # require "pw_print"
 
 require "minitest/autorun"
@@ -20,6 +19,8 @@ TEMP_DIR = TEST_DIR.join("temp")
 TEMP_DIR.mkpath unless TEMP_DIR.exist?
 $LOAD_PATH.unshift LIB_DIR
 # $LOAD_PATH.unshift File.expand_path("../exe", __dir__)
+
+require "autocad"
 
 module TestHelper
   def fixture_file(name)

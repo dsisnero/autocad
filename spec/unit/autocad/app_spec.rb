@@ -2,7 +2,8 @@
 
 require_relative "../../spec_helper"
 
-describe Autocad::App do
+describe "Autocad::App" do
+  include TestHelper
   describe "class methods" do
     after(:all) do
       cleanup_temp_files
