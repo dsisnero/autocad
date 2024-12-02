@@ -163,6 +163,7 @@ module Autocad
     end
 
     # Close the drawing
+    # @rbs save: Bool -- whether to save the drawing
     def close(save = true)
       @drawing_closed = true
       begin

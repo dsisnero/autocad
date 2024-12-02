@@ -68,23 +68,25 @@ module Autocad
       # end
       #
       # @rbs *files: Array[String|Pathname]
-      # @rbs **options: Hash[Symbol,Object]
+      # @rbs visible: Boolean -- show the app window
+      # @rbs error_proc: (Exception, Drawing) -> Void
+      # @rbs wait_time: Integer -- the total amount of time to wait to open file (500)
+      # @rbs wait_interval: Float -- the amount of time to wait between attempts (0.5)
+      # @rbs read_only: Boolean
       # @rbs &: (Drawing) -> Void
-      def with_drawings(*files, **options, &block) # : void
+      def with_drawings(*files, visible: false, error_proc: @default_error_proc,
+        wait_time: 500, wait_interval: 0.5, read_only: false, &block)
         # drawing_options = default_drawing_options.merge(options)
         # app_options = default_app_options
-        opts = default_app_options.merge(options)
         files = files[0] if files[0].is_a? Array
-        opt_visible = options.delete(:visible) || false
-        error_proc = options.delete(:error_proc)
         begin
-          the_app = new(**opts)
+          the_app = new(visible:, error_proc:, wait_time:, wait_interval:)
           files_enum = files.each
           loop do
             file = files_enum.next
             puts "opening #{file}.."
             begin
-              the_app.open_drawing(file, **options, &block)
+              the_app.open_drawing(file, read_only:, wait_time:, wait_interval:, error_proc:, &block)
               the_app.ole_obj.ole_methods # check if server still open
             rescue => e
               raise e unless error_proc
@@ -105,11 +107,11 @@ module Autocad
       # @rbs dir_or_file: String the directory of drawing [dgn,dwg] to convert
       # @rbs outdir: String the output dir for converted pdf files
       # @rbs return Void
-      def dgn2pdf(dir_or_file, outdir: dir_or_file, mode: :dir)
+      def dwg2pdf(dir_or_file, outdir: dir_or_file, mode: :dir)
         raise "Mode on of :dir or :file" unless [:dir, :file].include? mode
         if mode == :dir
           drawings = drawings_in_dir(dir_or_file)
-          with_drawings(drawings) do |drawing|
+          with_drawings(drawings, read_only: true) do |drawing|
             drawing.save_as_pdf(name: drawing.name, dir: outdir)
           end
         else
@@ -363,19 +365,18 @@ module Autocad
     # open the drawing
     # @rbs filename: String the name of the file to open
     # @rbs : Boolean :read_only  (false)
-    # @rbs : Proc :error_proc (raise) a proc to run
-    # @rbs wait_time: Integer the total amount of time to wait to open file (500)
-    # @rbs wait_interval: Float the amount of time in seconds to wait before retry (0.5)
+    # @rbs wait_time: Integer -- the total amount of time to wait to open file (500)
+    # @rbs wait_interval: Float -- the amount of time in seconds to wait before retry (0.5)
+    # @rbs error_proc: Proc -- a proc to run
     # @yield [Drawing] drawing
     # @rbs return Void
-    def open_drawing(filename, options: {})
-      opts = default_app_options.merge(options)
-      err_fn = opts.fetch(:error_proc, error_proc)
-      file_path = Pathname.new(filename)
-      raise FileNotFound unless file_path.file?
+    def open_drawing(filename, read_only: false, wait_time: nil,
+      wait_interval: nil, error_proc: nil, &block)
+      file_path = Pathname.new(filename).expand_path
+      raise FileNotFound.new(file_path) unless file_path.file?
 
       begin
-        ole = ole_open_drawing(windows_path(filename), read_only: opts[:read_only], wait_time: opts[:wait_time], wait_interval: opts[:wait_interval])
+        ole = ole_open_drawing(windows_path(filename), read_only:, wait_time:, wait_interval:)
       rescue DrawingError => e
         raise e unless err_fn
 
@@ -538,7 +539,7 @@ module Autocad
     end
 
     def ole_open_drawing(filename, read_only: false, wait_time: 500, wait_interval: 0.5)
-      ole = ole_obj.Documents.Open(filename, read_only: read_only)
+      ole = ole_obj.Documents.Open(filename, read_only)
       wait_drawing_opened(wait_time: wait_time, wait_interval: wait_interval)
       return ole if drawing_opened?
       raise DrawingError.new("drewing not opened in #{wait_time}", path) unless drawing_opened?

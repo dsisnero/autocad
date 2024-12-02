@@ -1,3 +1,5 @@
+ # rbs_inline: enabled
+
 module Autocad
   module Common
     def method_missing(method, ...)
@@ -39,8 +41,8 @@ module Autocad
       ROOT
     end
 
-    # @param dir [String] the directory of drawing [dgn,dwg] to convert
-    # @param outdir [String] the output dir for converted pdf files
+    # @rbs dir: String -- the directory of drawing dgn|dwg -- to convert
+    # @rbs outdir: String -- the output dir for converted pdf files
     def dgn2pdf(dir_or_file, outdir: dir_or_file, mode: :dir)
       raise "Mode on of :dir or :file" unless [:dir, :file].include? mode
       if mode == :dir
@@ -56,8 +58,8 @@ module Autocad
     end
 
     # save the current drawing
-    # @param dir [String,Dir] the dir to save drawing to
-    # return [void]
+    # @rbs dir: String|Dir -- the dir to save drawing to
+    # @rbs return Void
     def save_current_drawing(dir, exit: true)
       if exit
         run do |app|
@@ -78,8 +80,8 @@ module Autocad
     end
 
     # save the current drawing as pdf
-    # @param dir [String,Dir] the dir to save drawing to
-    # return [void]
+    # @rbs dir: String|Dir -- the dir to save drawing to
+    # @rbs return Void
     def save_current_drawing_as_pdf(dir)
       App.run do |app|
         drawing = app.current_drawing
@@ -89,7 +91,7 @@ module Autocad
     end
 
     # gets all dwg and dgn dfiles in a directory
-    # @param dir
+    # @rbs dir: String|Pathname
     def drawings_in_dir(dir)
       dirpath = Pathname.new(dir).expand_path
       dirpath.glob("*.d{gn,wg,xf}").sort_by { _1.basename(".*").to_s.downcase }
@@ -99,10 +101,25 @@ module Autocad
       App.open_drawing(drawing, ...)
     end
 
+    # Runs the app, opening the filenames
+    # and yielding each open drawing to the
+    # supplied block
+    # it automatically closes the drawing and
+    # the app when done
+    #
+    # @rbs *files: Array[String|Pathname]
+    # @rbs visible: Boolean -- show the app window
+    # @rbs error_proc: (Exception, Drawing) -> Void
+    # @rbs wait_time: Integer -- the total amount of time to wait to open file (500)
+    # @rbs wait_interval: Float -- the amount of time to wait between attempts (0.5)
+    # @rbs read_only: Boolean
+    # @rbs &: (Drawing) -> Void
     def with_drawings(...)
       App.with_drawings(...)
     end
 
+    # Finds the drawing in dir and calls with_drawing forwarding all params
+    # @rbs dir: String|Pathname -- directory to search for drawings
     def with_drawings_in_dir(dir, ...)
       drawings = drawings_in_dir(dir)
       with_drawings(drawings, ...)

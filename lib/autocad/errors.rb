@@ -1,7 +1,12 @@
 module Autocad
   Error = Class.new(::RuntimeError)
   NonDGNFile = Class.new(Error)
-  FileNotFound = Class.new(Error)
+
+  class FileNotFound < Error
+    def initalize(path)
+      super("File at path #{path} not found")
+    end
+  end
   MultipleUpdateError = Class.new(Error)
 
   # class RetryableError < Error

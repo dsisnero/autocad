@@ -40,7 +40,7 @@ guard :minitest, test_folders: "spec/unit", env: {"EXCLUDE_DIR" => "spec/ui"} do
   # watch(%r{^test/test_helper\.rb$})      { 'test' }
 
   # with Minitest::Spec
-  watch(%r{^spec/unit/(.*)_spec\.rb$})
+  watch(%r{^spec/unit/(.*)_spec\.rb$}){ |m| "spec/unit/#{m[1]}_spec.rb"}
   watch(%r{^lib/(.+)\.rb$}) { |m| "spec/unit/#{m[1]}_spec.rb" }
   watch(%r{^spec/(.+)spec_helper\.rb$}) { "spec" }
 
@@ -59,8 +59,8 @@ guard :minitest, test_folders: "spec/unit", env: {"EXCLUDE_DIR" => "spec/ui"} do
   # watch(%r{^app/models/(.*)\.rb$})      { |m| "test/unit/#{m[1]}_test.rb" }
 end
 
-guard 'yard' do
-  watch(%r{app\/.+\.rb})
-  watch(%r{lib\/.+\.rb})
-  watch(%r{ext\/.+\.c})
-end
+# guard 'yard' do
+#   watch(%r{app\/.+\.rb})
+#   watch(%r{lib\/.+\.rb})
+#   watch(%r{ext\/.+\.c})
+# end

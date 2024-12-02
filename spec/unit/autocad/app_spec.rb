@@ -10,43 +10,39 @@ describe "Autocad::App" do
     end
     describe "App.run" do
       it "returns an app instance"
-      result = nil
       Autocad::App.run do |app|
         puts self
-        # expect(app).must_be_instance_of(Autocad::App)
-        result = app
-        # _(result).must_be_instance_of(Autocad::App)
+        # _(app).must_be_instance_of(Autocad::App)
       end
     end
 
     describe "App.with_drawings" do
       it "handles batch processing with with_drawings" do
         drawings = [
-          fixtures_file("test.dwg"),
-          fixtures_file("hello.dwg")
+          fixture_file("test.dwg"),
+          fixture_file("hello.dwg")
         ]
-        test = self
 
         processed = []
-        Autocad::App.with_drawings(drawings) do |drawing|
-          _(test.expect(drawing)).must_be_instance_of(Autocad::Drawing) # M
+        Autocad::App.with_drawings(drawings, visible: false, read_only: true) do |drawing|
+          _(drawing).must_be_instance_of(Autocad::Drawing) # M
           processed << drawing.path
         end
-
         _(processed.size).must_equal 2
-        _(processed.all? { |p| p.to_s.end_with?(".dwg", ".dgn") }).must_equal true
+        _(processed.all? { |p| p.to_s.end_with?(".dwg") }).must_equal true
       end
     end
 
-    it "converts dgn to pdf" do
-      drawing = fixtures_file("test.dgn")
+    it "converts dwg to pdf" do
+      drawing = fixture_file("test.dwg")
       with_test_drawing(drawing) do |path|
         outdir = TEMP_DIR
-        Autocad::App.dgn2pdf(path, outdir: outdir, mode: :file)
+        Autocad::App.dwg2pdf(path, outdir: outdir, mode: :file)
 
         pdf_path = outdir.join("test.pdf")
         _(pdf_path.exist?).must_equal true
       end
+      _(drawing.exist?).must_equal true
     end
   end
 
@@ -56,7 +52,7 @@ describe "Autocad::App" do
     end
 
     after(:all) do
-      cleanup_temp_drawings
+      cleanup_temp_files
     end
 
     it "doesn't have an active_drawing" do
@@ -75,9 +71,9 @@ describe "Autocad::App" do
       _(@app.templates_path).must_be_instance_of(Pathname)
     end
     it "can open drawing read_only as class method" do
-      drawing_path = fixtures_file("test.dwg")
+      drawing_path = fixture_file("test.dwg")
       with_test_drawing(drawing_path) do |file|
-        @app.open_drawing(file, options: {read_only: true}) do |dwg|
+        @app.open_drawing(file, read_only: true) do |dwg|
           _(dwg).must_be_instance_of Autocad::Drawing
         end
       end

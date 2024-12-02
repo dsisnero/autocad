@@ -8,6 +8,7 @@ require "minitest/mock"
 require "pathname"
 require "tmpdir"
 require "fileutils"
+require "acrobat"
 
 TEST_DIR = Pathname.new(__dir__)
 FIXTURES_DIR = TEST_DIR.join("fixtures")
@@ -46,15 +47,18 @@ module TestHelper
   end
 
   def setup_test_drawing(original_name)
-    source = drawing_path(original_name)
-    temp_path = (TEMP_DIR + original_name).expand_path
+    basename = original_name.basename
+    source = fixture_file(basename)
+    temp_path = temp_file(basename).expand_path
     FileUtils.cp(source, temp_path)
     temp_path
   end
 
   def cleanup_test_drawing(filename)
-    path = (TEMP_DIR + filename).expand_path
-    File.delete(path) if File.exist?(path)
+    path = temp_file(filename.basename).expand_path
+    binding.irb
+    Acrobat::App.close(path.sub_ext(".pdf"))
+    path.delete if path.exist?
   end
 
   def assert_drawing_matches(test_drawing, reference_drawing)
@@ -103,6 +107,8 @@ module TestHelper
 
   def with_temp_drawing(original_name)
     app = Microstation::App.new
+    binding.irb unless File.exist?(original_name)
+
     config_app(app)
     temp_path = setup_test_drawing(original_name)
 
@@ -118,6 +124,8 @@ module TestHelper
       end
       cleanup_test_drawing(original_name)
     end
+    binding.irb if File.exist?(temp_path)
+    binding.irb unless File.exist?(original_name)
   end
 
   def cleanup_temp_files
