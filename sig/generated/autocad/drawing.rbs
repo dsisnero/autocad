@@ -78,7 +78,8 @@ module Autocad
     def active_space: () -> untyped
 
     # Close the drawing
-    def close: (?save: untyped) -> untyped
+    # @rbs save: Bool -- whether to save the drawing
+    def close: (?Bool save) -> untyped
 
     def blocks: () -> untyped
 

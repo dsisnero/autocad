@@ -1,0 +1,119 @@
+# Generated from lib/autocad/element.rb with RBS::Inline
+
+class WIN32OLE
+  def to_ole: () -> untyped
+end
+
+module Autocad
+end
+
+module Autocad
+  module ElementTrait
+    #
+    #
+    #
+    #  @return [Boolean] true if ole type is Text
+    def text?: () -> untyped
+
+    # @return [Boolean] true if ole type is TextNode
+    def text_node?: () -> untyped
+
+    def has_tags?: () -> untyped
+
+    def to_ole: () -> untyped
+
+    def cell?: () -> untyped
+
+    def complex?: () -> untyped
+
+    # @return [Boolean] true if Text or TextNode
+    def textual?: () -> untyped
+
+    def autocad_id: () -> untyped
+
+    # @return [Boolean] true if ole type is TypeLine
+    def line?: () -> untyped
+
+    def graphical?: () -> untyped
+
+    def inspect: () -> untyped
+
+    def parent: () -> untyped
+
+    def id_from_record: (untyped id) -> untyped
+
+    def select: () -> untyped
+
+    def autocad_type: () -> untyped
+
+    def model: () -> untyped
+  end
+
+  class Element
+    include ElementTrait
+
+    def self.convert_item: (untyped ole, untyped app, ?untyped cell) -> untyped
+
+    def self.ole_object?: () -> untyped
+
+    attr_reader ole_obj: untyped
+
+    attr_reader app: untyped
+
+    attr_reader original: untyped
+
+    def initialize: (untyped ole, untyped app, ?untyped cell) -> untyped
+
+    def in_cell?: () -> untyped
+
+    def read_ole: (untyped ole) -> untyped
+
+    def write_ole: (untyped value) -> untyped
+
+    def method_missing: (untyped meth, *untyped) ?{ (?) -> untyped } -> untyped
+
+    def get_property_handler: () -> untyped
+
+    def property_handler: () -> untyped
+
+    def []: (untyped name) -> untyped
+
+    def do_update: (untyped value) -> untyped
+
+    def update: (untyped value) -> untyped
+
+    def updated?: () -> untyped
+
+    def redraw: (?untyped el) -> untyped
+
+    def app_ole_obj: () -> untyped
+
+    def ole_cell: (untyped ole) -> untyped
+
+    def each_complex: (untyped ole) ?{ (?) -> untyped } -> untyped
+  end
+
+  class App
+    def ole_to_ruby: (untyped ole) -> untyped
+  end
+end
+
+module Autocad
+  class Arc < Element
+  end
+end
+
+module Autocad
+  class Ellipse < Element
+  end
+end
+
+module Autocad
+  class BSplineSurface < Element
+  end
+end
+
+module Autocad
+  class BSplineCurve < Element
+  end
+end

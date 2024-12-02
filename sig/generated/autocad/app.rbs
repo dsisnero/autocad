@@ -36,9 +36,13 @@ module Autocad
     # end
     #
     # @rbs *files: Array[String|Pathname]
-    # @rbs **options: Hash[Symbol,Object]
+    # @rbs visible: Boolean -- show the app window
+    # @rbs error_proc: (Exception, Drawing) -> Void
+    # @rbs wait_time: Integer -- the total amount of time to wait to open file (500)
+    # @rbs wait_interval: Float -- the amount of time to wait between attempts (0.5)
+    # @rbs read_only: Boolean
     # @rbs &: (Drawing) -> Void
-    def self.with_drawings: (*Array[String | Pathname] files, **Hash[Symbol, Object] options) { (Drawing) -> Void } -> void
+    def self.with_drawings: (*Array[String | Pathname] files, ?visible: Boolean, ?error_proc: untyped, ?wait_time: Integer, ?wait_interval: Float, ?read_only: Boolean) { (Drawing) -> Void } -> untyped
 
     # gets all dwg and dgn files in the directory given by
     # dir_or_file or gets the file given by dir_or_file
@@ -46,7 +50,7 @@ module Autocad
     # @rbs dir_or_file: String the directory of drawing [dgn,dwg] to convert
     # @rbs outdir: String the output dir for converted pdf files
     # @rbs return Void
-    def self.dgn2pdf: (String dir_or_file, ?outdir: String, ?mode: untyped) -> Void
+    def self.dwg2pdf: (String dir_or_file, ?outdir: String, ?mode: untyped) -> Void
 
     # Initialize an instance of app with the options
     # @rbs : Hash] options the options to create the app with
@@ -62,13 +66,13 @@ module Autocad
     # end
     # @rbs options: Hash[Symbol,Object]
     # @rbs &: (App) -> Void -- the_app yields the instanciated app
-    def self.run: (?Hash[Symbol, Object] options) { (App) -> Void } -> Void
+    def self.run: (?Hash[Symbol, Object] options) { (App) -> Void } -> untyped
 
     # Calls #run to get an app instance then call open drawing with
     # that app
     # (see #open_drawing)
     # @rbs &block: { (Drawing) -> Void }
-    def self.open_drawing: (untyped drawing, **untyped options) ?{ (?) -> untyped } -> Void
+    def self.open_drawing: (untyped drawing, **untyped options) ?{ (?) -> untyped } -> untyped
 
     # @rbs return Boolean -- true if there is an active drawing
     def active_drawing?: () -> Boolean
@@ -76,7 +80,7 @@ module Autocad
     # @rbs return Drawing | Nil -- returns drawing if active_drawing
     def active_drawing: () -> (Drawing | Nil)
 
-    def drawing_from_ole: (untyped ole) -> Drawing
+    def drawing_from_ole: (untyped ole) -> untyped
 
     attr_reader error_proc: untyped
 
@@ -85,7 +89,7 @@ module Autocad
     attr_reader logger: untyped
 
     # Constructor for app
-    # @rbs visible: Boolean -- do you want the app to be visible 
+    # @rbs visible: Boolean -- do you want the app to be visible
     # @rbs event_handler: EventHandler
     def initialize: (?visible: Boolean, ?error_proc: untyped, ?event_handler: EventHandler, ?wait_interval: untyped, ?wait_time: untyped) -> untyped
 
@@ -150,13 +154,13 @@ module Autocad
 
     # open the drawing
     # @rbs filename: String the name of the file to open
-    # @rbs : Boolean :readonly  (false)
-    # @rbs : Proc :error_proc (raise) a proc to run
-    # @rbs wait_time: Integer the total amount of time to wait to open file (500)
-    # @rbs wait_interval: Float the amount of time in seconds to wait before retry (0.5)
+    # @rbs : Boolean :read_only  (false)
+    # @rbs wait_time: Integer -- the total amount of time to wait to open file (500)
+    # @rbs wait_interval: Float -- the amount of time in seconds to wait before retry (0.5)
+    # @rbs error_proc: Proc -- a proc to run
     # @yield [Drawing] drawing
     # @rbs return Void
-    def open_drawing: (String filename, ?options: untyped) -> Void
+    def open_drawing: (String filename, ?read_only: untyped, ?wait_time: Integer, ?wait_interval: Float, ?error_proc: Proc) ?{ (?) -> untyped } -> Void
 
     def model_space: () -> untyped
 
@@ -213,7 +217,7 @@ module Autocad
 
     def new_ole_drawing: (untyped filename, ?open: untyped, ?wait_time: untyped, ?wait_interval: untyped) -> untyped
 
-    def ole_open_drawing: (untyped filename, ?readonly: untyped, ?wait_time: untyped, ?wait_interval: untyped) -> untyped
+    def ole_open_drawing: (untyped filename, ?read_only: untyped, ?wait_time: untyped, ?wait_interval: untyped) -> untyped
 
     def wait_drawing_opened: (untyped secs, ?untyped interval) -> untyped
   end

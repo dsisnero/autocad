@@ -1,0 +1,59 @@
+# Generated from lib/autocad.rb with RBS::Inline
+
+module Autocad
+  module Common
+    def method_missing: (untyped method) -> untyped
+  end
+end
+
+module ACAD
+end
+
+module Autocad
+  ROOT: untyped
+
+  # @yield [Autocad::App]
+  def self.run: () -> untyped
+
+  # @return [Pathname]
+  def self.root: () -> untyped
+
+  # @rbs dir: String -- the directory of drawing dgn|dwg -- to convert
+  # @rbs outdir: String -- the output dir for converted pdf files
+  def self.dgn2pdf: (untyped dir_or_file, ?outdir: String, ?mode: untyped) -> untyped
+
+  # save the current drawing
+  # @rbs dir: String|Dir -- the dir to save drawing to
+  # @rbs return Void
+  def self.save_current_drawing: (String | Dir dir, ?exit: untyped) -> Void
+
+  # save the current drawing as pdf
+  # @rbs dir: String|Dir -- the dir to save drawing to
+  # @rbs return Void
+  def self.save_current_drawing_as_pdf: (String | Dir dir) -> Void
+
+  # gets all dwg and dgn dfiles in a directory
+  # @rbs dir: String|Pathname
+  def self.drawings_in_dir: (String | Pathname dir) -> untyped
+
+  def self.open_drawing: (untyped drawing) -> untyped
+
+  # Runs the app, opening the filenames
+  # and yielding each open drawing to the
+  # supplied block
+  # it automatically closes the drawing and
+  # the app when done
+  #
+  # @rbs *files: Array[String|Pathname]
+  # @rbs visible: Boolean -- show the app window
+  # @rbs error_proc: (Exception, Drawing) -> Void
+  # @rbs wait_time: Integer -- the total amount of time to wait to open file (500)
+  # @rbs wait_interval: Float -- the amount of time to wait between attempts (0.5)
+  # @rbs read_only: Boolean
+  # @rbs &: (Drawing) -> Void
+  def self.with_drawings: () { (Drawing) -> Void } -> untyped
+
+  # Finds the drawing in dir and calls with_drawing forwarding all params
+  # @rbs dir: String|Pathname -- directory to search for drawings
+  def self.with_drawings_in_dir: (String | Pathname dir) -> untyped
+end

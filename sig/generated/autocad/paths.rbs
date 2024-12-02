@@ -1,0 +1,19 @@
+# Generated from lib/autocad/paths.rb with RBS::Inline
+
+module Autocad
+  class Paths
+    include Enumerable
+
+    def initialize: (untyped path) -> untyped
+
+    def <<: (untyped path) -> untyped
+
+    def append: (untyped path) -> untyped
+
+    def prepend: (untyped path) -> untyped
+
+    def each: () -> untyped
+
+    def to_s: () -> untyped
+  end
+end

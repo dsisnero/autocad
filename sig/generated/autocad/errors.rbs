@@ -1,0 +1,23 @@
+# Generated from lib/autocad/errors.rb with RBS::Inline
+
+module Autocad
+  Error: untyped
+
+  NonDGNFile: untyped
+
+  class FileNotFound < Error
+    def initalize: (untyped path) -> untyped
+  end
+
+  MultipleUpdateError: untyped
+
+  class DrawingError < Error
+    attr_reader drawing: untyped
+
+    def initialize: (untyped message, untyped drawing) -> untyped
+  end
+
+  class ExistingFile < Error
+    def initialize: (untyped path) -> untyped
+  end
+end

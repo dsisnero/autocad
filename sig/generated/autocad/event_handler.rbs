@@ -1,0 +1,13 @@
+# Generated from lib/autocad/event_handler.rb with RBS::Inline
+
+module Autocad
+  class EventHandler
+    def initialize: () -> untyped
+
+    def add_handler: (untyped event) ?{ (?) -> untyped } -> untyped
+
+    def get_handler: (untyped event) -> untyped
+
+    def method_missing: (untyped event, *untyped args) -> untyped
+  end
+end

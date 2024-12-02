@@ -1,0 +1,19 @@
+# Generated from lib/autocad/text.rb with RBS::Inline
+
+module Autocad
+  class Text < Element
+    def read_ole: (untyped _ole) -> untyped
+
+    def write_ole: (untyped text) -> untyped
+
+    def to_regexp: () -> untyped
+
+    def =~: (untyped reg) -> untyped
+
+    def to_s: () -> untyped
+
+    def bounds: () -> untyped
+
+    def method_missing: (untyped meth, *untyped) ?{ (?) -> untyped } -> untyped
+  end
+end

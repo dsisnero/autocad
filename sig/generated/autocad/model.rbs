@@ -1,0 +1,29 @@
+# Generated from lib/autocad/model.rb with RBS::Inline
+
+module Autocad
+  module ModelTrait
+    def each: () -> untyped
+
+    def drawing: () -> untyped
+  end
+
+  class PaperSpace
+    include ModelTrait
+
+    attr_reader app: untyped
+
+    attr_reader ole_obj: untyped
+
+    def initialize: (untyped ole, untyped app) -> untyped
+  end
+
+  class ModelSpace
+    include ModelTrait
+
+    attr_reader app: untyped
+
+    attr_reader ole_obj: untyped
+
+    def initialize: (untyped ole, untyped app) -> untyped
+  end
+end

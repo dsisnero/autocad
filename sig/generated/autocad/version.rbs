@@ -1,0 +1,5 @@
+# Generated from lib/autocad/version.rb with RBS::Inline
+
+module Autocad
+  VERSION: ::String
+end

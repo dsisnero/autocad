@@ -1,0 +1,39 @@
+# Generated from lib/autocad/point3d.rb with RBS::Inline
+
+module Autocad
+  class Point3d
+    def self.cartesian_to_polar: (untyped x, untyped y) -> untyped
+
+    def self.from_polar_degrees: (untyped r, untyped a) -> untyped
+
+    def self.from_ole: (untyped ole) -> untyped
+
+    def self.polar_to_cartesian: (untyped r, untyped a) -> untyped
+
+    attr_reader x: untyped
+
+    attr_reader y: untyped
+
+    attr_reader z: untyped
+
+    def initialize: (?untyped _x, ?untyped _y, ?untyped _z, ?x: untyped, ?y: untyped, ?z: untyped) -> untyped
+
+    def +: (untyped other) -> untyped
+
+    def deconstruct: () -> untyped
+
+    def deconstruct_keys: () -> untyped
+
+    def to_ary: () -> untyped
+
+    def -: (untyped other) -> untyped
+
+    def to_s: () -> untyped
+
+    def to_a: () -> untyped
+
+    def zero: () -> untyped
+
+    def to_cartesian: () -> untyped
+  end
+end

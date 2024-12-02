@@ -1,0 +1,11 @@
+# Generated from lib/autocad/viewport.rb with RBS::Inline
+
+module Autocad
+  class Viewport < Element
+    def width: () -> untyped
+
+    def height: () -> untyped
+
+    def each: () -> untyped
+  end
+end

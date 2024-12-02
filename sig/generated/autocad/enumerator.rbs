@@ -1,0 +1,15 @@
+# Generated from lib/autocad/enumerator.rb with RBS::Inline
+
+module Autocad
+  class Enumerator
+    include Enumerable
+
+    attr_reader app: untyped
+
+    def initialize: (untyped ole, untyped app) -> untyped
+
+    def each: () -> untyped
+
+    def reset: () -> untyped
+  end
+end

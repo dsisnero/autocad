@@ -1,0 +1,57 @@
+# Generated from lib/autocad/block_reference.rb with RBS::Inline
+
+module Autocad
+  class BlockReference < Element
+    def each: () -> untyped
+
+    def has_attributes?: () -> untyped
+
+    def name: () -> untyped
+
+    def layout?: () -> untyped
+
+    def attribute_hash: () -> untyped
+
+    def inspect: () -> untyped
+
+    def attributes: () -> untyped
+  end
+
+  class Attributes
+    include Enumerable
+
+    attr_reader elements: untyped
+
+    def initialize: (untyped blk, untyped elements) -> untyped
+
+    def update_element: (untyped name, untyped value) -> untyped
+
+    def each: () -> untyped
+
+    def find_attribute: (untyped name) -> untyped
+
+    def []: (untyped name) -> untyped
+
+    def []=: (untyped name, untyped value) -> untyped
+
+    def keys: () -> untyped
+
+    def values: () -> untyped
+
+    def to_h: () -> untyped
+
+    def inspect: () -> untyped
+  end
+
+  class Attribute < Element
+    def write_ole: (untyped value) -> untyped
+
+    def read_ole: (untyped value) -> untyped
+
+    def key: () -> untyped
+
+    def value: () -> untyped
+
+    def inspect: () -> untyped
+  end
+end
