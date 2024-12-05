@@ -36,25 +36,25 @@ module Autocad
     # end
     #
     # @rbs *files: Array[String|Pathname]
-    # @rbs visible: Boolean -- show the app window
-    # @rbs error_proc: (Exception, Drawing) -> Void
+    # @rbs visible: bool -- show the app window
+    # @rbs error_proc: (Exception, Drawing) -> void
     # @rbs wait_time: Integer -- the total amount of time to wait to open file (500)
     # @rbs wait_interval: Float -- the amount of time to wait between attempts (0.5)
-    # @rbs read_only: Boolean
-    # @rbs &: (Drawing) -> Void
-    def self.with_drawings: (*Array[String | Pathname] files, ?visible: Boolean, ?error_proc: untyped, ?wait_time: Integer, ?wait_interval: Float, ?read_only: Boolean) { (Drawing) -> Void } -> untyped
+    # @rbs read_only: bool
+    # @rbs &: (Drawing) -> void
+    def self.with_drawings: (*Array[String | Pathname] files, ?visible: bool, ?error_proc: untyped, ?wait_time: Integer, ?wait_interval: Float, ?read_only: bool) { (Drawing) -> void } -> untyped
 
     # gets all dwg and dgn files in the directory given by
     # dir_or_file or gets the file given by dir_or_file
     # and saves them as pdf files in the outdir
     # @rbs dir_or_file: String the directory of drawing [dgn,dwg] to convert
     # @rbs outdir: String the output dir for converted pdf files
-    # @rbs return Void
-    def self.dwg2pdf: (String dir_or_file, ?outdir: String, ?mode: untyped) -> Void
+    # @rbs return void
+    def self.dwg2pdf: (String dir_or_file, ?outdir: String, ?mode: untyped) -> void
 
     # Initialize an instance of app with the options
     # @rbs : Hash] options the options to create the app with
-    # @option options Boolean :visible Is the app visible
+    # @option options bool :visible Is the app visible
     #
     # [source]
     # ----
@@ -65,22 +65,22 @@ module Autocad
     #   end
     # end
     # @rbs options: Hash[Symbol,Object]
-    # @rbs &: (App) -> Void -- the_app yields the instanciated app
-    def self.run: (?Hash[Symbol, Object] options) { (App) -> Void } -> untyped
+    # @rbs &: (App) -> void -- the_app yields the instanciated app
+    def self.run: (?Hash[Symbol, Object] options) { (App) -> void } -> void
 
     # Calls #run to get an app instance then call open drawing with
     # that app
     # (see #open_drawing)
-    # @rbs &block: { (Drawing) -> Void }
-    def self.open_drawing: (untyped drawing, **untyped options) ?{ (?) -> untyped } -> untyped
+    # @rbs &block: { (Drawing) -> void }
+    def self.open_drawing: (untyped drawing, **untyped options) ?{ (?) -> untyped } -> void
 
-    # @rbs return Boolean -- true if there is an active drawing
-    def active_drawing?: () -> Boolean
+    # @rbs return bool -- true if there is an active drawing
+    def active_drawing?: () -> bool
 
-    # @rbs return Drawing | Nil -- returns drawing if active_drawing
-    def active_drawing: () -> (Drawing | Nil)
+    # @rbs return Drawing | nil -- returns drawing if active_drawing
+    def active_drawing: () -> (Drawing | nil)
 
-    def drawing_from_ole: (untyped ole) -> untyped
+    def drawing_from_ole: (untyped ole) -> Drawing
 
     attr_reader error_proc: untyped
 
@@ -89,9 +89,9 @@ module Autocad
     attr_reader logger: untyped
 
     # Constructor for app
-    # @rbs visible: Boolean -- do you want the app to be visible
+    # @rbs visible: bool -- do you want the app to be visible
     # @rbs event_handler: EventHandler
-    def initialize: (?visible: Boolean, ?error_proc: untyped, ?event_handler: EventHandler, ?wait_interval: untyped, ?wait_time: untyped) -> untyped
+    def initialize: (?visible: bool, ?error_proc: untyped, ?event_handler: EventHandler, ?wait_interval: untyped, ?wait_time: untyped) -> untyped
 
     def windows_path: (untyped path) -> untyped
 
@@ -110,11 +110,11 @@ module Autocad
     def register_handler: (String event) ?{ (?) -> untyped } -> untyped
 
     #
-    #  return a Handler
+    # return a Handler
     #
-    #  @rbs : String,Symbol] event the event key
+    # @rbs : String,Symbol] event the event key
     #
-    #  @rbs return Proc returns the Proc given by event name
+    # @rbs return Proc returns the Proc given by event name
     def get_handler: (untyped event) -> Proc
 
     def load_constants: (untyped ole) -> untyped
@@ -145,22 +145,22 @@ module Autocad
     # @rbs seedfile: String -- The name of the seed file.
     #  should not include a path. The default ggextension is ".dgn".
     #  Typical values are "seed2d" or "seed3d".
-    # @rbs open: Boolean -- If the open argument is True,
+    # @rbs open: bool -- If the open argument is True,
     #   CreateDesignFile returns the newly-opened DesignFile object;
     #   this is the same value as ActiveDesignFile. If the Open argument is False,
     #   CreateDesignFile returns Nothing.
     # @rbs returns Drawing -- returns the new drawing
-    def new_drawing: (String | Pathname filename, ?open: Boolean, ?options: untyped) ?{ (?) -> untyped } -> untyped
+    def new_drawing: (String | Pathname filename, ?open: bool, ?options: untyped) ?{ (?) -> untyped } -> untyped
 
     # open the drawing
     # @rbs filename: String the name of the file to open
-    # @rbs : Boolean :read_only  (false)
+    # @rbs : bool :read_only  (false)
     # @rbs wait_time: Integer -- the total amount of time to wait to open file (500)
     # @rbs wait_interval: Float -- the amount of time in seconds to wait before retry (0.5)
     # @rbs error_proc: Proc -- a proc to run
     # @yield [Drawing] drawing
-    # @rbs return Void
-    def open_drawing: (String filename, ?read_only: untyped, ?wait_time: Integer, ?wait_interval: Float, ?error_proc: Proc) ?{ (?) -> untyped } -> Void
+    # @rbs return void
+    def open_drawing: (String filename, ?read_only: untyped, ?wait_time: Integer, ?wait_interval: Float, ?error_proc: Proc) ?{ (?) -> untyped } -> void
 
     def model_space: () -> untyped
 
@@ -183,8 +183,8 @@ module Autocad
 
     def has_documents?: () -> untyped
 
-    # @rbs return [Boolean] true
-    def drawing_opened?: () -> [ Boolean ]
+    # @rbs return [bool] true
+    def drawing_opened?: () -> [ bool ]
 
     # @rbs return [Pathname] Autocad Files.TemplateDwgPath
     def templates_path: () -> [ Pathname ]

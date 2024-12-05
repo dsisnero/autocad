@@ -12,27 +12,28 @@ module Autocad
     #
     #
     #
-    #  @return [Boolean] true if ole type is Text
-    def text?: () -> untyped
+    # @rbs return bool -- true if ole type is Text
+    def text?: () -> bool
 
-    # @return [Boolean] true if ole type is TextNode
-    def text_node?: () -> untyped
+    # @rbs return bool -- true if ole type is TextNode
+    def text_node?: () -> bool
 
     def has_tags?: () -> untyped
 
     def to_ole: () -> untyped
 
-    def cell?: () -> untyped
+    # @rbs return bool -- true if object is of type cell
+    def cell?: () -> bool
 
     def complex?: () -> untyped
 
-    # @return [Boolean] true if Text or TextNode
-    def textual?: () -> untyped
+    # @rbs return bool -- true if Text or TextNode
+    def textual?: () -> bool
 
     def autocad_id: () -> untyped
 
-    # @return [Boolean] true if ole type is TypeLine
-    def line?: () -> untyped
+    # @rbs return bool -- true if ole type is TypeLine
+    def line?: () -> bool
 
     def graphical?: () -> untyped
 
@@ -62,7 +63,7 @@ module Autocad
 
     attr_reader original: untyped
 
-    def initialize: (untyped ole, untyped app, ?untyped cell) -> untyped
+    def initialize: (untyped ole, untyped app, untyped typ, ?untyped cell) -> untyped
 
     def in_cell?: () -> untyped
 

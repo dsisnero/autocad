@@ -1,37 +1,5 @@
 module Autocad
   module ModelTrait
     @drawing: untyped
-
-    def each: () ?{ (untyped) -> untyped } -> untyped
-
-    def drawing: () -> untyped
-  end
-
-  class PaperSpace
-    @ole_obj: untyped
-
-    @app: untyped
-
-    include ModelTrait
-
-    attr_reader app: untyped
-
-    attr_reader ole_obj: untyped
-
-    def initialize: (untyped ole, untyped app) -> void
-  end
-
-  class ModelSpace
-    @ole_obj: untyped
-
-    @app: untyped
-
-    include ModelTrait
-
-    attr_reader app: untyped
-
-    attr_reader ole_obj: untyped
-
-    def initialize: (untyped ole, untyped app) -> void
   end
 end

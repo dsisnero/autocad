@@ -4,7 +4,8 @@ module Autocad
   class EventHandler
     def initialize: () -> untyped
 
-    def add_handler: (untyped event) ?{ (?) -> untyped } -> untyped
+    # @rbs event: String -- the event name to handle
+    def add_handler: (String event) ?{ (?) -> untyped } -> untyped
 
     def get_handler: (untyped event) -> untyped
 

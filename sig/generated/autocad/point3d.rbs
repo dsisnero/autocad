@@ -18,7 +18,8 @@ module Autocad
 
     def initialize: (?untyped _x, ?untyped _y, ?untyped _z, ?x: untyped, ?y: untyped, ?z: untyped) -> untyped
 
-    def +: (untyped other) -> untyped
+    # @rbs other: Point3d | Array[Number]
+    def +: (Point3d | Array[Number] other) -> untyped
 
     def deconstruct: () -> untyped
 

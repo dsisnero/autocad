@@ -1,0 +1,9 @@
+# Generated from lib/autocad/layer.rb with RBS::Inline
+
+module Autocad
+  class Layer < Element
+    def name: () -> untyped
+
+    def description: () -> untyped
+  end
+end

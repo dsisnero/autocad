@@ -19,8 +19,8 @@ module Autocad
     # register an handler
     #
     # @rbs event: String -- event key for handler
-    # @rbs &: {() -> Void} - handler Proc
-    def register_handler: (String event) ?{ (?) -> untyped } -> Void
+    # @rbs &: {() -> void} - handler Proc
+    def register_handler: (String event) ?{ (?) -> untyped } -> void
 
     # save the drawing as a pdf file
     # if the name or directory is given it uses
@@ -28,7 +28,7 @@ module Autocad
     # and the drawing directory
     # @rbs name: String? - the name of the file
     # @rbs dir: String? - the directory to save the drawing
-    def save_as_pdf: (?name: String?, ?dir: String?, ?model: untyped) -> Void
+    def save_as_pdf: (?name: String?, ?dir: String?, ?model: untyped) -> void
 
     def pdf_path: (?name: untyped, ?dir: untyped) -> untyped
 
@@ -36,26 +36,26 @@ module Autocad
     #
     # If a name is provided use the name provided otherwise use the drawing name
     #
-    # @rbs name: String | Nil -- change ext to pdf and return Pathname from 
+    # @rbs name: String | nil -- change ext to pdf and return Pathname from
     # the name or drawing name
-    def pdf_name: (?String | Nil name) -> Pathname
+    def pdf_name: (?String | nil name) -> Pathname
 
     # copy the drawing
     # @rbs name: String | Pathname --name of the file
     # @rbs dir: String|Pathname -- dir
-    def copy: (?name: String | Pathname, ?dir: String | Pathname) -> Void
+    def copy: (?name: String | Pathname, ?dir: String | Pathname) -> void
 
     # If you copy the file the name to use
     # @rbs backup_str: String -- the bqckup string to use for copies
     def copy_name: (?String backup_str) -> untyped
 
-    def paper_space?: () -> Bool
+    def paper_space?: () -> bool
 
-    def model_space?: () -> Bool
+    def model_space?: () -> bool
 
-    def to_paper_space: () -> Void
+    def to_paper_space: () -> void
 
-    def to_model_space: () -> Void
+    def to_model_space: () -> void
 
     # @rbs return String -- the name of the drawing
     def name: () -> String
@@ -78,10 +78,16 @@ module Autocad
     def active_space: () -> untyped
 
     # Close the drawing
-    # @rbs save: Bool -- whether to save the drawing
-    def close: (?Bool save) -> untyped
+    # @rbs save: bool -- whether to save the drawing
+    def close: (?bool save) -> untyped
 
-    def blocks: () -> untyped
+    # @rbs return Enumerator[Block]
+    # @rbs &: (Block) -> void
+    def blocks: () { (Block) -> void } -> Enumerator[Block]
+
+    # @rbs return Enumerator(Layer)
+    # @rbs &: (Layer) -> void
+    def layers: () { (Layer) -> void } -> Enumerator
 
     def model_space: () -> untyped
 

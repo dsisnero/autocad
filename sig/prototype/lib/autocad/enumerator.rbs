@@ -1,17 +1,5 @@
 module Autocad
   class Enumerator
     @ole_obj: untyped
-
-    @app: untyped
-
-    include Enumerable
-
-    attr_reader app: untyped
-
-    def initialize: (untyped ole, untyped app) -> void
-
-    def each: () ?{ (untyped) -> untyped } -> untyped
-
-    def reset: () -> untyped
   end
 end

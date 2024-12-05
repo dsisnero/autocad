@@ -4,7 +4,7 @@ module Autocad
   class Block < Element
     def each: () -> untyped
 
-    def has_attributes?: () -> untyped
+    def attributes?: () -> untyped
 
     def name: () -> untyped
 
@@ -32,7 +32,7 @@ module Autocad
 
     def update_element: (untyped name, untyped value) -> untyped
 
-    def each: () -> untyped
+    def each: () ?{ (?) -> untyped } -> untyped
 
     def find_attribute: (untyped name) -> untyped
 

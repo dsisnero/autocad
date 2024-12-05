@@ -3,13 +3,5 @@ module Autocad
     @handlers: untyped
 
     @file: untyped
-
-    def initialize: () -> void
-
-    def add_handler: (untyped event) ?{ (?) -> untyped } -> (untyped | nil)
-
-    def get_handler: (untyped event) -> untyped
-
-    def method_missing: (untyped event, *untyped args) -> untyped
   end
 end

@@ -1,0 +1,6 @@
+# Generated from lib/autocad/selection_set.rb with RBS::Inline
+
+module Autocad
+  class SelectionSet < Element
+  end
+end

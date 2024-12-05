@@ -4,9 +4,9 @@ module Autocad
   class Line < Element
     def length: () -> untyped
 
-    def start_point: () -> untyped
+    def start_point: () -> Point3d
 
-    def end_point: () -> untyped
+    def end_point: () -> Point3d
   end
 
   class Polyline < Element
