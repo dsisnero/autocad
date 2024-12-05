@@ -37,8 +37,8 @@ module Autocad
     # register an handler
     #
     # @rbs event: String -- event key for handler
-    # @rbs &: {() -> Void} - handler Proc
-    def register_handler(event, &) #:Void
+    # @rbs &: {() -> void} - handler Proc
+    def register_handler(event, &) #:void
       @event_handler.add_handler(event, &) unless event == "OnQuit"
     end
 
@@ -48,7 +48,7 @@ module Autocad
     # and the drawing directory
     # @rbs name: String? - the name of the file
     # @rbs dir: String? - the directory to save the drawing
-    def save_as_pdf(name: nil, dir: nil, model: false) #: Void
+    def save_as_pdf(name: nil, dir: nil, model: false) #: void
       out_name = pdf_path(name: name, dir: dir)
       windows_name = app.windows_path(out_name)
       loop do
@@ -69,7 +69,7 @@ module Autocad
     #
     # If a name is provided use the name provided otherwise use the drawing name
     #
-    # @rbs name: String | Nil -- change ext to pdf and return Pathname from
+    # @rbs name: String | nil -- change ext to pdf and return Pathname from
     # the name or drawing name
     def pdf_name(name = nil) #: Pathname
       name ||= self.name
@@ -79,7 +79,7 @@ module Autocad
     # copy the drawing
     # @rbs name: String | Pathname --name of the file
     # @rbs dir: String|Pathname -- dir
-    def copy(name: nil, dir: nil) #: Void
+    def copy(name: nil, dir: nil) #: void
       if dir.nil?
         lname = name || copy_name
         dir_path = dirname
@@ -99,19 +99,19 @@ module Autocad
       "#{File.basename(lname, ext)}#{backup_str}#{ext}"
     end
 
-    def paper_space? #: Bool
+    def paper_space? #: bool
       ole_obj.ActiveSpace == ACAD::AcPaperSpace
     end
 
-    def model_space? #: Bool
+    def model_space? #: bool
       ole_obj.ActiveSpace == ACAD::AcModelSpace
     end
 
-    def to_paper_space #: Void
+    def to_paper_space #: void
       ole_obj.ActiveSpace = ACAD::AcPaperSpace
     end
 
-    def to_model_space #: Void
+    def to_model_space #: void
       ole_obj.ActiveSpace = ACAD::AcModelSpace
     end
 
@@ -163,7 +163,7 @@ module Autocad
     end
 
     # Close the drawing
-    # @rbs save: Bool -- whether to save the drawing
+    # @rbs save: bool -- whether to save the drawing
     def close(save = true)
       @drawing_closed = true
       begin
@@ -175,7 +175,7 @@ module Autocad
     end
 
     # @rbs return Enumerator[Block]
-    # @rbs &: (Block) -> Void
+    # @rbs &: (Block) -> void
     def blocks
       return to_enum(__callee__) unless block_given?
       ole_obj.Blocks.each { |o| yield app.wrap(o) }
@@ -183,7 +183,7 @@ module Autocad
     # return the layers for the drawing
 
     # @rbs return Enumerator(Layer)
-    # @rbs &: (Layer) -> Void
+    # @rbs &: (Layer) -> void
     def layers
       return to_enum(__callee__) unless block_given?
 

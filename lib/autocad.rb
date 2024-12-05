@@ -33,7 +33,7 @@ module Autocad
 
   class << self
     # @yield [Autocad::App]
-    def run(...) #: Void
+    def run(...) #: void
       App.run(...)
     end
 
@@ -60,9 +60,9 @@ module Autocad
 
     # save the current drawing
     # @rbs dir: String|Dir -- the dir to save drawing to
-    # @rbs exit: Bool -- whether to exit afterwards or start irb
-    # @rbs model: Bool -- prints model space in pdf document
-    # @rbs return Void
+    # @rbs exit: bool -- whether to exit afterwards or start irb
+    # @rbs model: bool -- prints model space in pdf document
+    # @rbs return void
     def save_current_drawing(dir, exit: true, model: false)
       if exit
         run do |app|
@@ -84,7 +84,7 @@ module Autocad
 
     # save the current drawing as pdf
     # @rbs dir: String|Dir -- the dir to save drawing to
-    # @rbs return Void
+    # @rbs return void
     def save_current_drawing_as_pdf(dir)
       App.run do |app|
         drawing = app.current_drawing
@@ -111,12 +111,12 @@ module Autocad
     # the app when done
     #
     # @rbs *files: Array[String|Pathname]
-    # @rbs visible: Boolean -- show the app window
-    # @rbs error_proc: (Exception, Drawing) -> Void
+    # @rbs visible: bool -- show the app window
+    # @rbs error_proc: (Exception, Drawing) -> void
     # @rbs wait_time: Integer -- the total amount of time to wait to open file (500)
     # @rbs wait_interval: Float -- the amount of time to wait between attempts (0.5)
-    # @rbs read_only: Boolean
-    # @rbs &: (Drawing) -> Void
+    # @rbs read_only: bool
+    # @rbs &: (Drawing) -> void
     def with_drawings(...)
       App.with_drawings(...)
     end

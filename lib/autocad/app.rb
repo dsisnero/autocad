@@ -9,6 +9,7 @@ require_relative "text"
 require_relative "viewport"
 require_relative "block"
 require_relative "block_reference"
+require_relative "selection_set"
 
 require "win32ole"
 module Windows
@@ -68,12 +69,12 @@ module Autocad
       # end
       #
       # @rbs *files: Array[String|Pathname]
-      # @rbs visible: Boolean -- show the app window
-      # @rbs error_proc: (Exception, Drawing) -> Void
+      # @rbs visible: bool -- show the app window
+      # @rbs error_proc: (Exception, Drawing) -> void
       # @rbs wait_time: Integer -- the total amount of time to wait to open file (500)
       # @rbs wait_interval: Float -- the amount of time to wait between attempts (0.5)
-      # @rbs read_only: Boolean
-      # @rbs &: (Drawing) -> Void
+      # @rbs read_only: bool
+      # @rbs &: (Drawing) -> void
       def with_drawings(*files, visible: false, error_proc: @default_error_proc,
         wait_time: 500, wait_interval: 0.5, read_only: false, &block)
         # drawing_options = default_drawing_options.merge(options)
@@ -106,7 +107,7 @@ module Autocad
       # and saves them as pdf files in the outdir
       # @rbs dir_or_file: String the directory of drawing [dgn,dwg] to convert
       # @rbs outdir: String the output dir for converted pdf files
-      # @rbs return Void
+      # @rbs return void
       def dwg2pdf(dir_or_file, outdir: dir_or_file, mode: :dir)
         raise "Mode on of :dir or :file" unless [:dir, :file].include? mode
         if mode == :dir
@@ -123,7 +124,7 @@ module Autocad
 
       # Initialize an instance of app with the options
       # @rbs : Hash] options the options to create the app with
-      # @option options Boolean :visible Is the app visible
+      # @option options bool :visible Is the app visible
       #
       # [source]
       # ----
@@ -134,8 +135,8 @@ module Autocad
       #   end
       # end
       # @rbs options: Hash[Symbol,Object]
-      # @rbs &: (App) -> Void -- the_app yields the instanciated app
-      def run(options = {}) #: Void
+      # @rbs &: (App) -> void -- the_app yields the instanciated app
+      def run(options = {}) #: void
         opts = default_app_options.merge(options)
         err_fn = opts.fetch(:error_proc, default_error_proc)
         begin
@@ -157,20 +158,20 @@ module Autocad
       # Calls #run to get an app instance then call open drawing with
       # that app
       # (see #open_drawing)
-      # @rbs &block: { (Drawing) -> Void }
-      def open_drawing(drawing, **options, &block) #: Void
+      # @rbs &block: { (Drawing) -> void }
+      def open_drawing(drawing, **options, &block) #: void
         run(**options) do |app|
           app.open_drawing(drawing, **options, &block)
         end
       end
     end
 
-    # @rbs return Boolean -- true if there is an active drawing
+    # @rbs return bool -- true if there is an active drawing
     def active_drawing?
       ole_obj.Documents.count > 0
     end
 
-    # @rbs return Drawing | Nil -- returns drawing if active_drawing
+    # @rbs return Drawing | nil -- returns drawing if active_drawing
     def active_drawing
       return unless active_drawing?
       ole = ole_obj.ActiveDocument
@@ -184,7 +185,7 @@ module Autocad
     attr_reader :error_proc, :visible, :logger
 
     # Constructor for app
-    # @rbs visible: Boolean -- do you want the app to be visible
+    # @rbs visible: bool -- do you want the app to be visible
     # @rbs event_handler: EventHandler
     def initialize(visible: true, error_proc: self.class.default_error_proc, event_handler: default_event_handler, wait_interval: nil, wait_time: nil)
       @visible = visible
@@ -332,7 +333,7 @@ module Autocad
     # @rbs seedfile: String -- The name of the seed file.
     #  should not include a path. The default ggextension is ".dgn".
     #  Typical values are "seed2d" or "seed3d".
-    # @rbs open: Boolean -- If the open argument is True,
+    # @rbs open: bool -- If the open argument is True,
     #   CreateDesignFile returns the newly-opened DesignFile object;
     #   this is the same value as ActiveDesignFile. If the Open argument is False,
     #   CreateDesignFile returns Nothing.
@@ -364,12 +365,12 @@ module Autocad
 
     # open the drawing
     # @rbs filename: String the name of the file to open
-    # @rbs : Boolean :read_only  (false)
+    # @rbs : bool :read_only  (false)
     # @rbs wait_time: Integer -- the total amount of time to wait to open file (500)
     # @rbs wait_interval: Float -- the amount of time in seconds to wait before retry (0.5)
     # @rbs error_proc: Proc -- a proc to run
     # @yield [Drawing] drawing
-    # @rbs return Void
+    # @rbs return void
     def open_drawing(filename, read_only: false, wait_time: nil,
       wait_interval: nil, error_proc: nil, &block)
       file_path = Pathname.new(filename).expand_path
@@ -449,7 +450,7 @@ module Autocad
       ole_obj.Documents.Count > 0
     end
 
-    # @rbs return [Boolean] true
+    # @rbs return [bool] true
     def drawing_opened?
       @drawing_opened
     end

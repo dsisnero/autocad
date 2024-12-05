@@ -1,3 +1,5 @@
+# rbs_inline: enabled
+
 require_relative 'element'
 
 module Autocad
@@ -10,23 +12,23 @@ module Autocad
       end
     end
 
-    def has_attributes?
+    def attributes? # : bool
       @ole_obj.HasAttributes
     end
 
-    def name
+    def name # : String
       @ole_obj.Name
     end
 
-    def layout?
+    def layout? # : bool
       @ole_obj.IsLayout
     end
 
-    def xref?
+    def xref? # : bool
       @ole_obj.IsXRef
     end
 
-    def dynamic?
+    def dynamic? # : bool
       @ole_obj.IsDynamicBlock
     end
 
@@ -51,6 +53,8 @@ module Autocad
     end
 
     def attributes
+      return [] unless attributes?
+
       els = @ole_obj.GetAttributes
       return [] if els.empty?
 

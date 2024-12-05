@@ -1,3 +1,5 @@
+# rbs_inline: enabled
+
 # require "autocad/property_handler"
 
 class WIN32OLE
@@ -14,13 +16,13 @@ module Autocad
     #
     #
     #
-    # @return [Boolean] true if ole type is Text
+    # @rbs return bool -- true if ole type is Text
     #
     def text?
       ole_obj.Type == ::ACAD::MsdElementTypeText
     end
 
-    # @return [Boolean] true if ole type is TextNode
+    # @rbs return bool -- true if ole type is TextNode
     def text_node?
       ole_obj.Type == ::ACAD::MsdElementTypeTextNode
     end
@@ -33,6 +35,7 @@ module Autocad
       ole_obj
     end
 
+    # @rbs return bool -- true if object is of type cell
     def cell?
       ole_obj.Type == ::ACAD::MsdElementTypeCellHeader
     end
@@ -41,7 +44,7 @@ module Autocad
       ole_obj.IsComplexElement
     end
 
-    # @return [Boolean] true if Text or TextNode
+    # @rbs return bool -- true if Text or TextNode
     def textual?
       text? || text_node?
     end
@@ -50,7 +53,7 @@ module Autocad
       @ole_obj.ObjectId
     end
 
-    # @return [Boolean] true if ole type is TypeLine
+    # @rbs return bool -- true if ole type is TypeLine
     def line?
       ole_obj.ObjectName == "AcdbLine"
     end

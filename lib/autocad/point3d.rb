@@ -1,3 +1,5 @@
+# rbs_inline: enabled
+
 module Autocad
   class Point3d
     class << self
@@ -37,6 +39,7 @@ module Autocad
       end
     end
 
+    # @rbs other: Point3d | Array[Number]
     def +(other)
       case other
       when Point3d
@@ -51,7 +54,7 @@ module Autocad
     end
 
     def deconstruct_keys
-      {x: @x, y: @y, z: @z}
+      { x: @x, y: @y, z: @z }
     end
 
     def to_ary
