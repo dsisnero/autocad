@@ -1,3 +1,5 @@
+# rbs_enabled: true
+
 module Autocad
   Error = Class.new(::RuntimeError)
   NonDGNFile = Class.new(Error)

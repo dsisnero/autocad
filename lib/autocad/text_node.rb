@@ -19,7 +19,7 @@ module Autocad
     end
 
     def read_ole(ole)
-      count = ole.TextString
+      ole.TextString
     end
 
     # def _update(text)
@@ -47,7 +47,7 @@ module Autocad
         new_text_ole.AddTextLine(line)
       end
       @ole_obj = new_text_ole
-    rescue => e
+    rescue
       @ole_obj = orig_ole
     end
 

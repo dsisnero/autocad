@@ -87,7 +87,7 @@ module Autocad
     # end
 
     def autocad_type
-      ole_obj.Type
+      ole_obj.ObjectName
     end
 
     def model
@@ -102,45 +102,46 @@ module Autocad
       return Point3d.from_ole(ole) if ole.instance_of?(WIN32OLE_RECORD) && ole.typename == "Point3d"
       return ole unless ole.instance_of?(WIN32OLE)
 
-      case ole.ObjectName
+      typ = case ole.ObjectName
       when "AcDbModelSpace"
-        ::Autocad::ModelSpace.new(ole, app)
+        ::Autocad::ModelSpace.new(ole, app, typ)
       when "AcDbPaperSpace"
-        ::Autocad::PaperSpace.new(ole, app)
+        ::Autocad::PaperSpace.new(ole, app, typ)
       when "AcDbBlockTableRecord"
-        ::Autocad::Block.new(ole, app, cell)
+        ::Autocad::Block.new(ole, app, typ, cell)
       when "AcDbLine"
-        ::Autocad::Line.new(ole, app, cell)
+        ::Autocad::Line.new(ole, app, typ, cell)
       when "AcDbPolyline"
-        ::Autocad::Polyline.new(ole, app, cell)
+        ::Autocad::Polyline.new(ole, app, typ, cell)
       when "AcDbText"
-        ::Autocad::Text.new(ole, app, cell)
+        ::Autocad::Text.new(ole, app, typ, cell)
       when "AcDbMText"
-        ::Autocad::TextNode.new(ole, app, cell)
+        ::Autocad::TextNode.new(ole, app, typ, cell)
       when "AcDbArc"
-        ::Autocad::Arc.new(ole, app, cell)
+        ::Autocad::Arc.new(ole, app, typ, cell)
       when "AcDbViewport"
-        ::Autocad::Viewport.new(ole, app)
+        ::Autocad::Viewport.new(ole, app, typ)
       when "AcDbBlock"
-        ::Autocad::Block.new(ole, app)
+        ::Autocad::Block.new(ole, app, typ)
       when "AcDbBlockReference"
-        ::Autocad::BlockReference.new(ole, app)
-      else
-
-        require "debug"
-        binding.break
-
-        new(ole, app, cell)
+        ::Autocad::BlockReference.new(ole, app, typ)
+      when "AcDbLayerTableRecord"
+        ::Autocad::Layer.new(ole, app, typ)
       end
+
+      return typ if typ
+
+      require "debug"
+      binding.break
     end
 
     def self.ole_object?
       ole.instance_of?(WIN32OLE)
     end
 
-    attr_reader :ole_obj, :app, :original
+    attr_reader :ole_obj, :app, acad_type, :original
 
-    def initialize(ole, app, cell = nil)
+    def initialize(ole, app, typ, cell = nil)
       @ole_obj = ole
       @original = read_ole(ole)
       @app = app
@@ -187,7 +188,7 @@ module Autocad
         write_ole(value)
         @original = read_ole(ole_obj)
         true
-      rescue => e
+      rescue
         @original = saved_original
         false
       end

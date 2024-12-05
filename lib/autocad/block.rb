@@ -1,9 +1,10 @@
-require_relative "element"
+require_relative 'element'
 
 module Autocad
   class Block < Element
     def each
       return enum_for(:each) unless block_given?
+
       @ole_obj.each do |ole|
         yield app.wrap(ole)
       end
@@ -37,11 +38,11 @@ module Autocad
 
     def block_type
       if xref?
-        "XRef"
+        'XRef'
       elsif dynamic?
-        "Dynamic"
+        'Dynamic'
       elsif layout?
-        "Layout"
+        'Layout'
       end
     end
 
@@ -52,6 +53,7 @@ module Autocad
     def attributes
       els = @ole_obj.GetAttributes
       return [] if els.empty?
+
       Attributes.new(self, els.map { |e| Attribute.new(e, app) })
     end
   end
@@ -66,16 +68,15 @@ module Autocad
     end
 
     def update_element(name, value)
-      if att = find_attribute(name)
-        att.update(value)
-      end
+      return unless att = find_attribute(name)
+
+      att.update(value)
     end
 
-    def each
+    def each(&block)
       return to_enum(:each) unless block_given?
-      elements.each do |el|
-        yield el
-      end
+
+      elements.each(&block)
     end
 
     def find_attribute(name)

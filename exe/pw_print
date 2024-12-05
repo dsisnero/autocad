@@ -17,14 +17,17 @@ class PwApp
     unless directory_path.directory?
       exit_now! "arg directory: #{directory_path} doesn't exist"
     end
-    Autocad.save_current_drawing(directory_path, exit: options["exit"])
+    model = options["model"]
+    model = model || false
+    Autocad.save_current_drawing(directory_path, exit: options["exit"], model: )
     unless options["exit"]
-      require "debug"; binding.break
-    end
+      require "debug"; binding.irb
+          end
   end
 
   description "Save the currently open projectwise drawing"
 
+  on("-m","--[no-]model", TrueClass, "Save pdf as modelspace")
   on("-e", "--[no-]exit", TrueClass, "Close the Autocad instance")
   options["exit"] = true
 

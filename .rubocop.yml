@@ -23,3 +23,8 @@ AllCops:
   TargetRubyVersion: 3.3
   Exclude:
     - 'sig/**/*'
+
+# RBS annotations allowed
+Layout/LeadingCommentSpace:
+  Enabled: true
+  AllowRBSInlineAnnotation: true

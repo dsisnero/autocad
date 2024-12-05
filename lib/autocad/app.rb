@@ -135,7 +135,7 @@ module Autocad
       # end
       # @rbs options: Hash[Symbol,Object]
       # @rbs &: (App) -> Void -- the_app yields the instanciated app
-      def run(options = {}) # : Void
+      def run(options = {}) #: Void
         opts = default_app_options.merge(options)
         err_fn = opts.fetch(:error_proc, default_error_proc)
         begin
@@ -158,7 +158,7 @@ module Autocad
       # that app
       # (see #open_drawing)
       # @rbs &block: { (Drawing) -> Void }
-      def open_drawing(drawing, **options, &block) # : Void
+      def open_drawing(drawing, **options, &block) #: Void
         run(**options) do |app|
           app.open_drawing(drawing, **options, &block)
         end
@@ -177,7 +177,7 @@ module Autocad
       drawing_from_ole(ole)
     end
 
-    def drawing_from_ole(ole) # : Drawing
+    def drawing_from_ole(ole) #: Drawing
       Drawing.new(self, ole)
     end
 

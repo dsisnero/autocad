@@ -26,6 +26,6 @@ end
 
 gem "optparse-plus", "~> 3.0"
 
-gem "webrick", "~> 1.9", :groups => [:development, :test]
+gem "webrick", "~> 1.9", groups: [:development, :test]
 
-gem "acrobat", "~> 0.3.0", :groups => [:development, :test]
+gem "acrobat", "~> 0.3.0", groups: [:development, :test]

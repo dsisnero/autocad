@@ -1,3 +1,5 @@
+# rbs_inline: enabled
+
 module Autocad
   class EventHandler
     def initialize
@@ -5,6 +7,7 @@ module Autocad
       @file = File.open("event_handler.log", "w")
     end
 
+    # @rbs event: String -- the event name to handle
     def add_handler(event, &block)
       @handlers[event] = block if block
     end

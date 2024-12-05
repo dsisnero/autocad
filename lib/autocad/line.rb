@@ -1,3 +1,5 @@
+# rbs_inline: enabled
+
 require_relative "element"
 
 module Autocad
@@ -6,11 +8,11 @@ module Autocad
       ole_obj.length
     end
 
-    def start_point
+    def start_point #: Point3d
       Point3d(ole_obj.StartPoint)
     end
 
-    def end_point
+    def end_point #: Point3d
       Point3d(ole_obj.EndPoint)
     end
   end

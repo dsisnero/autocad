@@ -38,7 +38,7 @@ module Autocad
     #
     # @rbs event: String -- event key for handler
     # @rbs &: {() -> Void} - handler Proc
-    def register_handler(event, &) #: Void
+    def register_handler(event, &) #:Void
       @event_handler.add_handler(event, &) unless event == "OnQuit"
     end
 
@@ -69,7 +69,7 @@ module Autocad
     #
     # If a name is provided use the name provided otherwise use the drawing name
     #
-    # @rbs name: String | Nil -- change ext to pdf and return Pathname from 
+    # @rbs name: String | Nil -- change ext to pdf and return Pathname from
     # the name or drawing name
     def pdf_name(name = nil) #: Pathname
       name ||= self.name
@@ -96,7 +96,7 @@ module Autocad
     def copy_name(backup_str = ".copy")
       lname = name.dup
       ext = File.extname(lname)
-      name = "#{File.basename(lname, ext)}#{backup_str}#{ext}"
+      "#{File.basename(lname, ext)}#{backup_str}#{ext}"
     end
 
     def paper_space? #: Bool
@@ -112,7 +112,7 @@ module Autocad
     end
 
     def to_model_space #: Void
-       ole_obj.ActiveSpace = ACAD::AcModelSpace
+      ole_obj.ActiveSpace = ACAD::AcModelSpace
     end
 
     # @rbs return String -- the name of the drawing
@@ -174,8 +174,20 @@ module Autocad
       @ole_obj = nil
     end
 
+    # @rbs return Enumerator[Block]
+    # @rbs &: (Block) -> Void
     def blocks
-      Autocad::Enumerator.new(ole_obj.Blocks, app)
+      return to_enum(__callee__) unless block_given?
+      ole_obj.Blocks.each { |o| yield app.wrap(o) }
+    end
+    # return the layers for the drawing
+
+    # @rbs return Enumerator(Layer)
+    # @rbs &: (Layer) -> Void
+    def layers
+      return to_enum(__callee__) unless block_given?
+
+      ole_obj.Layers.each { |o| yield app.wrap(o) }
     end
 
     def model_space

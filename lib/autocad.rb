@@ -1,4 +1,4 @@
- # rbs_inline: enabled
+# rbs_inline: enabled
 
 module Autocad
   module Common
@@ -22,6 +22,7 @@ require "pathname"
 require "autocad/app"
 require "autocad/errors"
 require "autocad/point3d"
+require "autocad/layer"
 
 def Point3d(...)
   Autocad::Point3d.new(...)
@@ -32,12 +33,12 @@ module Autocad
 
   class << self
     # @yield [Autocad::App]
-    def run(...)
+    def run(...) #: Void
       App.run(...)
     end
 
     # @return [Pathname]
-    def root
+    def root #:Pathname
       ROOT
     end
 
@@ -59,14 +60,16 @@ module Autocad
 
     # save the current drawing
     # @rbs dir: String|Dir -- the dir to save drawing to
+    # @rbs exit: Bool -- whether to exit afterwards or start irb
+    # @rbs model: Bool -- prints model space in pdf document
     # @rbs return Void
-    def save_current_drawing(dir, exit: true)
+    def save_current_drawing(dir, exit: true, model: false)
       if exit
         run do |app|
           drawing = app.current_drawing
           return unless drawing
           drawing.copy(dir: dir)
-          drawing.save_as_pdf(dir: dir)
+          drawing.save_as_pdf(dir:, model:)
           drawing.close(false)
         end
       else

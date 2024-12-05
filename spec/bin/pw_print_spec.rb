@@ -2,7 +2,7 @@ require_relative "../spec_helper"
 
 describe "pw_print command" do
   let(:fixtures_dir) { Pathname.new(__dir__).join("../fixtures").expand_path }
-  
+
   before do
     @original_dir = Dir.pwd
     Dir.chdir(fixtures_dir)
@@ -21,19 +21,19 @@ describe "pw_print command" do
 
     it "accepts optional directory argument" do
       Dir.mktmpdir do |dir|
-        output = `ruby ../../bin/pw_print #{dir}`
+        `ruby ../../bin/pw_print #{dir}`
         _($?.exitstatus).must_equal 0
       end
     end
 
     it "uses current directory when no arg given" do
-      output = `ruby ../../bin/pw_print`
+      `ruby ../../bin/pw_print`
       _($?.exitstatus).must_equal 0
     end
 
     it "respects --no-exit flag" do
       Dir.mktmpdir do |dir|
-        output = `ruby ../../bin/pw_print --no-exit #{dir}`
+        `ruby ../../bin/pw_print --no-exit #{dir}`
         _($?.exitstatus).must_equal 0
       end
     end
