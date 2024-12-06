@@ -28,5 +28,17 @@ describe Autocad::Drawing do
       drawing.to_paper_space
       _(drawing.active_space).must_be_instance_of(Autocad::PaperSpace)
     end
+
+    it "#selection_sets should return an enumerator when no block given" do
+      _(drawing.selection_sets).must_be_kind_of(Enumerator)
+    end
+
+    it "#selection_sets should yield selection sets when block given" do
+      sets = []
+      drawing.selection_sets { |set| sets << set }
+      sets.each do |set|
+        _(set).must_be_instance_of(Autocad::SelectionSet)
+      end
+    end
   end
 end
