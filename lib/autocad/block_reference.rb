@@ -9,6 +9,13 @@ module Autocad
       end
     end
 
+    def coordinates
+      ole = ole_obj.InsertionPoint
+      Point3d.from_ole(ole)
+    rescue
+      Autocad::Error.new("error getting coordinates of block #{name}")
+    end
+
     def has_attributes?
       @ole_obj.HasAttributes
     end

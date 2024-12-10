@@ -9,6 +9,7 @@ module Autocad
   module ModelTrait
     def each
       return enum_for(:each) unless block_given?
+
       @ole_obj.each do |ole|
         yield app.wrap(ole)
       end
@@ -30,27 +31,36 @@ module Autocad
     end
 
     # @rbs center: [] | Point3d -- center of circle
-    # @rbs radius: 
+    # @rbs radius:
     def add_circle(center, radius)
       pt = Point3d(center)
       ole_circle = ole_obj.AddCircle(pt.to_ole, radius)
       app.wrap(ole_circle)
-    rescue Exception
-      Autocad::Error.new("Error adding circle")
+    rescue StandardError
+      raise Autocad::Error.new('Error adding circle #{ex}')
     end
 
     def add_rectangle(upper_left, lower_right)
       x1, y1, _z = Point3d(upper_left).to_a
       x2, y2, _z2 = Point3d(lower_right)
       pts = [x1, y1, x2, y1, x2, y1, x2, y2]
-      pts_variant = WIN32OLE::Variant.new(pts, WIN32OLE::VARIANT::VT_ARRAY|WIN32OLE::VARIANT::VT_R8)
+      pts_variant = WIN32OLE::Variant.new(pts, WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_R8)
       ole = ole_obj.AddLightweightPolyline(pts_variant)
       app.wrap(ole)
-    rescue Exception => ex
-      Autocad::Error.new("Error adding rectangle #{ex}")
+    rescue StandardError => e
+      raise Autocad::Error.new("Error adding rectangle #{e}")
     end
 
     def add_spline(points)
+      pts = Point3d.pts_to_array(points)
+      pts_variant = Point3d.array_to_ole(pts)
+      ole = ole_obj.AddSpline(pts_variant)
+      puts "pts #{pts}"
+      puts "pts_variant #{pts_variant.class} #{pts_variant}"
+      app.wrap(ole)
+    rescue StandardError => e
+      raise Autocad::Error.new("Error adding spline #{e}")
+    end
 
     def drawing
       @drawing ||= ::Autocad::Drawing.from_ole_obj(app, ole_obj.Document)

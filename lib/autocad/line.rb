@@ -22,6 +22,13 @@ module Autocad
   end
 
   class Circle < Element
+    def center
+      Point3d.new(ole_obj.Center)
+    end
+
+    def radius
+      Point3d.new(ole_obj.Radius)
+    end
   end
 
   class Polyline < Element

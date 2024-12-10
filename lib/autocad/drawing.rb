@@ -208,6 +208,11 @@ module Autocad
       ole_obj.Layers.each { |o| yield app.wrap(o) }
     end
 
+    def linetypes
+      return to_enum(__callee__) unless block_given?
+      ole_obj.Linetypes.each { |o| yield app.wrap(o) }
+    end
+
     # @rbs name: String -- layer name to create
     # @rbs return Acad::Layer
     def create_layer(name)
@@ -236,6 +241,47 @@ module Autocad
       nil
     end
 
+    # @rbs message: String -- the String to put in Autocad prompt
+    def prompt(message)
+      utility.Prompt(message)
+    end
+
+    # @rbs prompt: String -- the string to prompt the user for String
+    # @rbs has_spaces: bool -- whether the string returned can contain spaces
+    def get_input_string(prompt: "Enter a string", spaces: true)
+      utility.GetString(spaces, prompt)
+    rescue => ex
+      raise Autocad::Error.new("Error getting string input from user #{ex}")
+    end
+
+    # @rbs prompt: String -- the string to prompt the user for Integer
+    def get_input_integer(prompt: "Enter a integer")
+      utility.GetInteger(prompt)
+    rescue => ex
+      raise Autocad::Error.new("Error getting integer input from user #{ex}")
+    end
+
+    # In a running Autocad instance, prompts the user for a point.
+    # Uses the prompt argument as the prompt string.
+    # If base_point is provided, it is used as the base point and a
+    # stretched line is drawn from the base point to the returned point.
+    # @rbs prompt: String
+    # @rbs base_point: Array, Point3d, nil
+    # @rbs return [Point3d]
+    def get_point(prompt: "Get point", base_point: nil)
+      if base_point
+        array_pt = base_point.to_ary.map { |x| x.to_f } unless base_point.nil?
+        base_point = WIN32OLE_VARIANT.array([3], WIN32OLE::VARIANT::VT_R8)
+        base_point[0] = array_pt[0]
+        base_point[1] = array_pt[1]
+        base_point[2] = array_pt[2]
+      end
+      pt = utility.GetPoint(base_point, prompt)
+      Point3d.new(pt[0], pt[1], pt[2])
+    rescue => ex
+      raise Autocad::Error.new("Error getting point input from user #{ex}")
+    end
+
     # @rbs return Enumerator[SelectionSet] | void
     # @rbs &: (SelectionSet) -> void
     def selection_sets
@@ -252,6 +298,11 @@ module Autocad
     end
 
     alias_method :model, :model_space
+    alias_method :paper, :paper_space
+
+    def utility
+      ole_obj.Utility
+    end
 
     def ole_obj
       is_ok = true

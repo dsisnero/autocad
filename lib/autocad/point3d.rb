@@ -37,10 +37,8 @@ module Autocad
           pts.each_slice(2).flat_map { |x, y| [x.to_f, y.to_f] }
         end
       end
-      
+
       def array_to_ole(ar)
-        case ar
-          in [Array]
         WIN32OLE::Variant.new(ar, WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_R8)
       end
     end
@@ -49,6 +47,10 @@ module Autocad
 
     def initialize(_x = nil, _y = nil, _z = nil, x: _x, y: _y, z: _z)
       case [x, y, z]
+      in [Point3d, y, z]
+        @x = x.x
+        @y = x.y
+        @z = x.z
       in [Array, nil, nil]
         @x = x[0].to_f
         @y = x[1].to_f
@@ -65,7 +67,7 @@ module Autocad
     end
 
     # @rbs other: Point3d | [Float,Float,Float]
-    def +(other)#: Point3d
+    def +(other) #: Point3d
       case other
       when Point3d
         self.class.new(x + other.x, y + other.y, z + other.z)
@@ -90,7 +92,7 @@ module Autocad
     end
 
     # @rbs other: Point3d | [Float,Float,Float]
-    def -(other)#: Point3d
+    def -(other) #: Point3d
       case other
       when Point3d
         self.class.new(x - other.x, y - other.y, z - other.z)

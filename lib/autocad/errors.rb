@@ -5,7 +5,7 @@ module Autocad
   NonDGNFile = Class.new(Error)
 
   class FileNotFound < Error
-    def initalize(path)
+    def initialize(path)
       super("File at path #{path} not found")
     end
   end

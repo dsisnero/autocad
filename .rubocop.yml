@@ -28,3 +28,6 @@ AllCops:
 Layout/LeadingCommentSpace:
   Enabled: true
   AllowRBSInlineAnnotation: true
+
+Layout/EndOfLine:
+  EnforcedStyle: lf

@@ -435,8 +435,20 @@ module Autocad
 
     alias_method :model, :model_space
 
+    # @rbs message: String -- the String to put in Autocad prompt
     def prompt(message)
-      doc_ole.Utility.prompt(message)
+      doc.prompt(message)
+    end
+
+    # @rbs prompt: string -- the string to prompt the user for string
+    # @rbs has_spaces: bool -- whether the string returned can contain spaces
+    def get_input_string(...)
+      doc.get_input_string(...)
+    end
+
+    # @rbs prompt: string -- the string to prompt the user for integer
+    def get_input_integer(...)
+      doc.get_input_integer(...)
     end
 
     # In a running Autocad instance, prompts the user for a point.
@@ -446,16 +458,8 @@ module Autocad
     # @rbs prompt: String
     # @rbs base_point: Array, Point3d, nil
     # @rbs return [Point3d]
-    def get_point(prompt: "Get point", base_point: nil)
-      if base_point
-        array_pt = base_point.to_ary.map { |x| x.to_f } unless base_point.nil?
-        base_point = WIN32OLE_VARIANT.array([3], WIN32OLE::VARIANT::VT_R8)
-        base_point[0] = array_pt[0]
-        base_point[1] = array_pt[1]
-        base_point[2] = array_pt[2]
-      end
-      pt = doc_ole.Utility.GetPoint(base_point, prompt)
-      Point3d.new(pt[0], pt[1], pt[2])
+    def get_point(...)
+      doc.get_point(...)
     end
 
     # In autocad prompts the user for a selection.

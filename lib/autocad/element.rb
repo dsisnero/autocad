@@ -155,6 +155,8 @@ module Autocad
           ::Autocad::Circle.new(ole, app, typ)
         when "IAcadLWPolyline"
           ::Autocad::Polyline.new(ole, app, typ)
+        when "IAcadLineType"
+          ::Autocad::Linetype.new(ole, app, typ)
         end
 
         return result if result
@@ -254,6 +256,45 @@ module Autocad
       app.ole_obj
     end
 
+    def delete
+      ole_obj.Delete
+    rescue => ex
+      raise Autocad::Error.new("Error deleting object #{self} #{ex}")
+    end
+
+    def clone(new_insertion_point)
+      pt = Point3d.new(new_insertion_point)
+      ole = ole_obj.Copy(pt.to_ole)
+      app.wrap(ole)
+    rescue => ex
+      raise Autocad::Error.new("Error cloning object #{ex}")
+    end
+
+    def move_x(amt)
+      pt1 = Point3d(0, 0, 0)
+      pt2 = Point3d(amt, 0, 0)
+      move_ole(pt1.to_ole, pt2.to_ole)
+    end
+
+    def move_y(amt)
+      pt1 = Point3d(0, 0, 0)
+      pt2 = Point3d(0, 1, 0)
+      move_ole(pt1.to_ole, pt2.to_ole)
+    end
+
+    def move(x, y)
+      pt1 = Point3d(0, 0, 0)
+      pt2 = Point3d(x, y, 0)
+      move_ole(pt1.to_ole, pt2.to_ole)
+    end
+
+    def move_ole(pt1, pt2)
+      ole_obj.Move(pt1, pt2)
+      app.wrap(ole_obj)
+    rescue => ex
+      raise Autocad::Error.new("Error moving object #{ex}")
+    end
+
     def ole_cell(ole)
       ole.IsCellElement || ole.IsSharedCellElement
     end
@@ -327,6 +368,27 @@ end
 
 module Autocad
   class BSplineSurface < Element
+  end
+end
+
+module Autocad
+  class Linetype < Element
+    CONTINUOUS = "Continuous"
+    DASHED = "Dashed"
+    CENTER = "Center"
+    HIDDEN = "Hidden"
+    PHANTOM = "Phantom"
+    BREAK = "Break"
+    BORDER = "Border"
+    DOT2 = "Dot2"
+    DOTX2 = "DotX2"
+    DIVIDE = "Divide"
+    TRACKING = "Tracking"
+    DASHDOT = "Daskdot"
+
+    def name
+      ole_obj.Name
+    end
   end
 end
 

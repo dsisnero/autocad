@@ -1,6 +1,6 @@
 # rbs_inline: enabled
 
-require_relative 'element'
+require_relative "element"
 
 module Autocad
   class Block < Element
@@ -40,11 +40,11 @@ module Autocad
 
     def block_type
       if xref?
-        'XRef'
+        "XRef"
       elsif dynamic?
-        'Dynamic'
+        "Dynamic"
       elsif layout?
-        'Layout'
+        "Layout"
       end
     end
 
