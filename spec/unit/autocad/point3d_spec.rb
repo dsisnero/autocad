@@ -30,6 +30,15 @@ describe Autocad::Point3d do
       _(pt.y).must_equal(2.0)
       _(pt.z).must_equal(3.0)
     end
+
+    it "allows you to supply another Point3d" do
+      original = Autocad::Point3d.new(1, 2, 3)
+      pt = Autocad::Point3d.new(original)
+      _(pt).must_be_instance_of(Autocad::Point3d)
+      _(pt.x).must_equal(1.0)
+      _(pt.y).must_equal(2.0)
+      _(pt.z).must_equal(3.0)
+    end
   end
   it "allows you to add lines and points" do
     p1 = Point3d(0, 0)
