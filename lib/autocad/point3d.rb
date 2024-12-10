@@ -19,30 +19,22 @@ module Autocad
       def polar_to_cartesian(r, a)
       end
 
-      # convert array of points to array of floats
+      # convert array of points to array of x,y coordinates
       # array can be [ Point3d, Point3d, ..]
       # array can be [  [x,y,z], [x,y,z], [x,y,z] ..]
-      # #array can be [x,y, x1, y1, x2,y2, x3,y3]
+      # array can be [x,y, x1, y1, x2,y2, x3,y3]
       # array can be [[x,y], [x2,y2], [x3,y3]]
-      # all x are to be converted to float
+      # all coordinates are converted to float
+      # z coordinates are ignored
       # @rbs return Array[Float]
       def pts_to_array(pts)
         case pts.first
         when Point3d
-          pts.flat_map(&:to_a)
+          pts.flat_map(&:to_xy)
         when Array
-          pts.flat_map do |pt| 
-            case pt.length
-            when 2
-              [pt[0].to_f, pt[1].to_f, 0.0]
-            when 3
-              pt.map(&:to_f)
-            end
-          end
+          pts.flat_map { |pt| [pt[0].to_f, pt[1].to_f] }
         when Numeric
-          pts.each_slice(3).flat_map do |x, y, z|
-            [x.to_f, y.to_f, (z || 0.0).to_f]
-          end
+          pts.each_slice(2).flat_map { |x, y| [x.to_f, y.to_f] }
         end
       end
       
