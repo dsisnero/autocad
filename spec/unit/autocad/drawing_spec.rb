@@ -49,5 +49,20 @@ describe Autocad::Drawing do
         _(ss.name).must_equal 'test'
       end
     end
+
+    describe '#linetypes' do
+      it 'returns an enumerator when no block given' do
+        _(drawing.linetypes).must_be_kind_of(Enumerator)
+      end
+
+      it 'yields linetypes when block given' do
+        types = []
+        drawing.linetypes { |lt| types << lt }
+        _(types).wont_be_empty
+        types.each do |lt|
+          _(lt).must_be_kind_of(Autocad::Linetype)
+        end
+      end
+    end
   end
 end
