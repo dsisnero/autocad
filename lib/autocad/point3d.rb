@@ -27,6 +27,23 @@ module Autocad
       # all x are to be converted to float
       # @rbs return Array[Float]
       def pts_to_array(pts)
+        case pts.first
+        when Point3d
+          pts.flat_map(&:to_a)
+        when Array
+          pts.flat_map do |pt| 
+            case pt.length
+            when 2
+              [pt[0].to_f, pt[1].to_f, 0.0]
+            when 3
+              pt.map(&:to_f)
+            end
+          end
+        when Numeric
+          pts.each_slice(3).flat_map do |x, y, z|
+            [x.to_f, y.to_f, (z || 0.0).to_f]
+          end
+        end
       end
       
       def array_to_ole(ar)
