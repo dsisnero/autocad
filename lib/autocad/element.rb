@@ -53,6 +53,10 @@ module Autocad
       @ole_obj.ObjectId
     end
 
+    def visible?
+      @ole_obj.Visible
+    end
+
     # @rbs return bool -- true if ole type is TypeLine
     def line?
       ole_obj.ObjectName == "AcdbLine"
@@ -105,44 +109,64 @@ module Autocad
       return Point3d.from_ole(ole) if ole.instance_of?(WIN32OLE_RECORD) && ole.typename == "Point3d"
       return ole unless ole.instance_of?(WIN32OLE)
 
-      typ = case ole.ObjectName
-      when "AcDbModelSpace"
-        ::Autocad::ModelSpace.new(ole, app, typ)
-      when "AcDbPaperSpace"
-        ::Autocad::PaperSpace.new(ole, app, typ)
-      when "AcDbBlockTableRecord"
-        ::Autocad::Block.new(ole, app, typ, cell)
-      when "AcDbLine"
-        ::Autocad::Line.new(ole, app, typ, cell)
-      when "AcDbPolyline"
-        ::Autocad::Polyline.new(ole, app, typ, cell)
-      when "AcDbText"
-        ::Autocad::Text.new(ole, app, typ, cell)
-      when "AcDbMText"
-        ::Autocad::TextNode.new(ole, app, typ, cell)
-      when "AcDbArc"
-        ::Autocad::Arc.new(ole, app, typ, cell)
-      when "AcDbViewport"
-        ::Autocad::Viewport.new(ole, app, typ)
-      when "AcDbBlock"
-        ::Autocad::Block.new(ole, app, typ)
-      when "AcDbBlockReference"
-        ::Autocad::BlockReference.new(ole, app, typ)
-      when "AcDbLayerTableRecord"
-        ::Autocad::Layer.new(ole, app, typ)
+      if ole.respond_to? :ObjectName
+        typ = case ole.ObjectName
+        when "AcDbModelSpace"
+          ::Autocad::ModelSpace.new(ole, app, typ)
+        when "AcDbPaperSpace"
+          ::Autocad::PaperSpace.new(ole, app, typ)
+        when "AcDbBlockTableRecord"
+          ::Autocad::Block.new(ole, app, typ, cell)
+        when "AcDbLine"
+          ::Autocad::Line.new(ole, app, typ, cell)
+        when "AcDbPolyline"
+          ::Autocad::Polyline.new(ole, app, typ, cell)
+        when "AcDbText"
+          ::Autocad::Text.new(ole, app, typ, cell)
+        when "AcDbMText"
+          ::Autocad::TextNode.new(ole, app, typ, cell)
+        when "AcDbArc"
+          ::Autocad::Arc.new(ole, app, typ, cell)
+        when "AcDbViewport"
+          ::Autocad::Viewport.new(ole, app, typ)
+        when "AcDbBlock"
+          ::Autocad::Block.new(ole, app, typ)
+        when "AcDbBlockReference"
+          ::Autocad::BlockReference.new(ole, app, typ)
+        when "AcDbLayerTableRecord"
+          ::Autocad::Layer.new(ole, app, typ)
+        when AcDbLayerTableRecord
+        end
+
+        return typ if typ
+        binding.irb
+
+      else
+        typ = ole.ole_type
+        result = case typ.name
+        when "IAcadSelectionSet"
+
+          ::Autocad::SelectionSet.new(ole, app, typ)
+        when "IAcadLayer"
+          ::Autocad::Layer.new(ole, app, typ)
+        when "IAcadLine"
+          ::Autocad::Line.new(ole, app, typ)
+        when "IAcadCircle"
+          ::Autocad::Circle.new(ole, app, typ)
+        when "IAcadLWPolyline"
+          ::Autocad::Polyline.new(ole, app, typ)
+        end
+
+        return result if result
+        binding.irb
       end
-
-      return typ if typ
-
-      require "debug"
-      binding.break
     end
 
     def self.ole_object?
       ole.instance_of?(WIN32OLE)
     end
 
-    attr_reader :ole_obj, :app, acad_type, :original
+    attr_reader :ole_obj, :app, :acad_type, :original
 
     def initialize(ole, app, typ, cell = nil)
       @ole_obj = ole

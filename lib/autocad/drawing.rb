@@ -174,6 +174,24 @@ module Autocad
       @ole_obj = nil
     end
 
+    # @rbs name: String -- selection set name to return
+    # @rbs return SelectionSet | nil
+    def get_selection_set(name)
+      ole = get_ole_selection_set(name)
+      app.wrap(ole) if ole
+    end
+
+    # @rbs name: String -- selection set name to return
+    # @rbs return SelectionSet | nil
+    def get_ole_selection_set(name)
+      return nil if ole_selection_sets.Count == 0
+      begin
+        ole_selection_sets.Item(name)
+      rescue
+        nil
+      end
+    end
+
     # @rbs return Enumerator[Block]
     # @rbs &: (Block) -> void
     def blocks
@@ -182,12 +200,47 @@ module Autocad
     end
     # return the layers for the drawing
 
-    # @rbs return Enumerator(Layer)
+    # @rbs return Enumerator[Layer]
     # @rbs &: (Layer) -> void
     def layers
       return to_enum(__callee__) unless block_given?
 
       ole_obj.Layers.each { |o| yield app.wrap(o) }
+    end
+
+    # @rbs name: String -- layer name to create
+    # @rbs return Acad::Layer
+    def create_layer(name)
+      ole_layer = begin
+        ole_obj.Layers.Item(name)
+      rescue
+        nil
+      end
+      return ole_layer if ole_layer
+      ole_layer = ole_obj.Layers.Add(name)
+      app.wrap(ole_layer)
+    end
+
+    def ole_selection_sets
+      ole_obj.SelectionSets
+    end
+
+    # @rbs name: String -- the name to call new selection set
+    # @rbs return Autocad::SelectionSet | nil
+    def create_selection_set(name, filter: nil)
+      ss = get_ole_selection_set(name)
+      ss.Delete if ss
+      ss = ole_selection_sets.Add(name)
+      app.wrap(ss)
+    rescue WIN32OLE::RuntimeError
+      nil
+    end
+
+    # @rbs return Enumerator[SelectionSet] | void
+    # @rbs &: (SelectionSet) -> void
+    def selection_sets
+      return to_enum(__callee__) unless block_given?
+      ole_obj.SelectionSets.each { |o| yield app.wrap(o) }
     end
 
     def model_space

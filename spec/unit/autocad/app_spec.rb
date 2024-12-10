@@ -63,7 +63,7 @@ describe "Autocad::App" do
       name = temp_file("test.dwg")
       drawing = @app.new_drawing(name)
       _(drawing).must_be_instance_of(Autocad::Drawing)
-      drawing.close
+      drawing.close(false)
       cleanup_test_drawing(name)
     end
 
@@ -75,6 +75,7 @@ describe "Autocad::App" do
       with_test_drawing(drawing_path) do |file|
         @app.open_drawing(file, read_only: true) do |dwg|
           _(dwg).must_be_instance_of Autocad::Drawing
+          dwg.close(false)
         end
       end
     end

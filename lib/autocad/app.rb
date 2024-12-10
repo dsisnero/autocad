@@ -55,6 +55,35 @@ module Autocad
         binding.break
       end
 
+      # save the current drawing
+      # @rbs dir: String|Pathname -- the dir to save drawing to
+      # @rbs exit: bool -- whether to exit afterwards or start irb
+      # @rbs model: bool -- prints model space instead of paperspace in pdf document
+      # @rbs return void
+      def save_open_drawings(dir: Pathname.getwd, exit: true, model: false)
+        if exit
+          run do |app|
+            return unless app.has_drawings?
+            drawings = app.drawings
+            drawings.each do |d|
+              d.copy(dir:)
+              d.save_as_pdf(dir:, model:)
+              d.close(false)
+            end
+          end
+        else
+          app = App.new
+          return unless app.has_drawings?
+          drawings = app.drawings
+          drawings.each do |d|
+            d.copy(dir:)
+            d.save_as_pdf(dir:, model:)
+            # d.close(false)
+          end
+          app
+        end
+      end
+
       # Runs the app, opening the filenames
       # and yielding each open drawing to the
       # supplied block
@@ -337,7 +366,7 @@ module Autocad
     #   CreateDesignFile returns the newly-opened DesignFile object;
     #   this is the same value as ActiveDesignFile. If the Open argument is False,
     #   CreateDesignFile returns Nothing.
-    # @rbs returns Drawing -- returns the new drawing
+    # @rbs return Drawing, void -- returns the new drawing
     def new_drawing(filename, open: true, options: {}, &block)
       opts = default_app_options.merge(options)
       err_fn = opts.fetch(:error_proc, error_proc)
@@ -369,8 +398,8 @@ module Autocad
     # @rbs wait_time: Integer -- the total amount of time to wait to open file (500)
     # @rbs wait_interval: Float -- the amount of time in seconds to wait before retry (0.5)
     # @rbs error_proc: Proc -- a proc to run
-    # @yield [Drawing] drawing
-    # @rbs return void
+    # @rbs &: (Drawing) -> (void)
+    # @rbs return Drawing | void
     def open_drawing(filename, read_only: false, wait_time: nil,
       wait_interval: nil, error_proc: nil, &block)
       file_path = Pathname.new(filename).expand_path
@@ -449,6 +478,17 @@ module Autocad
     def has_documents?
       ole_obj.Documents.Count > 0
     end
+
+    alias_method :has_drawings?, :has_documents?
+
+    # @rbs return Enumerator[Drawing] | void
+    # @rbs &: (Drawing) -> void
+    def documents
+      return to_enum(__callee__) unless block_given?
+      ole_obj.Documents.each { |o| yield Drawing.new(self, o) }
+    end
+
+    alias_method :drawings, :documents
 
     # @rbs return [bool] true
     def drawing_opened?

@@ -1,6 +1,6 @@
 # rbs_inline: enabled
 
-require_relative "element"
+require_relative 'element'
 
 module Autocad
   class Line < Element
@@ -8,13 +8,20 @@ module Autocad
       ole_obj.length
     end
 
-    def start_point #: Point3d
+    def line?
+      true
+    end
+
+    def start_point # : Point3d
       Point3d(ole_obj.StartPoint)
     end
 
-    def end_point #: Point3d
+    def end_point # : Point3d
       Point3d(ole_obj.EndPoint)
     end
+  end
+
+  class Circle < Element
   end
 
   class Polyline < Element

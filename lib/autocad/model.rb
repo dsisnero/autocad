@@ -14,6 +14,44 @@ module Autocad
       end
     end
 
+    # @rbs pt1: Autocad::Point3d
+    # @rbs return Autocad::Line
+    def add_line(pt1, pt2, layer: nil)
+      pt1 = Point3d.new(pt1)
+      pt2 = Point3d.new(pt2)
+      ole_line = ole_obj.AddLine(pt1.to_ole, pt2.to_ole)
+      if layer
+        layer = app.create_layer(layer)
+        ole_line.layer = layer.ole_obj
+      end
+      app.wrap(ole_line)
+    rescue ex
+      puts ex.message
+    end
+
+    # @rbs center: [] | Point3d -- center of circle
+    # @rbs radius: 
+    def add_circle(center, radius)
+      pt = Point3d(center)
+      ole_circle = ole_obj.AddCircle(pt.to_ole, radius)
+      app.wrap(ole_circle)
+    rescue Exception
+      Autocad::Error.new("Error adding circle")
+    end
+
+    def add_rectangle(upper_left, lower_right)
+      x1, y1, _z = Point3d(upper_left).to_a
+      x2, y2, _z2 = Point3d(lower_right)
+      pts = [x1, y1, x2, y1, x2, y1, x2, y2]
+      pts_variant = WIN32OLE::Variant.new(pts, WIN32OLE::VARIANT::VT_ARRAY|WIN32OLE::VARIANT::VT_R8)
+      ole = ole_obj.AddLightweightPolyline(pts_variant)
+      app.wrap(ole)
+    rescue Exception => ex
+      Autocad::Error.new("Error adding rectangle #{ex}")
+    end
+
+    def add_spline(points)
+
     def drawing
       @drawing ||= ::Autocad::Drawing.from_ole_obj(app, ole_obj.Document)
     end

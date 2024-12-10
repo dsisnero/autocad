@@ -18,6 +18,22 @@ module Autocad
 
       def polar_to_cartesian(r, a)
       end
+
+      # convert array of points to array of floats
+      # array can be [ Point3d, Point3d, ..]
+      # array can be [  [x,y,z], [x,y,z], [x,y,z] ..]
+      # #array can be [x,y, x1, y1, x2,y2, x3,y3]
+      # array can be [[x,y], [x2,y2], [x3,y3]]
+      # all x are to be converted to float
+      # @rbs return Array[Float]
+      def pts_to_array(pts)
+      end
+      
+      def array_to_ole(ar)
+        case ar
+          in [Array]
+        WIN32OLE::Variant.new(ar, WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_R8)
+      end
     end
 
     attr_reader :x, :y, :z
@@ -39,8 +55,8 @@ module Autocad
       end
     end
 
-    # @rbs other: Point3d | Array[Number]
-    def +(other)
+    # @rbs other: Point3d | [Float,Float,Float]
+    def +(other)#: Point3d
       case other
       when Point3d
         self.class.new(x + other.x, y + other.y, z + other.z)
@@ -49,19 +65,23 @@ module Autocad
       end
     end
 
+    # @rbs return [Float,Float, Float]
     def deconstruct
       [@x, @y, @z]
     end
 
+    # @rbs return { x: Float, y: Float, z: Float}
     def deconstruct_keys
-      { x: @x, y: @y, z: @z }
+      {x: @x, y: @y, z: @z}
     end
 
+    # @rbs return [Float,Float, Float]
     def to_ary
       [x, y, z]
     end
 
-    def -(other)
+    # @rbs other: Point3d | [Float,Float,Float]
+    def -(other)#: Point3d
       case other
       when Point3d
         self.class.new(x - other.x, y - other.y, z - other.z)
@@ -70,19 +90,38 @@ module Autocad
       end
     end
 
+    def to_xy
+      [x, y]
+    end
+
+    def xy_bounds(other)
+      x2, y2 = Points3d.new(other).to_xy
+      [x, y, x2, y, x2, y2, x, y2, x, y]
+    end
+
     def to_s
       "Point3d(#{x}, #{y}, #{z})"
     end
 
+    # @rbs return [Float,Float, Float]
     def to_a
       [x, y, z]
     end
 
+    # @rbs return Point3d -- return a Point3d at [0,0,0]
     def zero
       new(0.0, 0.0, 0, 0)
     end
 
     def to_cartesian
+    end
+
+    def to_ole
+      ole = WIN32OLE::Variant.array([3], WIN32OLE::VARIANT::VT_R8)
+      ole[0] = x
+      ole[1] = y
+      ole[z] = z
+      ole
     end
   end
 end
