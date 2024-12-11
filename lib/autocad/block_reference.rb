@@ -1,9 +1,10 @@
-require_relative "element"
+require_relative 'element'
 
 module Autocad
   class BlockReference < Element
     def each
       return enum_for(:each) unless block_given?
+
       @ole_obj.each do |ole|
         yield app.wrap(ole)
       end
@@ -12,7 +13,7 @@ module Autocad
     def coordinates
       ole = ole_obj.InsertionPoint
       Point3d.from_ole(ole)
-    rescue
+    rescue StandardError
       Autocad::Error.new("error getting coordinates of block #{name}")
     end
 
@@ -41,6 +42,7 @@ module Autocad
     def attributes
       els = @ole_obj.GetAttributes
       return [] if els.empty?
+
       Attributes.new(self, els.map { |e| Attribute.new(e, app) })
     end
   end
@@ -55,16 +57,15 @@ module Autocad
     end
 
     def update_element(name, value)
-      if att = find_attribute(name)
-        att.update(value)
-      end
+      return unless att = find_attribute(name)
+
+      att.update(value)
     end
 
-    def each
+    def each(&block)
       return to_enum(:each) unless block_given?
-      elements.each do |el|
-        yield el
-      end
+
+      elements.each(&block)
     end
 
     def find_attribute(name)

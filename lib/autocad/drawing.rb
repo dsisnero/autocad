@@ -42,6 +42,41 @@ module Autocad
       @event_handler.add_handler(event, &) unless event == "OnQuit"
     end
 
+    def read_only?
+      ole_obj.ReadOnly
+    end
+
+    def previously_saved?
+      ole_obj.FullFileName != ""
+    end
+
+    def modified?
+      ole_obj.Saved == false
+    end
+
+    def save(name: nil, dir: nil) #: void
+      return if read_only?
+      if previously_saved? && modified?
+        ole_obj.Save
+      else
+        out_name = dwg_path(name: name, dir: dir)
+        windows_name = app.windows_path(out_name)
+        ole_obj.SaveAs(windows_name)
+      end
+      puts "saved #{windows_name}"
+    end
+
+    def dwg_path(name: nil, dir: nil)
+      name ||= self.name
+      dir = Pathname.new(dir || dirname).expand_path
+      dir.mkpath unless dir.directory?
+      dir + dwg_name(name)
+    end
+
+    def dwg_name(name)
+      Pathname.new(name).sub_ext(".dwg")
+    end
+
     # save the drawing as a pdf file
     # if the name or directory is given it uses
     # those params. If not it uses the drawing name

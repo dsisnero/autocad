@@ -19,7 +19,7 @@ class PwApp
     end
     model = options["model"]
     model = model || false
-    Autocad.save_current_drawing(directory_path, exit: options["exit"], model: )
+    Autocad.save_open_drawings(dir: directory_path, exit: options["exit"], model: )
     unless options["exit"]
       require "debug"; binding.irb
           end
@@ -39,3 +39,5 @@ class PwApp
   arg :save_dir, :optional
   go!
 end
+
+

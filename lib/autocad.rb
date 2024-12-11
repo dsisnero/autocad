@@ -23,6 +23,7 @@ require "autocad/app"
 require "autocad/errors"
 require "autocad/point3d"
 require "autocad/layer"
+require "autocad/message_box"
 
 def Point3d(...)
   Autocad::Point3d.new(...)
@@ -55,6 +56,35 @@ module Autocad
         open_drawing(dir_or_file, read_only: true) do |drawing|
           drawing.save_as_pdf(name: drawing.name, dir: outdir)
         end
+      end
+    end
+
+    # save the current drawing
+    # @rbs dir: String|Pathname -- the dir to save drawing to
+    # @rbs exit: bool -- whether to exit afterwards or start irb
+    # @rbs model: bool -- prints model space instead of paperspace in pdf document
+    # @rbs return void
+    def save_open_drawings(dir: Pathname.getwd, exit: true, model: false)
+      if exit
+        run do |app|
+          return unless app.has_drawings?
+          drawings = app.drawings
+          drawings.each do |d|
+            d.copy(dir:)
+            d.save_as_pdf(dir:, model:)
+            d.close(false)
+          end
+        end
+      else
+        app = App.new
+        return unless app.has_drawings?
+        drawings = app.drawings
+        drawings.each do |d|
+          d.copy(dir:)
+          d.save_as_pdf(dir:, model:)
+          # d.close(false)
+        end
+        app
       end
     end
 

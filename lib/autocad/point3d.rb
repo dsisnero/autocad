@@ -67,13 +67,18 @@ module Autocad
     end
 
     # @rbs other: Point3d | [Float,Float,Float]
-    def +(other) #: Point3d
+    def +(other) # : Point3d
       case other
       when Point3d
         self.class.new(x + other.x, y + other.y, z + other.z)
       when Array
         self.class.new(x + other[0], y + other[1])
       end
+    end
+
+    def distance_to(other)
+      pt2 = Point3d.new(other)
+      Math.sqrt((x - pt2.x)**2 + (y - pt2.y)**2 + (z - pt2.z)**2)
     end
 
     # @rbs return [Float,Float, Float]
@@ -83,7 +88,7 @@ module Autocad
 
     # @rbs return { x: Float, y: Float, z: Float}
     def deconstruct_keys
-      {x: @x, y: @y, z: @z}
+      { x: @x, y: @y, z: @z }
     end
 
     # @rbs return [Float,Float, Float]
@@ -92,7 +97,7 @@ module Autocad
     end
 
     # @rbs other: Point3d | [Float,Float,Float]
-    def -(other) #: Point3d
+    def -(other) # : Point3d
       case other
       when Point3d
         self.class.new(x - other.x, y - other.y, z - other.z)

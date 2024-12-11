@@ -33,8 +33,6 @@ module Windows
 end
 
 module Autocad
-  # Your code goes here...
-
   class App
     include Common
     @default_error_proc = ->(e, f) {
@@ -318,6 +316,19 @@ module Autocad
       rescue
         false
       end
+    end
+
+    # Zooms the current viewport to display the entire drawing
+    def zoom_all
+      ole_obj.ZoomAll
+    end
+
+    # Zooms the current viewport to a specific center point and magnify factor
+    # @rbs center: Point3d | [Float, Float, Float| nil] -- center of zoom
+    # @rbs magnify: Float
+    def zoom_center(center, magnify: 1.0)
+      pt = Point3d(center)
+      ole_obj.ZoomCenter(pt.to_ole, magnify.to_f)
     end
 
     def ole_obj
