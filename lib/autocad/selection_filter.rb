@@ -78,34 +78,34 @@ module Autocad
     # Relational Operators
     #  f.type("Circle").greater_than(5)
     def greater_than(value)
-      @filter_types << -4
-      @filter_values << '>='
-      @filter_types << 40 # floating point
-      @filter_values << value
+      @types << -4
+      @values << '>='
+      @types << 40 # floating point
+      @values << value
       self
     end
 
     def less_than(value)
-      @filter_types << -4
-      @filter_values << '<='
-      @filter_types << 40 # floating point
-      @filter_values << value
+      @types << -4
+      @values << '<='
+      @types << 40 # floating point
+      @values << value
       self
     end
 
     def equal_to(value)
-      @filter_types << -4
-      @filter_values << '='
-      @filter_types << 40 # floating point
-      @filter_values << value
+      @types << -4
+      @values << '='
+      @types << 40 # floating point
+      @values << value
       self
     end
 
     def not_equal_to(value)
-      @filter_types << -4
-      @filter_values << '<>'
-      @filter_types << 40 # floating point
-      @filter_values << value
+      @types << -4
+      @values << '<>'
+      @types << 40 # floating point
+      @values << value
       self
     end
 
@@ -177,12 +177,5 @@ module Autocad
       self
     end
 
-    def types
-      @filter_types
-    end
-
-    def values
-      @filter_values
-    end
   end
 end
