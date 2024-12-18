@@ -88,7 +88,7 @@ module Autocad
 
     # @rbs return { x: Float, y: Float, z: Float}
     def deconstruct_keys
-      { x: @x, y: @y, z: @z }
+      {x: @x, y: @y, z: @z}
     end
 
     # @rbs return [Float,Float, Float]

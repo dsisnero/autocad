@@ -24,7 +24,7 @@ module WinAPI
     hwnd = GetForegroundWindow()
     buf_size = GetWindowTextLength(hwnd)
     str = ' ' * (buf_size + 1)
-    res = GetWindowText(hwnd, str, str.length)
+    GetWindowText(hwnd, str, str.length)
     str.encode(Encoding.default_external)
   end
 
@@ -93,4 +93,3 @@ module Kernel
     WinAPI::MessageBoxW(0, L(content), L(title), WinAPI::MB::BTN::OK)
   end
 end
-

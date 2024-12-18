@@ -54,8 +54,13 @@ module TestHelper
     temp_path
   end
 
+  def create_new_drawing(original_name)
+    temp_path = temp_file(original_name).expand_path
+    @app.new_drawing(temp_path)
+  end
+
   def cleanup_test_drawing(filename)
-    path = temp_file(filename.basename).expand_path
+    path = temp_file(filename).basename.expand_path
     Acrobat::App.close(path.sub_ext('.pdf'))
     path.delete if path.exist?
   end
