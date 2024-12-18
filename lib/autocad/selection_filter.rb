@@ -47,30 +47,30 @@ module Autocad
     end
 
     def xor(condition1, condition2)
-      @filter_types << -4
-      @filter_values << '<XOR'
+      @types << -4
+      @values << '<XOR'
 
-      @filter_types.concat(condition1.types)
-      @filter_values.concat(condition1.values)
+      @types.concat(condition1.types)
+      @values.concat(condition1.values)
 
-      @filter_types.concat(condition2.types)
-      @filter_values.concat(condition2.values)
+      @types.concat(condition2.types)
+      @values.concat(condition2.values)
 
-      @filter_types << -4
-      @filter_values << 'XOR>'
+      @types << -4
+      @values << 'XOR>'
 
       self
     end
 
     def not(condition)
-      @filter_types << -4
-      @filter_values << '<NOT'
+      @types << -4
+      @values << '<NOT'
 
-      @filter_types.concat(condition.types)
-      @filter_values.concat(condition.values)
+      @types.concat(condition.types)
+      @values.concat(condition.values)
 
-      @filter_types << -4
-      @filter_values << 'NOT>'
+      @types << -4
+      @values << 'NOT>'
 
       self
     end

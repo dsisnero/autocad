@@ -32,10 +32,6 @@ module Autocad
       end
     end
 
-    def name
-      ole_obj.Name
-    end
-
     def to_ole_filter_type
       return nil unless has_filter?
       filter_types
