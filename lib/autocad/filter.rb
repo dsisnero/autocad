@@ -4,6 +4,8 @@ module Autocad
 
     def initialize(clauses: {})
       @clauses = clauses
+      @types = []
+      @values = []
     end
 
     def new_filter(clause, value)
@@ -125,7 +127,7 @@ module Autocad
     end
 
     def xor(condition1, condition2)
-      new_filter(:xor, [condition1, conditions2])
+      new_filter(:xor, [condition1, condition2])
       # @types << -4
       # @values << '<XOR'
 
