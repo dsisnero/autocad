@@ -36,23 +36,14 @@ module Autocad
       ole_obj.Name
     end
 
-    def create_ole_filter_type
+    def to_ole_filter_type
       return nil unless has_filter?
-      
-      WIN32OLE::VARIANT.new(filter_types, 
-        WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_I2)
+      filter_types
     end
 
-    def create_ole_filter_value
+    def to_ole_filter_value
       return nil unless has_filter?
-      
-      WIN32OLE::VARIANT.new(filter_values, 
-        WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_VARIANT)
-    end
-
-    def select_on_screen
-      return ole_obj.SelectOnScreen unless has_filter?
-      ole_obj.SelectOnScreen(create_ole_filter_type, create_ole_filter_value)
+      filter_values
     end
 
     # filter do |f|
