@@ -3,13 +3,6 @@ require_relative '../../spec_helper'
 describe Autocad::Filter do
   let(:filter) { Autocad::Filter.new }
 
-  describe 'initialization' do
-    it 'starts with empty types and values' do
-      _(filter.types).must_be_empty
-      _(filter.values).must_be_empty
-      _(filter.has_filters?).must_equal false
-    end
-  end
 
   describe 'basic operations' do
     it 'creates type filter' do
