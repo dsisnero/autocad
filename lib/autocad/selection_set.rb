@@ -1,11 +1,11 @@
 require_relative 'selection_filter'
 
 module Autocad
-  class SelectionSet < Element
-    attr_reader :filter_types, :filter_values
+  class SelectionSet
+    attr_reader :filter_types, :filter_values, :name
 
-    def initialize(...)
-      super
+    def initialize(name)
+      @name = name
       @filter_types = []
       @filter_values = []
     end
