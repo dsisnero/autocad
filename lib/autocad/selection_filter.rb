@@ -112,50 +112,50 @@ module Autocad
     def block_reference(name = nil)
       # return unless name
 
-      @filter_types << 0
-      @filter_values << 'INSERT'
+      @types << 0
+      @values << 'INSERT'
       self
     end
 
     def name(value)
-      @filter_types << [0, 2]
-      @filter_values << value
+      @types << [0, 2]
+      @values << value
       self
     end
 
     def type(kind)
-      @filter_types << 0
-      @filter_values << kind
+      @types << 0
+      @values << kind
       self
     end
 
     def layer(name)
-      @filter_types << 8
-      @filter_values << name
+      @types << 8
+      @values << name
       self
     end
 
     def visible(vis = true)
-      @filter_types << 60
-      @filter_values << (vis ? 0 : 1)
+      @types << 60
+      @values << (vis ? 0 : 1)
       self
     end
 
     def color(num)
-      @filter_types << 62 # Color number filter
-      @filter_values << num
+      @types << 62 # Color number filter
+      @values << num
       self
     end
 
     def paper_space
-      @filter_types << 67  # Paper space filter
-      @filter_values << 1
+      @types << 67  # Paper space filter
+      @values << 1
       self
     end
 
     def model_space
-      @filter_types << 67  # Model space filter
-      @filter_values << 0
+      @types << 67  # Model space filter
+      @values << 0
       self
     end
 
