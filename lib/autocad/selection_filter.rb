@@ -160,19 +160,19 @@ module Autocad
     end
 
     def contains(str)
-      @filter_types << -4
-      @filter_values << '<OR'
+      @types << -4
+      @values << '<OR'
 
       # Filter for TEXT
-      @filter_types << 1 # Text string group code for TEXT
-      @filter_values << "*#{str}*"
+      @types << 1 # Text string group code for TEXT
+      @values << "*#{str}*"
 
       # Filter for MTEXT
-      @filter_types << 1 # Text string group code for MTEXT
-      @filter_values << "*#{str}*"
+      @types << 1 # Text string group code for MTEXT
+      @values << "*#{str}*"
 
-      @filter_types << -4
-      @filter_values << 'OR>'
+      @types << -4
+      @values << 'OR>'
 
       self
     end
