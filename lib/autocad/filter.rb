@@ -43,9 +43,9 @@ module Autocad
       when :model_space
         types << 67
         values << 0
-      when :contains
-        types.concat([-4, 1, 1, -4])
-        values.concat(['<OR', "*#{clauses[:contains]}*", "*#{clauses[:contains]}*", 'OR>'])
+      when :text_content
+        types << 1  # DXF type code 1 for text content
+        values << clauses[:text_content]
       when :and, :or, :xor
         operator = clauses.keys.first.to_s.upcase
         types << -4
@@ -254,7 +254,7 @@ module Autocad
     end
 
     def contains(str)
-      new_filter(:contains, str)
+      new_filter(:text_content, str)
     end
   end
 end

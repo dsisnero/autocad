@@ -60,7 +60,7 @@ module Autocad
       filter do |f|
         f.and(
           f.or(f.type('TEXT'), f.type('MTEXT')),
-          f.type(text)
+          f.contains(text)
         )
       end
     end
