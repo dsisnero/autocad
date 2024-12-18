@@ -17,19 +17,7 @@ module Autocad
 
     def filter_text(str = nil)
       filter do |f|
-        text_filter = f.or(
-          f.type('TEXT'),
-          f.type('MTEXT')
-        )
-
-        if str
-          text_filter = f.and(
-            text_filter,
-            f.contains(str)
-          )
-        end
-
-        text_filter
+        f.or(f.type('TEXT'), f.type('MTEXT'))
       end
     end
 
@@ -51,11 +39,11 @@ module Autocad
     #   f.and(st, st2)
     # end
     def filter
-      filter = Filter.new
-      yield filter
-      t, v = filter.convert_clauses
-      @filter_types = t
-      @filter_values = v
+      if block_given?
+        filter = Filter.new
+        result = yield filter
+        @filter_types, @filter_values = result.convert_clauses
+      end
       self
     end
 
