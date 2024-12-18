@@ -1,42 +1,47 @@
 module Autocad
   class SelectionFilter
+    attr_reader :types, :values
+
     def initialize
-      @filter_types = []
-      @filter_values = []
+      @types = []
+      @values = []
     end
 
     def has_filters?
-      @filter_types.size > 0
+      @types.any?
     end
 
     # Logical Operators
     def and(*conditions)
-      @filter_types << -4
-      @filter_values << '<AND'
+      return self if conditions.empty?
+      
+      @types << -4
+      @values << '<AND'
 
       conditions.each do |condition|
-        @filter_types.concat(condition.types)
-        @filter_values.concat(condition.values)
+        @types.concat(condition.types)
+        @values.concat(condition.values)
       end
 
-      @filter_types << -4
-      @filter_values << 'AND>'
+      @types << -4
+      @values << 'AND>'
 
       self
     end
 
     def or(*conditions)
-      @filter_types << -4
-      @filter_values << '<OR'
-      self.class.new
+      return self if conditions.empty?
+      
+      @types << -4
+      @values << '<OR'
 
       conditions.each do |condition|
-        @filter_types.concat(condition.types)
-        @filter_values.concat(condition.values)
+        @types.concat(condition.types)
+        @values.concat(condition.values)
       end
 
-      @filter_types << -4
-      @filter_values << 'OR>'
+      @types << -4
+      @values << 'OR>'
 
       self
     end

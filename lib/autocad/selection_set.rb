@@ -6,17 +6,12 @@ module Autocad
 
     def initialize(...)
       super
-      @filter_types = nil
-      @filter_values = nil
+      @filter_types = []
+      @filter_values = []
     end
 
-    def slset_cond(filter_type, filter_data)
-      ft = WIN32OLE::Varient.array([2], WIN32OLE::VARIANT::VT_I2)
-      ft[0] = filter_type[0]
-      ft[1] = filter_type[1]
-      fd = WIN32OLE::Varient.array([2], WIN32OLE::VARIANT::VT_VARIANT)
-      fd[0] = filter_data[0]
-      fd[1] = filter_data[1]
+    def has_filter?
+      filter_types && filter_types.any?
     end
 
     def filter_text(str = nil)
@@ -41,22 +36,23 @@ module Autocad
       ole_obj.Name
     end
 
-    def ole_filter_type
-      return nil unless filter_types
-      return nil unless filter_types.size > 0
-
-      WIN32OLE::Varient.new(filter_types, WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_I2)
+    def create_ole_filter_type
+      return nil unless has_filter?
+      
+      WIN32OLE::VARIANT.new(filter_types, 
+        WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_I2)
     end
 
-    def ole_filter_values
-      return nil unless filter_types
-      return nil unless filter_types.size > 0
-
-      WIN32OLE::Variant.new(filter_values, WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_VARIANT)
+    def create_ole_filter_value
+      return nil unless has_filter?
+      
+      WIN32OLE::VARIANT.new(filter_values, 
+        WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_VARIANT)
     end
 
     def select_on_screen
-      ole_obj.SelectOnScreen(ole_filter_types, ole_filter_values)
+      return ole_obj.SelectOnScreen unless has_filter?
+      ole_obj.SelectOnScreen(create_ole_filter_type, create_ole_filter_value)
     end
 
     # filter do |f|
@@ -67,12 +63,29 @@ module Autocad
     #
     def filter
       filter = SelectionFilter.new
-      new_filter = yield filter
-      return unless new_filter.has_filters?
+      result = yield filter
+      return unless result.has_filters?
 
-      @filter_types = new_filter.types.flatten
-      @filter_values = new_filter.values.flatten
+      @filter_types = result.types.flatten
+      @filter_values = result.values.flatten
       self
+    end
+
+    # Helper methods for common operations
+    def filter_by_type(*types)
+      filter { |f| f.or(*types.map { |t| f.type(t) }) }
+    end
+
+    def filter_by_layer(*layers)
+      filter { |f| f.or(*layers.map { |l| f.layer(l) }) }
+    end
+
+    def filter_text_containing(text)
+      filter { |f| f.and(f.or(f.type('TEXT'), f.type('MTEXT')), f.contains(text)) }
+    end
+
+    def filter_block_references(name = nil)
+      filter { |f| f.block_reference(name) }
     end
   end
 end
