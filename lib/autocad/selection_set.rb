@@ -57,7 +57,12 @@ module Autocad
     end
 
     def filter_text_containing(text)
-      filter { |f| f.and(f.or(f.type('TEXT'), f.type('MTEXT')), f.contains(text)) }
+      filter do |f|
+        f.and(
+          f.or(f.type('TEXT'), f.type('MTEXT')),
+          f.type(text)
+        )
+      end
     end
 
     def filter_block_references(name = nil)
