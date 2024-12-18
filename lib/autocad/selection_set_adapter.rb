@@ -20,12 +20,35 @@ module Autocad
 
     # accepts Point3d | [x,y] | (x,y)
     def select_at_point(x, y)
-      @ole_obj.SelectAtPoint(x, y, filter_types, filter_values)
+      point = if x.respond_to?(:x) && x.respond_to?(:y)
+        # Handle Point3d object
+        [x.x, x.y]
+      elsif x.is_a?(Array)
+        # Handle array input
+        x
+      else
+        # Handle separate x,y coordinates
+        [x, y]
+      end
+
+      @ole_obj.SelectAtPoint(point, filter_types, filter_values)
     end
 
-    # @rbs mode: :fence | :window | :crossing -
-    # @rbs points: Array[Point3d]
+    # @param points [Array<Point3d>] Array of points defining the polygon
+    # @param mode [:fence, :window, :crossing] Selection mode
     def select_by_polygon(points: [], mode: :fence)
+      # Convert points to arrays of coordinates
+      point_coords = points.map { |p| [p.x, p.y] }
+
+      mode_code = case mode
+      when :fence then 5
+      when :window then 3
+      when :crossing then 4
+      else
+        raise ArgumentError, "Invalid selection mode: #{mode}. Must be :fence, :window, or :crossing"
+      end
+
+      @ole_obj.SelectByPolygon(mode_code, point_coords, filter_types, filter_values)
     end
 
     def filter(&)
