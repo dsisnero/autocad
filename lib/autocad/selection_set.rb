@@ -24,13 +24,13 @@ module Autocad
     def to_ole_filter_type
       return nil unless has_filter?
 
-      filter_types
+      WIN32OLE::VARIANT.new(filter_types, WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_I2)
     end
 
     def to_ole_filter_value
       return nil unless has_filter?
 
-      filter_values
+      WIN32OLE::VARIANT.new(filter_values, WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_VARIANT)
     end
 
     # filter do |f|

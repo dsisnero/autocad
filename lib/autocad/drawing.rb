@@ -3,6 +3,7 @@
 require_relative "event_handler"
 require_relative "enumerator"
 require_relative "model"
+require_relative "selection_set_adapter"
 require "debug"
 
 module Autocad
@@ -32,6 +33,13 @@ module Autocad
 
     def app_ole
       app.ole_obj
+    end
+
+    # @rbs return SelectionSetAdapter
+    def create_selection_set(name)
+      ss = SelectionSet.new(name)
+      yield ss if block_given?
+      SelectionSetAdapter.new(self, ss)
     end
 
     # register an handler

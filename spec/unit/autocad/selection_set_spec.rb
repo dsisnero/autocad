@@ -61,8 +61,8 @@ describe Autocad::SelectionSet do
       it 'creates correct filter for text containing search' do
         ss.filter_text_containing('test')
 
-        _(ss.filter_types).must_equal([-4, -4, 0, 0, -4, -4, 1, 1, -4, -4])
-        _(ss.filter_values).must_equal(['<AND', '<OR', 'TEXT', 'MTEXT', 'OR>', '<OR', '*test*', '*test*', 'OR>', 'AND>'])
+        _(ss.filter_types).must_equal([-4, -4, 0, 0, -4, 1, -4])
+        _(ss.filter_values).must_equal(['<AND', '<OR', 'TEXT', 'MTEXT', 'OR>', 'test', 'AND>'])
       end
     end
   end
