@@ -19,6 +19,69 @@ module Autocad
     # convert the clauses to the values and types needed for autocad filter
     # rbs return Array[Array,Array] -- the types and values array
     def convert_clauses
+      types = []
+      values = []
+
+      case clauses.keys.first
+      when :type
+        types << 0
+        values << clauses[:type]
+      when :layer
+        types << 8
+        values << clauses[:layer]
+      when :color
+        types << 62
+        values << clauses[:color]
+      when :block_reference
+        types << 0
+        values << 'INSERT'
+      when :paper_space
+        types << 67
+        values << 1
+      when :model_space
+        types << 67
+        values << 0
+      when :contains
+        types.concat([-4, 1, 1, -4])
+        values.concat(['<OR', "*#{clauses[:contains]}*", "*#{clauses[:contains]}*", 'OR>'])
+      when :and, :or, :xor
+        operator = clauses.keys.first.to_s.upcase
+        types << -4
+        values << "<#{operator}"
+        
+        clauses[clauses.keys.first].each do |condition|
+          sub_types, sub_values = condition.convert_clauses
+          types.concat(sub_types)
+          values.concat(sub_values)
+        end
+        
+        types << -4
+        values << "#{operator}>"
+      when :not
+        types << -4
+        values << '<NOT'
+        
+        sub_types, sub_values = clauses[:not].convert_clauses
+        types.concat(sub_types)
+        values.concat(sub_values)
+        
+        types << -4
+        values << 'NOT>'
+      when :gt
+        types.concat([-4, 40])
+        values.concat(['>=', clauses[:gt]])
+      when :lt
+        types.concat([-4, 40])
+        values.concat(['<=', clauses[:lt]])
+      when :eq
+        types.concat([-4, 40])
+        values.concat(['=', clauses[:eq]])
+      when :neq
+        types.concat([-4, 40])
+        values.concat(['<>', clauses[:neq]])
+      end
+
+      [types, values]
     end
 
     # Logical Operators
