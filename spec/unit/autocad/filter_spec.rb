@@ -1,7 +1,7 @@
 require_relative '../../spec_helper'
 
-describe Autocad::SelectionFilter do
-  let(:filter) { Autocad::SelectionFilter.new }
+describe Autocad::Filter do
+  let(:filter) { Autocad::Filter.new }
 
   describe 'initialization' do
     it 'starts with empty types and values' do
@@ -13,79 +13,80 @@ describe Autocad::SelectionFilter do
 
   describe 'basic operations' do
     it 'creates type filter' do
-      filter.type('Circle')
-      _(filter.types).must_equal [0]
-      _(filter.values).must_equal ['Circle']
+      filter = Autocad::Filter.new
+      my_filter = filter.type('Circle')
+      _(my_filter.types).must_equal [0]
+      _(my_filter.values).must_equal ['Circle']
     end
 
     it 'creates layer filter' do
-      filter.layer('0')
-      _(filter.types).must_equal [8]
-      _(filter.values).must_equal ['0']
+      my_filter = filter.layer('0')
+      _(my_filter.types).must_equal [8]
+      _(my_filter.values).must_equal ['0']
     end
 
     it 'creates color filter' do
-      filter.color(1)
-      _(filter.types).must_equal [62]
-      _(filter.values).must_equal [1]
+      my_filter = filter.color(1)
+      _(my_filter.types).must_equal [62]
+      _(my_filter.values).must_equal [1]
     end
   end
 
   describe 'compound operations' do
     it 'creates OR filter' do
-      circle = Autocad::SelectionFilter.new.type('Circle')
-      arc = Autocad::SelectionFilter.new.type('Arc')
-      
+      circle = filter.new.type('Circle')
+      arc = filter.new.type('Arc')
+
       result = filter.or(circle, arc)
-      
+
       _(result.types).must_equal [-4, 0, 0, -4]
       _(result.values).must_equal ['<OR', 'Circle', 'Arc', 'OR>']
     end
 
     it 'creates AND filter' do
-      circle = Autocad::SelectionFilter.new.type('Circle')
-      layer = Autocad::SelectionFilter.new.layer('0')
-      color = Autocad::SelectionFilter.new.color(1)
-      
+      circle = filter.type('Circle')
+      layer = filter.layer('0')
+      color = filter.color(1)
+
       result = filter.and(circle, layer, color)
-      
+
       _(result.types).must_equal [-4, 0, 8, 62, -4]
       _(result.values).must_equal ['<AND', 'Circle', '0', 1, 'AND>']
     end
 
     it 'creates XOR filter' do
-      circle = Autocad::SelectionFilter.new.type('Circle')
-      arc = Autocad::SelectionFilter.new.type('Arc')
-      
+      circle = filter.type('Circle')
+      arc = filter.type('Arc')
+
       result = filter.xor(circle, arc)
-      
+
       _(result.types).must_equal [-4, 0, 0, -4]
       _(result.values).must_equal ['<XOR', 'Circle', 'Arc', 'XOR>']
     end
 
     it 'creates NOT filter' do
-      circle = Autocad::SelectionFilter.new.type('Circle')
-      
+      circle = filter.type('Circle')
+
       result = filter.not(circle)
-      
+
       _(result.types).must_equal [-4, 0, -4]
       _(result.values).must_equal ['<NOT', 'Circle', 'NOT>']
     end
 
     it 'creates complex nested filter' do
       # (Circle OR Arc) AND Layer0 AND Color1
-      circle_or_arc = Autocad::SelectionFilter.new.or(
-        Autocad::SelectionFilter.new.type('Circle'),
-        Autocad::SelectionFilter.new.type('Arc')
+      circle_or_arc = filter.or(
+        filter.type('Circle'),
+        filter.type('Arc')
       )
-      layer = Autocad::SelectionFilter.new.layer('0')
-      color = Autocad::SelectionFilter.new.color(1)
-      
+      layer = filter.layer('0')
+      color = filter.color(1)
+
       result = filter.and(circle_or_arc, layer, color)
-      
+
       expected_types = [-4, -4, 0, 0, -4, 8, 62, -4]
       expected_values = ['<AND', '<OR', 'Circle', 'Arc', 'OR>', '0', 1, 'AND>']
-      
+
       _(result.types).must_equal expected_types
       _(result.values).must_equal expected_values
     end
@@ -125,11 +126,11 @@ describe Autocad::SelectionFilter do
     end
 
     it 'creates space filters' do
-      model = Autocad::SelectionFilter.new.model_space
+      model = filter.model_space
       _(model.types).must_equal [67]
       _(model.values).must_equal [0]
 
-      paper = Autocad::SelectionFilter.new.paper_space
+      paper = filter.paper_space
       _(paper.types).must_equal [67]
       _(paper.values).must_equal [1]
     end

@@ -1,4 +1,5 @@
-require_relative 'selection_filter'
+# require_relative "selection_filter"
+require_relative 'filter'
 
 module Autocad
   class SelectionSet
@@ -34,11 +35,13 @@ module Autocad
 
     def to_ole_filter_type
       return nil unless has_filter?
+
       filter_types
     end
 
     def to_ole_filter_value
       return nil unless has_filter?
+
       filter_values
     end
 
@@ -47,14 +50,12 @@ module Autocad
     #   st2 = f.layer('0').or(f.layer('1'))
     #   f.and(st, st2)
     # end
-    #
     def filter
-      filter = SelectionFilter.new
-      result = yield filter
-      return unless result.has_filters?
-
-      @filter_types = result.types.flatten
-      @filter_values = result.values.flatten
+      filter = Filter.new
+      yield filter
+      t, v = filter.convert_clauses
+      @filter_types = t
+      @filter_values = v
       self
     end
 
