@@ -1,4 +1,5 @@
 require_relative '../../spec_helper'
+require 'autocad/selection_set_adapter'
 
 describe Autocad::SelectionSetAdapter do
   let(:drawing) { Minitest::Mock.new }
