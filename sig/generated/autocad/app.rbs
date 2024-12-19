@@ -22,6 +22,13 @@ module Autocad
 
     def self.debug_error: () -> untyped
 
+    # save the current drawing
+    # @rbs dir: String|Pathname -- the dir to save drawing to
+    # @rbs exit: bool -- whether to exit afterwards or start irb
+    # @rbs model: bool -- prints model space instead of paperspace in pdf document
+    # @rbs return void
+    def self.save_open_drawings: (?dir: String | Pathname, ?exit: bool, ?model: bool) -> void
+
     # Runs the app, opening the filenames
     # and yielding each open drawing to the
     # supplied block
@@ -131,6 +138,14 @@ module Autocad
 
     def make_visible: (untyped visible) -> untyped
 
+    # Zooms the current viewport to display the entire drawing
+    def zoom_all: () -> untyped
+
+    # Zooms the current viewport to a specific center point and magnify factor
+    # @rbs center: Point3d | [Float, Float, Float| nil] -- center of zoom
+    # @rbs magnify: Float
+    def zoom_center: (Point3d | [ Float, Float, Float | nil ] center, ?magnify: Float) -> untyped
+
     def ole_obj: () -> untyped
 
     def quit: () -> untyped
@@ -149,8 +164,8 @@ module Autocad
     #   CreateDesignFile returns the newly-opened DesignFile object;
     #   this is the same value as ActiveDesignFile. If the Open argument is False,
     #   CreateDesignFile returns Nothing.
-    # @rbs returns Drawing -- returns the new drawing
-    def new_drawing: (String | Pathname filename, ?open: bool, ?options: untyped) ?{ (?) -> untyped } -> untyped
+    # @rbs return Drawing, void -- returns the new drawing
+    def new_drawing: (String | Pathname filename, ?open: bool, ?options: untyped) ?{ (?) -> untyped } -> Drawing
 
     # open the drawing
     # @rbs filename: String the name of the file to open
@@ -158,13 +173,21 @@ module Autocad
     # @rbs wait_time: Integer -- the total amount of time to wait to open file (500)
     # @rbs wait_interval: Float -- the amount of time in seconds to wait before retry (0.5)
     # @rbs error_proc: Proc -- a proc to run
-    # @yield [Drawing] drawing
-    # @rbs return void
-    def open_drawing: (String filename, ?read_only: untyped, ?wait_time: Integer, ?wait_interval: Float, ?error_proc: Proc) ?{ (?) -> untyped } -> void
+    # @rbs &: (Drawing) -> (void)
+    # @rbs return Drawing | void
+    def open_drawing: (String filename, ?read_only: untyped, ?wait_time: Integer, ?wait_interval: Float, ?error_proc: Proc) { (Drawing) -> void } -> (Drawing | void)
 
     def model_space: () -> untyped
 
-    def prompt: (untyped message) -> untyped
+    # @rbs message: String -- the String to put in Autocad prompt
+    def prompt: (String message) -> untyped
+
+    # @rbs prompt: string -- the string to prompt the user for string
+    # @rbs has_spaces: bool -- whether the string returned can contain spaces
+    def get_input_string: () -> untyped
+
+    # @rbs prompt: string -- the string to prompt the user for integer
+    def get_input_integer: () -> untyped
 
     # In a running Autocad instance, prompts the user for a point.
     # Uses the prompt argument as the prompt string.
@@ -173,7 +196,7 @@ module Autocad
     # @rbs prompt: String
     # @rbs base_point: Array, Point3d, nil
     # @rbs return [Point3d]
-    def get_point: (?prompt: String, ?base_point: Array) -> [ Point3d ]
+    def get_point: () -> [ Point3d ]
 
     # In autocad prompts the user for a selection.
     # @rbs prompt: String the prompt that displays in Autocad
@@ -182,6 +205,10 @@ module Autocad
     def get_selection: (?prompt: String, ?name: String) -> [ SelectionSet ]
 
     def has_documents?: () -> untyped
+
+    # @rbs return Enumerator[Drawing] | void
+    # @rbs &: (Drawing) -> void
+    def documents: () { (Drawing) -> void } -> (Enumerator[Drawing] | void)
 
     # @rbs return [bool] true
     def drawing_opened?: () -> [ bool ]

@@ -4,6 +4,18 @@ module Autocad
   module ModelTrait
     def each: () -> untyped
 
+    # @rbs pt1: Autocad::Point3d
+    # @rbs return Autocad::Line
+    def add_line: (Autocad::Point3d pt1, untyped pt2, ?layer: untyped) -> Autocad::Line
+
+    # @rbs center: [] | Point3d -- center of circle
+    # @rbs radius:
+    def add_circle: ([ ] | Point3d center, untyped radius) -> untyped
+
+    def add_rectangle: (untyped upper_left, untyped lower_right) -> untyped
+
+    def add_spline: (untyped points) -> untyped
+
     def drawing: () -> untyped
   end
 

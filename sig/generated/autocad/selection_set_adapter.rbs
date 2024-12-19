@@ -1,0 +1,28 @@
+# Generated from lib/autocad/selection_set_adapter.rb with RBS::Inline
+
+module Autocad
+  class SelectionSetAdapter
+    def initialize: (untyped drawing, untyped selection_set) -> untyped
+
+    def filter_types: () -> untyped
+
+    def filter_values: () -> untyped
+
+    def select_on_screen: () -> untyped
+
+    # accepts Point3d | [x,y] | (x,y)
+    def select_at_point: (untyped x, untyped y) -> untyped
+
+    # @param points [Array<Point3d>] Array of points defining the polygon
+    # @param mode [:fence, :window, :crossing] Selection mode
+    def select_by_polygon: (?points: untyped, ?mode: untyped) -> untyped
+
+    def filter: () ?{ (?) -> untyped } -> untyped
+
+    private
+
+    def create_selection_set: () -> untyped
+
+    def create_ole_variant: (untyped data) -> untyped
+  end
+end

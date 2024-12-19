@@ -1,0 +1,81 @@
+# Generated from lib/autocad/message_box.rb with RBS::Inline
+
+module WinAPI
+  extend Fiddle::Importer
+
+  include Fiddle::BasicTypes
+
+  include Fiddle::Win32Types
+
+  def get_foreground_window: () -> untyped
+
+  def self.get_text_of_active_window: () -> untyped
+
+  module MB
+    OK: ::Integer
+
+    CANCEL: ::Integer
+
+    ABORT: ::Integer
+
+    RETRY: ::Integer
+
+    IGNORE: ::Integer
+
+    YES: ::Integer
+
+    NO: ::Integer
+
+    module ICON
+      ERROR: ::Integer
+
+      QUESTION: ::Integer
+
+      INFORMATION: ::Integer
+
+      WARNING: ::Integer
+    end
+
+    module BTN
+      OK: ::Integer
+
+      OKCANCEL: ::Integer
+
+      ABORTRETRYIGNORE: ::Integer
+
+      YESNO: ::Integer
+    end
+  end
+end
+
+# msgbox_yesno('Do you want to continue?') do |y|
+#   if y
+#     puts 'proceeding with ...'
+#   else
+#     puts 'cancelled ...'
+#   end
+# end
+#
+# msgbox('We are finished here')
+#
+# loop do
+#   puts WinAPI.get_text_of_active_window
+#   sleep 1
+# end
+module Kernel
+  # @rbs str: String
+  # @rbs return String
+  def self?.L: (String str) -> String
+
+  # @example
+  # msg_box_yesno("Do you want to continue") do |y|
+  #  if y
+  #    puts "proceeding"
+  # else
+  #   puts "cancelled"
+  # end
+  # end
+  def self?.msgbox_yesno: (untyped content, ?title: untyped) -> untyped
+
+  def self?.msgbox: (untyped content, ?title: untyped) -> untyped
+end

@@ -16,11 +16,26 @@ module Autocad
 
     def app_ole: () -> untyped
 
+    # @rbs return SelectionSetAdapter
+    def create_selection_set: (untyped name) -> SelectionSetAdapter
+
     # register an handler
     #
     # @rbs event: String -- event key for handler
     # @rbs &: {() -> void} - handler Proc
     def register_handler: (String event) ?{ (?) -> untyped } -> void
+
+    def read_only?: () -> untyped
+
+    def previously_saved?: () -> untyped
+
+    def modified?: () -> untyped
+
+    def save: (?name: untyped, ?dir: untyped) -> void
+
+    def dwg_path: (?name: untyped, ?dir: untyped) -> untyped
+
+    def dwg_name: (untyped name) -> untyped
 
     # save the drawing as a pdf file
     # if the name or directory is given it uses
@@ -81,17 +96,62 @@ module Autocad
     # @rbs save: bool -- whether to save the drawing
     def close: (?bool save) -> untyped
 
+    # @rbs name: String -- selection set name to return
+    # @rbs return SelectionSet | nil
+    def get_selection_set: (String name) -> (SelectionSet | nil)
+
+    # @rbs name: String -- selection set name to return
+    # @rbs return SelectionSet | nil
+    def get_ole_selection_set: (String name) -> (SelectionSet | nil)
+
     # @rbs return Enumerator[Block]
     # @rbs &: (Block) -> void
     def blocks: () { (Block) -> void } -> Enumerator[Block]
 
-    # @rbs return Enumerator(Layer)
+    # @rbs return Enumerator[Layer]
     # @rbs &: (Layer) -> void
-    def layers: () { (Layer) -> void } -> Enumerator
+    def layers: () { (Layer) -> void } -> Enumerator[Layer]
+
+    def linetypes: () -> untyped
+
+    # @rbs name: String -- layer name to create
+    # @rbs return Acad::Layer
+    def create_layer: (String name) -> Acad::Layer
+
+    def ole_selection_sets: () -> untyped
+
+    # @rbs name: String -- the name to call new selection set
+    # @rbs return Autocad::SelectionSet | nil
+    def create_selection_set: (String name, ?filter: untyped) -> (Autocad::SelectionSet | nil)
+
+    # @rbs message: String -- the String to put in Autocad prompt
+    def prompt: (String message) -> untyped
+
+    # @rbs prompt: String -- the string to prompt the user for String
+    # @rbs has_spaces: bool -- whether the string returned can contain spaces
+    def get_input_string: (?prompt: String, ?spaces: untyped) -> untyped
+
+    # @rbs prompt: String -- the string to prompt the user for Integer
+    def get_input_integer: (?prompt: String) -> untyped
+
+    # In a running Autocad instance, prompts the user for a point.
+    # Uses the prompt argument as the prompt string.
+    # If base_point is provided, it is used as the base point and a
+    # stretched line is drawn from the base point to the returned point.
+    # @rbs prompt: String
+    # @rbs base_point: Array, Point3d, nil
+    # @rbs return [Point3d]
+    def get_point: (?prompt: String, ?base_point: Array) -> [ Point3d ]
+
+    # @rbs return Enumerator[SelectionSet] | void
+    # @rbs &: (SelectionSet) -> void
+    def selection_sets: () { (SelectionSet) -> void } -> (Enumerator[SelectionSet] | void)
 
     def model_space: () -> untyped
 
     def paper_space: () -> untyped
+
+    def utility: () -> untyped
 
     def ole_obj: () -> untyped
   end

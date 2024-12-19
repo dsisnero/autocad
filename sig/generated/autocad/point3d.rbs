@@ -10,6 +10,18 @@ module Autocad
 
     def self.polar_to_cartesian: (untyped r, untyped a) -> untyped
 
+    # convert array of points to array of x,y coordinates
+    # array can be [ Point3d, Point3d, ..]
+    # array can be [  [x,y,z], [x,y,z], [x,y,z] ..]
+    # array can be [x,y, x1, y1, x2,y2, x3,y3]
+    # array can be [[x,y], [x2,y2], [x3,y3]]
+    # all coordinates are converted to float
+    # z coordinates are ignored
+    # @rbs return Array[Float]
+    def self.pts_to_array: (untyped pts) -> Array[Float]
+
+    def self.array_to_ole: (untyped ar) -> untyped
+
     attr_reader x: untyped
 
     attr_reader y: untyped
@@ -18,23 +30,37 @@ module Autocad
 
     def initialize: (?untyped _x, ?untyped _y, ?untyped _z, ?x: untyped, ?y: untyped, ?z: untyped) -> untyped
 
-    # @rbs other: Point3d | Array[Number]
-    def +: (Point3d | Array[Number] other) -> untyped
+    # @rbs other: Point3d | [Float,Float,Float]
+    def +: (Point3d | [ Float, Float, Float ] other) -> untyped
 
-    def deconstruct: () -> untyped
+    def distance_to: (untyped other) -> untyped
 
-    def deconstruct_keys: () -> untyped
+    # @rbs return [Float,Float, Float]
+    def deconstruct: () -> [ Float, Float, Float ]
 
-    def to_ary: () -> untyped
+    # @rbs return { x: Float, y: Float, z: Float}
+    def deconstruct_keys: () -> { x: Float, y: Float, z: Float }
 
-    def -: (untyped other) -> untyped
+    # @rbs return [Float,Float, Float]
+    def to_ary: () -> [ Float, Float, Float ]
+
+    # @rbs other: Point3d | [Float,Float,Float]
+    def -: (Point3d | [ Float, Float, Float ] other) -> untyped
+
+    def to_xy: () -> untyped
+
+    def xy_bounds: (untyped other) -> untyped
 
     def to_s: () -> untyped
 
-    def to_a: () -> untyped
+    # @rbs return [Float,Float, Float]
+    def to_a: () -> [ Float, Float, Float ]
 
-    def zero: () -> untyped
+    # @rbs return Point3d -- return a Point3d at [0,0,0]
+    def zero: () -> Point3d
 
     def to_cartesian: () -> untyped
+
+    def to_ole: () -> untyped
   end
 end

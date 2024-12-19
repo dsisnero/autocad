@@ -5,5 +5,15 @@ module Autocad
     def name: () -> untyped
 
     def description: () -> untyped
+
+    def lock: (?untyped lk) -> untyped
+
+    def visible?: () -> untyped
+
+    def visible=: (untyped vis) -> untyped
+
+    def delete: () -> untyped
+
+    def linetype=: (untyped ltname) -> untyped
   end
 end
