@@ -19,12 +19,12 @@ module Autocad
     # @rbs return bool -- true if ole type is Text
     #
     def text?
-      ole_obj.Type == ::ACAD::MsdElementTypeText
+      ole_obj.ole_type == "IAcadText"
     end
 
     # @rbs return bool -- true if ole type is TextNode
-    def text_node?
-      ole_obj.Type == ::ACAD::MsdElementTypeTextNode
+    def mtext?
+      ole_obj.ole_type == "IAcadMText"
     end
 
     def has_tags?
@@ -46,7 +46,7 @@ module Autocad
 
     # @rbs return bool -- true if Text or TextNode
     def textual?
-      text? || text_node?
+      text? || mtext?
     end
 
     def autocad_id
@@ -145,8 +145,8 @@ module Autocad
         typ = ole.ole_type
         result = case typ.name
         when "IAcadSelectionSet"
-
-          ::Autocad::SelectionSet.new(ole, app, typ)
+          drawing = app.current_drawing
+          ::Autocad::SelectionSetAdapter.from_ole_obj(drawing, ole)
         when "IAcadLayer"
           ::Autocad::Layer.new(ole, app, typ)
         when "IAcadLine"
@@ -157,6 +157,12 @@ module Autocad
           ::Autocad::Polyline.new(ole, app, typ)
         when "IAcadLineType"
           ::Autocad::Linetype.new(ole, app, typ)
+        when "IAcadText"
+          ::Autocad::Text.new(ole, app, typ)
+        when "IAcadMText"
+          ::Autocad::MText.new(ole, app, typ)
+        else
+          Element.new(ole, app, typ)
         end
 
         return result if result
@@ -175,6 +181,7 @@ module Autocad
       @original = read_ole(ole)
       @app = app
       @cell = cell
+      @acad_type = typ
     end
 
     def in_cell?

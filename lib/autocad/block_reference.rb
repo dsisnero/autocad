@@ -1,4 +1,4 @@
-require_relative 'element'
+require_relative "element"
 
 module Autocad
   class BlockReference < Element
@@ -13,7 +13,7 @@ module Autocad
     def coordinates
       ole = ole_obj.InsertionPoint
       Point3d.from_ole(ole)
-    rescue StandardError
+    rescue
       Autocad::Error.new("error getting coordinates of block #{name}")
     end
 

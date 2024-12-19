@@ -14,9 +14,9 @@ module Autocad
     # Logical Operators
     def and(*conditions)
       return self if conditions.empty?
-      
+
       @types << -4
-      @values << '<AND'
+      @values << "<AND"
 
       conditions.each do |condition|
         @types.concat(condition.types)
@@ -24,16 +24,16 @@ module Autocad
       end
 
       @types << -4
-      @values << 'AND>'
+      @values << "AND>"
 
       self
     end
 
     def or(*conditions)
       return self if conditions.empty?
-      
+
       @types << -4
-      @values << '<OR'
+      @values << "<OR"
 
       conditions.each do |condition|
         @types.concat(condition.types)
@@ -41,14 +41,14 @@ module Autocad
       end
 
       @types << -4
-      @values << 'OR>'
+      @values << "OR>"
 
       self
     end
 
     def xor(condition1, condition2)
       @types << -4
-      @values << '<XOR'
+      @values << "<XOR"
 
       @types.concat(condition1.types)
       @values.concat(condition1.values)
@@ -57,20 +57,20 @@ module Autocad
       @values.concat(condition2.values)
 
       @types << -4
-      @values << 'XOR>'
+      @values << "XOR>"
 
       self
     end
 
     def not(condition)
       @types << -4
-      @values << '<NOT'
+      @values << "<NOT"
 
       @types.concat(condition.types)
       @values.concat(condition.values)
 
       @types << -4
-      @values << 'NOT>'
+      @values << "NOT>"
 
       self
     end
@@ -79,7 +79,7 @@ module Autocad
     #  f.type("Circle").greater_than(5)
     def greater_than(value)
       @types << -4
-      @values << '>='
+      @values << ">="
       @types << 40 # floating point
       @values << value
       self
@@ -87,7 +87,7 @@ module Autocad
 
     def less_than(value)
       @types << -4
-      @values << '<='
+      @values << "<="
       @types << 40 # floating point
       @values << value
       self
@@ -95,7 +95,7 @@ module Autocad
 
     def equal_to(value)
       @types << -4
-      @values << '='
+      @values << "="
       @types << 40 # floating point
       @values << value
       self
@@ -103,7 +103,7 @@ module Autocad
 
     def not_equal_to(value)
       @types << -4
-      @values << '<>'
+      @values << "<>"
       @types << 40 # floating point
       @values << value
       self
@@ -113,7 +113,7 @@ module Autocad
       # return unless name
 
       @types << 0
-      @values << 'INSERT'
+      @values << "INSERT"
       self
     end
 
@@ -161,7 +161,7 @@ module Autocad
 
     def contains(str)
       @types << -4
-      @values << '<OR'
+      @values << "<OR"
 
       # Filter for TEXT
       @types << 1 # Text string group code for TEXT
@@ -172,10 +172,9 @@ module Autocad
       @values << "*#{str}*"
 
       @types << -4
-      @values << 'OR>'
+      @values << "OR>"
 
       self
     end
-
   end
 end

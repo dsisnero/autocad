@@ -6,6 +6,7 @@ require_relative "paths"
 require_relative "element"
 require_relative "line"
 require_relative "text"
+require_relative "mtext"
 require_relative "viewport"
 require_relative "block"
 require_relative "block_reference"
@@ -321,6 +322,10 @@ module Autocad
     # Zooms the current viewport to display the entire drawing
     def zoom_all
       ole_obj.ZoomAll
+    end
+
+    def zoom_extents
+      ole_obj.ZoomExtents
     end
 
     # Zooms the current viewport to a specific center point and magnify factor

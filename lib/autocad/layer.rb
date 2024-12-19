@@ -10,7 +10,7 @@ module Autocad
 
     def lock(lk = true)
       ole_obj.Lock = lk
-    rescue StandardError
+    rescue
       raise Autocad::Error.new("Error locking layer #{name}")
     end
 
@@ -24,7 +24,7 @@ module Autocad
 
     def delete
       ole_obj.Delete
-    rescue StandardError => e
+    rescue => e
       raise Autocad::Error.new("Error deleting layer #{name} #{e}")
     end
 
@@ -34,7 +34,7 @@ module Autocad
       app.current_drawing.ole_obj.Linetypes.Load(ltname, ltname) unless found_lt
 
       ole_obj.Linetype = ltname
-    rescue StandardError => e
+    rescue => e
       raise Autocad::Error.new("Error setting linetype of layer #{name} : #{e}")
     end
   end

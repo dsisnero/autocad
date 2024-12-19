@@ -275,14 +275,14 @@ module Autocad
 
     # @rbs name: String -- the name to call new selection set
     # @rbs return Autocad::SelectionSet | nil
-    def create_selection_set(name, filter: nil)
-      ss = get_ole_selection_set(name)
-      ss.Delete if ss
-      ss = ole_selection_sets.Add(name)
-      app.wrap(ss)
-    rescue WIN32OLE::RuntimeError
-      nil
-    end
+    # def create_selection_set(name, filter: nil)
+    #   ss = get_ole_selection_set(name)
+    #   ss.Delete if ss
+    #   ss = ole_selection_sets.Add(name)
+    #   app.wrap(ss)
+    # rescue WIN32OLE::RuntimeError
+    #   nil
+    # end
 
     # @rbs message: String -- the String to put in Autocad prompt
     def prompt(message)
