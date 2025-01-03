@@ -12,6 +12,50 @@ module Autocad
 end
 
 module Autocad
+
+  module AcadEntity
+
+   def layer
+     ole_obj.Layer
+   end
+
+   def layer=(name)
+     ole_obj.Layer = name
+   end
+
+    
+   def line_type
+     ole_obj.LineType
+   end
+
+   def line_type=(name)
+     ole_obj.LineType = name
+   end
+
+   def visible?
+     ole_obj.Visible
+   end
+
+  def copy
+  end
+
+  def intersects_with(obj)
+  end
+
+  def mirror
+  end
+
+  def move_to()
+  end
+
+    def update
+    end
+
+      def transform_by(matrix)
+    end
+
+
+  end
   module ElementTrait
     #
     #
@@ -40,9 +84,9 @@ module Autocad
       ole_obj.Type == ::ACAD::MsdElementTypeCellHeader
     end
 
-    def complex?
-      ole_obj.IsComplexElement
-    end
+    # def complex
+    #   ole_obj.IsComplexElement
+    # end
 
     # @rbs return bool -- true if Text or TextNode
     def textual?
@@ -117,8 +161,6 @@ module Autocad
           ::Autocad::PaperSpace.new(ole, app, typ)
         when "AcDbBlockTableRecord"
           ::Autocad::Block.new(ole, app, typ, cell)
-        when "AcDbLine"
-          ::Autocad::Line.new(ole, app, typ, cell)
         when "AcDbPolyline"
           ::Autocad::Polyline.new(ole, app, typ, cell)
         when "AcDbText"
@@ -131,8 +173,6 @@ module Autocad
           ::Autocad::Viewport.new(ole, app, typ)
         when "AcDbBlock"
           ::Autocad::Block.new(ole, app, typ)
-        when "AcDbBlockReference"
-          ::Autocad::BlockReference.new(ole, app, typ)
         when "AcDbLayerTableRecord"
           ::Autocad::Layer.new(ole, app, typ)
         when AcDbLayerTableRecord
@@ -161,6 +201,15 @@ module Autocad
           ::Autocad::Text.new(ole, app, typ)
         when "IAcadMText"
           ::Autocad::MText.new(ole, app, typ)
+        when "IAcadPViewport"
+          ::Autocad::PViewport.new(ole, app, typ)
+        when "IAcadBlockReference"
+          ::Autocad::BlockReference.new(ole, app, typ)
+        when "IAcadExternalReference"
+          ::Autocad::ExternalReference.new(ole, app, typ)
+        when "IAcadAttributeReference"
+          ::Autocad::AttributeReference.new(ole, app, typ)
+          
         else
           Element.new(ole, app, typ)
         end

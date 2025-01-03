@@ -27,6 +27,15 @@ module Autocad
       ole_obj.Clear
     end
 
+    def filter_text(str)
+      @selection_set.filter_text(str)
+    end
+
+    def filter_text_containing(str)
+      @selection_set.filter_text_containing(str)
+    end
+
+
     def app
       @drawing.app
     end

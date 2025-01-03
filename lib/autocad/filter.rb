@@ -37,6 +37,10 @@ module Autocad
       when :block_reference
         types << 0
         values << 'INSERT'
+        if clauses[:block_reference]
+          types << 1
+          values << clauses[:block_reference]
+        end
       when :paper_space
         types << 67
         values << 1
@@ -156,8 +160,9 @@ module Autocad
       new_filter(:model_space, nil)
     end
 
-    def contains(str)
+    def has_text(str)
       new_filter(:text_content, str)
     end
+
   end
 end

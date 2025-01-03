@@ -1,6 +1,6 @@
 # rbs_inline: enabled
 
-require_relative "element"
+require_relative 'element'
 
 module Autocad
   class Line < Element
@@ -18,6 +18,18 @@ module Autocad
 
     def end_point # : Point3d
       Point3d(ole_obj.EndPoint)
+    end
+
+    def normal
+      ole_obj.Normal
+    end
+
+    def thickness
+      ole_obj.Thickness
+    end
+
+    def delta
+      ole_obj.Delta
     end
   end
 

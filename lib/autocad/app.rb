@@ -7,7 +7,7 @@ require_relative "element"
 require_relative "line"
 require_relative "text"
 require_relative "mtext"
-require_relative "viewport"
+require_relative "pviewport"
 require_relative "block"
 require_relative "block_reference"
 require_relative "selection_set"
@@ -47,7 +47,7 @@ module Autocad
 
       def default_app_options
         {visible: false, error_proc: @default_error_proc, wait_time: 500, wait_interval: 0.5}
-      end
+        end
 
       def debug_error
         require "debug"
@@ -324,9 +324,45 @@ module Autocad
       ole_obj.ZoomAll
     end
 
+    def zoom_center(center, magnify: 1.0)
+      pt = Point3d(center)
+      ole_obj.ZoomCenter(pt.to_ole, magnify.to_f)
+    end
+
+    def zoom_window(pt1,pt2)
+      pt1 = Point3d(pt1)
+      pt2 = Point3d(pt2)
+      ole_obj.ZoomWindow(pt1.to_ole, pt2.to_ole)
+    end
+
+    def zoom_pick_window
+      ole_obj.ZoomPickWindowo
+    end
+
     def zoom_extents
       ole_obj.ZoomExtents
     end
+
+    def zoom_previous
+      ole_obj.ZoomPrevious
+    end
+
+    def zoom_scaled(magnify: 1.0, scale_type: :paper_space)
+      scale_type = case scale_type
+      when :paper_space
+        ACAD::AcZoomScaledRelativePSpace
+      when :absolute
+        ACAD::AcZoomScaledAbsolute
+      when :relative
+        ACAD::AcZoomScaledRelative
+      else
+        ACAD::AcZoomScaledRelative
+      end
+      ole_obj.ZoomScaled(magnify.to_f, scale_type)
+    end
+
+
+
 
     # Zooms the current viewport to a specific center point and magnify factor
     # @rbs center: Point3d | [Float, Float, Float| nil] -- center of zoom
@@ -356,11 +392,11 @@ module Autocad
       nil
     end
 
-    def close_all_drawings
+    def close_all_drawings(save: false)
       return unless @ole_obj
       until @ole_obj.Documents.Count == 0
         begin
-          @ole_obj.ActiveDocument.Close
+          @ole_obj.ActiveDocument.Close(save)
         rescue
           break
         end
@@ -446,7 +482,11 @@ module Autocad
     alias_method :current_drawing, :active_drawing
 
     def model_space
-      doc_ole.ModelSpace
+    ModelSpace.new(doc_ole.ModelSpace)
+    end
+
+    def paper_space
+      PaperSpace.new(doc_ole.PaperSpace)
     end
 
     alias_method :model, :model_space

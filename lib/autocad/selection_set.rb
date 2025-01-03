@@ -1,5 +1,5 @@
 # require_relative "selection_filter"
-require_relative "filter"
+require_relative 'filter'
 
 module Autocad
   class SelectionSet
@@ -16,8 +16,12 @@ module Autocad
     end
 
     def filter_text(str = nil)
-      filter do |f|
-        f.or(f.type("TEXT"), f.type("MTEXT"))
+      if str
+        filter_text_containing(str)
+      else
+        filter do |f|
+          f.or(f.type('TEXT'), f.type('MTEXT'))
+        end
       end
     end
 
@@ -46,10 +50,7 @@ module Autocad
 
     def filter_text_containing(text)
       filter do |f|
-        f.and(
-          f.or(f.type("TEXT"), f.type("MTEXT")),
-          f.contains(text)
-        )
+        f.and(f.has_text(text), f.or(f.type('TEXT'), f.type('MTEXT')))
       end
     end
 
