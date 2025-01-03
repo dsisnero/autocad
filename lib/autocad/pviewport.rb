@@ -1,7 +1,7 @@
 require_relative "element"
 
 module Autocad
-  class Viewport < Element
+  class PViewport < Element
     def width
       @ole_obj.Width
     end
@@ -12,6 +12,7 @@ module Autocad
 
     def each
       return enum_for(:each) unless block_given?
+
       @ole_obj.each do |ole|
         yield app.wrap(ole)
       end

@@ -1,6 +1,37 @@
 # Generated from lib/autocad/selection_set.rb with RBS::Inline
 
 module Autocad
-  class SelectionSet < Element
+  class SelectionSet
+    attr_reader filter_types: untyped
+
+    attr_reader filter_values: untyped
+
+    attr_reader name: untyped
+
+    def initialize: (untyped name) -> untyped
+
+    def has_filter?: () -> untyped
+
+    def filter_text: (?untyped str) -> untyped
+
+    def to_ole_filter_type: () -> untyped
+
+    def to_ole_filter_value: () -> untyped
+
+    # filter do |f|
+    #   st = f.type('Circle').or(f.type('Arc'))
+    #   st2 = f.layer('0').or(f.layer('1'))
+    #   f.and(st, st2)
+    # end
+    def filter: () -> untyped
+
+    # Helper methods for common operations
+    def filter_by_type: (*untyped types) -> untyped
+
+    def filter_by_layer: (*untyped layers) -> untyped
+
+    def filter_text_containing: (untyped text) -> untyped
+
+    def filter_block_references: (?untyped name) -> untyped
   end
 end

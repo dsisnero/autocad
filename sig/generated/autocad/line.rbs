@@ -4,9 +4,17 @@ module Autocad
   class Line < Element
     def length: () -> untyped
 
-    def start_point: () -> Point3d
+    def line?: () -> untyped
 
-    def end_point: () -> Point3d
+    def start_point: () -> untyped
+
+    def end_point: () -> untyped
+  end
+
+  class Circle < Element
+    def center: () -> untyped
+
+    def radius: () -> untyped
   end
 
   class Polyline < Element

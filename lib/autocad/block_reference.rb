@@ -1,6 +1,8 @@
-require_relative 'element'
+require_relative "element"
 
 module Autocad
+
+
   class BlockReference < Element
     def each
       return enum_for(:each) unless block_given?
@@ -10,11 +12,18 @@ module Autocad
       end
     end
 
-    def coordinates
-      ole = ole_obj.InsertionPoint
-      Point3d.from_ole(ole)
-    rescue StandardError
-      Autocad::Error.new("error getting coordinates of block #{name}")
+    def external?
+      false
+    end
+
+    def insertion_point
+      Point3d(ole_obj.InsertionPoint)
+    rescue
+      Autocad::Error.new("error getting insertion point of block #{name}")
+    end
+
+    def dynamic?
+      @ole_obj.IsDynamicBlock
     end
 
     def has_attributes?
@@ -23,6 +32,30 @@ module Autocad
 
     def name
       @ole_obj.Name
+    end
+
+    def x_scale_factor
+      @ole_obj.XScaleFactor
+    end
+
+    def x_effective_scale_factor
+      @ole_obj.XEffectiveScaleFactor
+    end
+
+    def y_scale_factor
+      @ole_obj.YScaleFactor
+    end
+
+    def y_effective_scale_factor
+      @ole_obj.YEffectiveScaleFactor
+    end
+
+    def z_scale_factor
+      @ole_obj.ZScaleFactor
+    end
+
+    def z_effective_scale_factor
+      @ole_obj.ZEffectiveScaleFactor
     end
 
     def layout?
@@ -40,11 +73,32 @@ module Autocad
     end
 
     def attributes
+      return to_enum(__callee__) unless block_given?
       els = @ole_obj.GetAttributes
       return [] if els.empty?
-
-      Attributes.new(self, els.map { |e| Attribute.new(e, app) })
+      els.each { |e| yield app.wrap(e) }
     end
+  end
+
+  class ExternalReference < BlockReference
+
+    def external?
+      true
+    end
+
+
+    def ins_units
+       @ole_obj.InsUnits
+    end
+
+    def ins_units_factor
+      @ole_obj.InsUnitsFactor
+    end
+
+    def inspect
+      "<ExternalReference: #{autocad_id}>"
+    end
+
   end
 
   class Attributes
@@ -102,13 +156,26 @@ module Autocad
     end
   end
 
-  class Attribute < Element
+  class AttributeReference < Element
+
+    # @rbs return bool -- is the text multiline
+    def mtext?
+      ole_obj.MTextAttribute
+    end
     def write_ole(value)
-      @ole_obj.TextString = value
+      if mtext?
+        @ole_obj.MTextAttributeContent = value
+      else
+        @ole_obj.TextString = value
+      end
     end
 
     def read_ole(value)
+      if mtext?
+        @ole_obj.MTextAttributeContent
+      else
       @ole_obj.TextString
+      end
     end
 
     def key
@@ -116,7 +183,11 @@ module Autocad
     end
 
     def value
+    if mtext?
+      @ole_obj.MTextAttributeContent
+    else
       @ole_obj.TextString
+    end
     end
 
     def inspect

@@ -36,7 +36,7 @@ module Autocad
       pt = Point3d(center)
       ole_circle = ole_obj.AddCircle(pt.to_ole, radius)
       app.wrap(ole_circle)
-    rescue StandardError
+    rescue
       raise Autocad::Error.new('Error adding circle #{ex}')
     end
 
@@ -47,7 +47,7 @@ module Autocad
       pts_variant = WIN32OLE::Variant.new(pts, WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_R8)
       ole = ole_obj.AddLightweightPolyline(pts_variant)
       app.wrap(ole)
-    rescue StandardError => e
+    rescue => e
       raise Autocad::Error.new("Error adding rectangle #{e}")
     end
 
@@ -58,7 +58,7 @@ module Autocad
       puts "pts #{pts}"
       puts "pts_variant #{pts_variant.class} #{pts_variant}"
       app.wrap(ole)
-    rescue StandardError => e
+    rescue => e
       raise Autocad::Error.new("Error adding spline #{e}")
     end
 

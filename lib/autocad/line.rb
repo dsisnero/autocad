@@ -19,6 +19,18 @@ module Autocad
     def end_point # : Point3d
       Point3d(ole_obj.EndPoint)
     end
+
+    def normal
+      ole_obj.Normal
+    end
+
+    def thickness
+      ole_obj.Thickness
+    end
+
+    def delta
+      ole_obj.Delta
+    end
   end
 
   class Circle < Element

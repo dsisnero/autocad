@@ -23,6 +23,13 @@ module Autocad
   def self.dgn2pdf: (untyped dir_or_file, ?outdir: String, ?mode: untyped) -> untyped
 
   # save the current drawing
+  # @rbs dir: String|Pathname -- the dir to save drawing to
+  # @rbs exit: bool -- whether to exit afterwards or start irb
+  # @rbs model: bool -- prints model space instead of paperspace in pdf document
+  # @rbs return void
+  def self.save_open_drawings: (?dir: String | Pathname, ?exit: bool, ?model: bool) -> void
+
+  # save the current drawing
   # @rbs dir: String|Dir -- the dir to save drawing to
   # @rbs exit: bool -- whether to exit afterwards or start irb
   # @rbs model: bool -- prints model space in pdf document

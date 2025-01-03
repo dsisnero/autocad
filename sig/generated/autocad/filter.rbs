@@ -1,0 +1,60 @@
+# Generated from lib/autocad/filter.rb with RBS::Inline
+
+module Autocad
+  class Filter
+    attr_reader types: untyped
+
+    attr_reader values: untyped
+
+    attr_reader clauses: untyped
+
+    def initialize: (?clauses: untyped) -> untyped
+
+    def new_filter: (untyped clause, untyped value) -> untyped
+
+    def has_filters?: () -> untyped
+
+    # convert the clauses to the values and types needed for autocad filter
+    # rbs return Array[Array,Array] -- the types and values array
+    def convert_clauses: () -> untyped
+
+    # Logical Operators
+    def and: (*untyped conditions) -> untyped
+
+    def merge_conditions: (untyped existing, untyped new_condition) -> untyped
+
+    def or: (*untyped conditions) -> untyped
+
+    def xor: (untyped condition1, untyped condition2) -> untyped
+
+    def not: (untyped condition) -> untyped
+
+    # Relational Operators
+    #  f.type("Circle").greater_than(5)
+    def greater_than: (untyped value) -> untyped
+
+    def less_than: (untyped value) -> untyped
+
+    def equal_to: (untyped value) -> untyped
+
+    def not_equal_to: (untyped value) -> untyped
+
+    def block_reference: (?untyped name) -> untyped
+
+    def name: (untyped value) -> untyped
+
+    def type: (untyped kind) -> untyped
+
+    def layer: (untyped name) -> untyped
+
+    def visible: (?untyped vis) -> untyped
+
+    def color: (untyped num) -> untyped
+
+    def paper_space: () -> untyped
+
+    def model_space: () -> untyped
+
+    def contains: (untyped str) -> untyped
+  end
+end

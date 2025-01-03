@@ -12,6 +12,50 @@ module Autocad
 end
 
 module Autocad
+
+  module AcadEntity
+
+   def layer
+     ole_obj.Layer
+   end
+
+   def layer=(name)
+     ole_obj.Layer = name
+   end
+
+    
+   def line_type
+     ole_obj.LineType
+   end
+
+   def line_type=(name)
+     ole_obj.LineType = name
+   end
+
+   def visible?
+     ole_obj.Visible
+   end
+
+  def copy
+  end
+
+  def intersects_with(obj)
+  end
+
+  def mirror
+  end
+
+  def move_to()
+  end
+
+    def update
+    end
+
+      def transform_by(matrix)
+    end
+
+
+  end
   module ElementTrait
     #
     #
@@ -19,12 +63,12 @@ module Autocad
     # @rbs return bool -- true if ole type is Text
     #
     def text?
-      ole_obj.Type == ::ACAD::MsdElementTypeText
+      ole_obj.ole_type == "IAcadText"
     end
 
     # @rbs return bool -- true if ole type is TextNode
-    def text_node?
-      ole_obj.Type == ::ACAD::MsdElementTypeTextNode
+    def mtext?
+      ole_obj.ole_type == "IAcadMText"
     end
 
     def has_tags?
@@ -40,13 +84,13 @@ module Autocad
       ole_obj.Type == ::ACAD::MsdElementTypeCellHeader
     end
 
-    def complex?
-      ole_obj.IsComplexElement
-    end
+    # def complex
+    #   ole_obj.IsComplexElement
+    # end
 
     # @rbs return bool -- true if Text or TextNode
     def textual?
-      text? || text_node?
+      text? || mtext?
     end
 
     def autocad_id
@@ -117,8 +161,6 @@ module Autocad
           ::Autocad::PaperSpace.new(ole, app, typ)
         when "AcDbBlockTableRecord"
           ::Autocad::Block.new(ole, app, typ, cell)
-        when "AcDbLine"
-          ::Autocad::Line.new(ole, app, typ, cell)
         when "AcDbPolyline"
           ::Autocad::Polyline.new(ole, app, typ, cell)
         when "AcDbText"
@@ -131,8 +173,6 @@ module Autocad
           ::Autocad::Viewport.new(ole, app, typ)
         when "AcDbBlock"
           ::Autocad::Block.new(ole, app, typ)
-        when "AcDbBlockReference"
-          ::Autocad::BlockReference.new(ole, app, typ)
         when "AcDbLayerTableRecord"
           ::Autocad::Layer.new(ole, app, typ)
         when AcDbLayerTableRecord
@@ -145,8 +185,8 @@ module Autocad
         typ = ole.ole_type
         result = case typ.name
         when "IAcadSelectionSet"
-
-          ::Autocad::SelectionSet.new(ole, app, typ)
+          drawing = app.current_drawing
+          ::Autocad::SelectionSetAdapter.from_ole_obj(drawing, ole)
         when "IAcadLayer"
           ::Autocad::Layer.new(ole, app, typ)
         when "IAcadLine"
@@ -157,6 +197,21 @@ module Autocad
           ::Autocad::Polyline.new(ole, app, typ)
         when "IAcadLineType"
           ::Autocad::Linetype.new(ole, app, typ)
+        when "IAcadText"
+          ::Autocad::Text.new(ole, app, typ)
+        when "IAcadMText"
+          ::Autocad::MText.new(ole, app, typ)
+        when "IAcadPViewport"
+          ::Autocad::PViewport.new(ole, app, typ)
+        when "IAcadBlockReference"
+          ::Autocad::BlockReference.new(ole, app, typ)
+        when "IAcadExternalReference"
+          ::Autocad::ExternalReference.new(ole, app, typ)
+        when "IAcadAttributeReference"
+          ::Autocad::AttributeReference.new(ole, app, typ)
+          
+        else
+          Element.new(ole, app, typ)
         end
 
         return result if result
@@ -175,6 +230,7 @@ module Autocad
       @original = read_ole(ole)
       @app = app
       @cell = cell
+      @acad_type = typ
     end
 
     def in_cell?

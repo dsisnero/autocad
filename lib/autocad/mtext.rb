@@ -1,5 +1,5 @@
 module Autocad
-  class TextNode < Element
+  class MText < Element
     attr_reader :original, :ole_obj
 
     def to_regexp
@@ -8,6 +8,10 @@ module Autocad
 
     def empty?
       ole_obj.TextLinesCount == 0
+    end
+
+    def mtext?
+      true
     end
 
     def text?

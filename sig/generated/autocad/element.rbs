@@ -32,6 +32,8 @@ module Autocad
 
     def autocad_id: () -> untyped
 
+    def visible?: () -> untyped
+
     # @rbs return bool -- true if ole type is TypeLine
     def line?: () -> bool
 
@@ -61,6 +63,8 @@ module Autocad
 
     attr_reader app: untyped
 
+    attr_reader acad_type: untyped
+
     attr_reader original: untyped
 
     def initialize: (untyped ole, untyped app, untyped typ, ?untyped cell) -> untyped
@@ -89,6 +93,18 @@ module Autocad
 
     def app_ole_obj: () -> untyped
 
+    def delete: () -> untyped
+
+    def clone: (untyped new_insertion_point) -> untyped
+
+    def move_x: (untyped amt) -> untyped
+
+    def move_y: (untyped amt) -> untyped
+
+    def move: (untyped x, untyped y) -> untyped
+
+    def move_ole: (untyped pt1, untyped pt2) -> untyped
+
     def ole_cell: (untyped ole) -> untyped
 
     def each_complex: (untyped ole) ?{ (?) -> untyped } -> untyped
@@ -111,6 +127,36 @@ end
 
 module Autocad
   class BSplineSurface < Element
+  end
+end
+
+module Autocad
+  class Linetype < Element
+    CONTINUOUS: ::String
+
+    DASHED: ::String
+
+    CENTER: ::String
+
+    HIDDEN: ::String
+
+    PHANTOM: ::String
+
+    BREAK: ::String
+
+    BORDER: ::String
+
+    DOT2: ::String
+
+    DOTX2: ::String
+
+    DIVIDE: ::String
+
+    TRACKING: ::String
+
+    DASHDOT: ::String
+
+    def name: () -> untyped
   end
 end
 

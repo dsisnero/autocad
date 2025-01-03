@@ -6,7 +6,7 @@ module Autocad
   NonDGNFile: untyped
 
   class FileNotFound < Error
-    def initalize: (untyped path) -> untyped
+    def initialize: (untyped path) -> untyped
   end
 
   MultipleUpdateError: untyped
