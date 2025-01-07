@@ -141,6 +141,18 @@ module Autocad
     # Zooms the current viewport to display the entire drawing
     def zoom_all: () -> untyped
 
+    def zoom_center: (untyped center, ?magnify: untyped) -> untyped
+
+    def zoom_window: (untyped pt1, untyped pt2) -> untyped
+
+    def zoom_pick_window: () -> untyped
+
+    def zoom_extents: () -> untyped
+
+    def zoom_previous: () -> untyped
+
+    def zoom_scaled: (?magnify: untyped, ?scale_type: untyped) -> untyped
+
     # Zooms the current viewport to a specific center point and magnify factor
     # @rbs center: Point3d | [Float, Float, Float| nil] -- center of zoom
     # @rbs magnify: Float
@@ -150,7 +162,7 @@ module Autocad
 
     def quit: () -> untyped
 
-    def close_all_drawings: () -> untyped
+    def close_all_drawings: (?save: untyped) -> untyped
 
     def close_active_drawing: () -> untyped
 
@@ -178,6 +190,8 @@ module Autocad
     def open_drawing: (String filename, ?read_only: untyped, ?wait_time: Integer, ?wait_interval: Float, ?error_proc: Proc) { (Drawing) -> void } -> (Drawing | void)
 
     def model_space: () -> untyped
+
+    def paper_space: () -> untyped
 
     # @rbs message: String -- the String to put in Autocad prompt
     def prompt: (String message) -> untyped

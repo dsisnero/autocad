@@ -2,13 +2,31 @@
 
 module Autocad
   class BlockReference < Element
+    def block_reference?: () -> untyped
+
     def each: () -> untyped
 
-    def coordinates: () -> untyped
+    def external?: () -> untyped
+
+    def insertion_point: () -> untyped
+
+    def dynamic?: () -> untyped
 
     def has_attributes?: () -> untyped
 
     def name: () -> untyped
+
+    def x_scale_factor: () -> untyped
+
+    def x_effective_scale_factor: () -> untyped
+
+    def y_scale_factor: () -> untyped
+
+    def y_effective_scale_factor: () -> untyped
+
+    def z_scale_factor: () -> untyped
+
+    def z_effective_scale_factor: () -> untyped
 
     def layout?: () -> untyped
 
@@ -17,6 +35,16 @@ module Autocad
     def inspect: () -> untyped
 
     def attributes: () -> untyped
+  end
+
+  class ExternalReference < BlockReference
+    def external?: () -> untyped
+
+    def ins_units: () -> untyped
+
+    def ins_units_factor: () -> untyped
+
+    def inspect: () -> untyped
   end
 
   class Attributes
@@ -45,7 +73,10 @@ module Autocad
     def inspect: () -> untyped
   end
 
-  class Attribute < Element
+  class AttributeReference < Element
+    # @rbs return bool -- is the text multiline
+    def mtext?: () -> bool
+
     def write_ole: (untyped value) -> untyped
 
     def read_ole: (untyped value) -> untyped

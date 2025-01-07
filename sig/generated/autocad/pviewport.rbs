@@ -1,0 +1,11 @@
+# Generated from lib/autocad/pviewport.rb with RBS::Inline
+
+module Autocad
+  class PViewport < Element
+    def width: () -> untyped
+
+    def height: () -> untyped
+
+    def each: () -> untyped
+  end
+end

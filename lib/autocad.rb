@@ -59,6 +59,18 @@ module Autocad
       end
     end
 
+    # runs autocad app and yields each open drawing
+    # @rbs &: (Drawing) -> void
+    # @rbs return void
+    def with_open_drawings(...) #: void
+      run do |app|
+        return unless app.has_drawings?
+        app.drawings.each do |drawing|
+          yield drawing
+        end
+      end
+    end
+
     # save the current drawing
     # @rbs dir: String|Pathname -- the dir to save drawing to
     # @rbs exit: bool -- whether to exit afterwards or start irb

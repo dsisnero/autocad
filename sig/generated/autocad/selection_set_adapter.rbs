@@ -2,13 +2,43 @@
 
 module Autocad
   class SelectionSetAdapter
-    def initialize: (untyped drawing, untyped selection_set) -> untyped
+    def self.from_ole_obj: (untyped drawing, untyped ole) -> untyped
+
+    attr_reader ole_obj: untyped
+
+    attr_reader drawing: untyped
+
+    attr_reader selection_set: untyped
+
+    def initialize: (untyped drawing, untyped selection_set, ?untyped ole) -> untyped
+
+    def delete: () -> untyped
+
+    # checks if the selection set has any items
+    # @ rbs return bool
+    def has_items?: () -> untyped
+
+    def count: () -> untyped
+
+    def clear: () -> untyped
+
+    def filter_text: (untyped str) -> untyped
+
+    def filter_text_containing: (untyped str) -> untyped
+
+    def app: () -> untyped
+
+    def each: () -> untyped
+
+    def name: () -> untyped
 
     def filter_types: () -> untyped
 
     def filter_values: () -> untyped
 
-    def select_on_screen: () -> untyped
+    def select_on_screen: (?untyped ft, ?untyped fv) -> untyped
+
+    def select: (?mode: untyped, ?pt1: untyped, ?pt2: untyped, ?ft: untyped, ?fv: untyped) -> untyped
 
     # accepts Point3d | [x,y] | (x,y)
     def select_at_point: (untyped x, untyped y) -> untyped
@@ -23,6 +53,8 @@ module Autocad
 
     def create_selection_set: () -> untyped
 
-    def create_ole_variant: (untyped data) -> untyped
+    def ole_filter_types: () -> untyped
+
+    def ole_filter_values: () -> untyped
   end
 end

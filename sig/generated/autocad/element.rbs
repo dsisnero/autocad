@@ -8,7 +8,33 @@ module Autocad
 end
 
 module Autocad
+  module AcadEntity
+    def layer: () -> untyped
+
+    def layer=: (untyped name) -> untyped
+
+    def line_type: () -> untyped
+
+    def line_type=: (untyped name) -> untyped
+
+    def visible?: () -> untyped
+
+    def copy: () -> untyped
+
+    def intersects_with: (untyped obj) -> untyped
+
+    def mirror: () -> untyped
+
+    def move_to: () -> untyped
+
+    def update: () -> untyped
+
+    def transform_by: (untyped matrix) -> untyped
+  end
+
   module ElementTrait
+    def block_reference?: () -> untyped
+
     #
     #
     #
@@ -16,7 +42,7 @@ module Autocad
     def text?: () -> bool
 
     # @rbs return bool -- true if ole type is TextNode
-    def text_node?: () -> bool
+    def mtext?: () -> bool
 
     def has_tags?: () -> untyped
 
@@ -24,8 +50,6 @@ module Autocad
 
     # @rbs return bool -- true if object is of type cell
     def cell?: () -> bool
-
-    def complex?: () -> untyped
 
     # @rbs return bool -- true if Text or TextNode
     def textual?: () -> bool

@@ -8,6 +8,26 @@ module Autocad
 
     def self.from_ole_obj: (untyped app, untyped ole) -> Drawing
 
+    def set_system_variables: (untyped names, untyped values) -> untyped
+
+    def faa_title_block: () -> untyped
+
+    def remove_translation_text: () -> untyped
+
+    def block_reference_enum: () -> untyped
+
+    def block_reference_selection_set: () -> untyped
+
+    def select_text_containing: (untyped str) -> untyped
+
+    def get_select_text_containing: (untyped str) -> untyped
+
+    def get_block_reference_selection_set: () -> untyped
+
+    def with_system_variables: (untyped names, untyped values) ?{ (?) -> untyped } -> untyped
+
+    def get_system_variables: (*untyped atts) -> untyped
+
     def initialize: (untyped app, untyped ole) -> untyped
 
     def event_handler: () -> EventHandler
@@ -104,6 +124,8 @@ module Autocad
     # @rbs return SelectionSet | nil
     def get_ole_selection_set: (String name) -> (SelectionSet | nil)
 
+    def ole_selection_sets: () -> untyped
+
     # @rbs return Enumerator[Block]
     # @rbs &: (Block) -> void
     def blocks: () { (Block) -> void } -> Enumerator[Block]
@@ -116,13 +138,7 @@ module Autocad
 
     # @rbs name: String -- layer name to create
     # @rbs return Acad::Layer
-    def create_layer: (String name) -> Acad::Layer
-
-    def ole_selection_sets: () -> untyped
-
-    # @rbs name: String -- the name to call new selection set
-    # @rbs return Autocad::SelectionSet | nil
-    def create_selection_set: (String name, ?filter: untyped) -> (Autocad::SelectionSet | nil)
+    def create_layer: (String name, ?color: untyped) -> Acad::Layer
 
     # @rbs message: String -- the String to put in Autocad prompt
     def prompt: (String message) -> untyped
@@ -134,6 +150,8 @@ module Autocad
     # @rbs prompt: String -- the string to prompt the user for Integer
     def get_input_integer: (?prompt: String) -> untyped
 
+    def get_float: (?prompt: untyped) -> untyped
+
     # In a running Autocad instance, prompts the user for a point.
     # Uses the prompt argument as the prompt string.
     # If base_point is provided, it is used as the base point and a
@@ -142,6 +160,8 @@ module Autocad
     # @rbs base_point: Array, Point3d, nil
     # @rbs return [Point3d]
     def get_point: (?prompt: String, ?base_point: Array) -> [ Point3d ]
+
+    def get_region: () -> untyped
 
     # @rbs return Enumerator[SelectionSet] | void
     # @rbs &: (SelectionSet) -> void

@@ -22,6 +22,11 @@ module Autocad
   # @rbs outdir: String -- the output dir for converted pdf files
   def self.dgn2pdf: (untyped dir_or_file, ?outdir: String, ?mode: untyped) -> untyped
 
+  # runs autocad app and yields each open drawing
+  # @rbs &: (Drawing) -> void
+  # @rbs return void
+  def self.with_open_drawings: () { (Drawing) -> void } -> void
+
   # save the current drawing
   # @rbs dir: String|Pathname -- the dir to save drawing to
   # @rbs exit: bool -- whether to exit afterwards or start irb

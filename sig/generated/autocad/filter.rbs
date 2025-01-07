@@ -10,7 +10,8 @@ module Autocad
 
     def initialize: (?clauses: untyped) -> untyped
 
-    def new_filter: (untyped clause, untyped value) -> untyped
+    # @rbs return Filter
+    def new_filter: (untyped clause, untyped value) -> Filter
 
     def has_filters?: () -> untyped
 
@@ -19,42 +20,60 @@ module Autocad
     def convert_clauses: () -> untyped
 
     # Logical Operators
-    def and: (*untyped conditions) -> untyped
+    # @rbs return Filter
+    def and: (*untyped conditions) -> Filter
 
     def merge_conditions: (untyped existing, untyped new_condition) -> untyped
 
-    def or: (*untyped conditions) -> untyped
+    # @rbs return Filter
+    def or: (*untyped conditions) -> Filter
 
-    def xor: (untyped condition1, untyped condition2) -> untyped
+    # @rbs return Filter
+    def xor: (untyped condition1, untyped condition2) -> Filter
 
-    def not: (untyped condition) -> untyped
+    # @rbs return Filter
+    def not: (untyped condition) -> Filter
 
     # Relational Operators
     #  f.type("Circle").greater_than(5)
-    def greater_than: (untyped value) -> untyped
+    # @rbs return Filter
+    def greater_than: (untyped value) -> Filter
 
-    def less_than: (untyped value) -> untyped
+    # @rbs return Filter
+    def less_than: (untyped value) -> Filter
 
-    def equal_to: (untyped value) -> untyped
+    # @rbs return Filter
+    def equal_to: (untyped value) -> Filter
 
-    def not_equal_to: (untyped value) -> untyped
+    # @rbs return Filter
+    def not_equal_to: (untyped value) -> Filter
 
-    def block_reference: (?untyped name) -> untyped
+    # @rbs return Filter
+    def block_reference: (?untyped name) -> Filter
 
-    def name: (untyped value) -> untyped
+    # @rbs return Filter
+    def name: (untyped value) -> Filter
 
-    def type: (untyped kind) -> untyped
+    # @rbs return Filter
+    def type: (untyped kind) -> Filter
 
-    def layer: (untyped name) -> untyped
+    # @rbs return Filter
+    def layer: (untyped name) -> Filter
 
-    def visible: (?untyped vis) -> untyped
+    # @rbs return Filter
+    def visible: (?untyped vis) -> Filter
 
-    def color: (untyped num) -> untyped
+    # @rbs return Filter
+    def color: (untyped num) -> Filter
 
-    def paper_space: () -> untyped
+    # @rbs return Filter
+    def paper_space: () -> Filter
 
-    def model_space: () -> untyped
+    # @rbs return Filter
+    def model_space: () -> Filter
 
-    def contains: (untyped str) -> untyped
+    # @rbs str: String
+    # @rbs return Filter
+    def has_text: (String str) -> Filter
   end
 end

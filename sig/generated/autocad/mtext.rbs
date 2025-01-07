@@ -1,0 +1,39 @@
+# Generated from lib/autocad/mtext.rb with RBS::Inline
+
+module Autocad
+  class MText < Element
+    attr_reader original: untyped
+
+    attr_reader ole_obj: untyped
+
+    def to_regexp: () -> untyped
+
+    def empty?: () -> untyped
+
+    def mtext?: () -> untyped
+
+    def text?: () -> untyped
+
+    def size: () -> untyped
+
+    def read_ole: (untyped ole) -> untyped
+
+    def write_ole: (untyped text) -> untyped
+
+    def write_ole_regular: (untyped text) -> untyped
+
+    def write_ole_in_cell: (untyped text) -> untyped
+
+    def update_ole!: (untyped text) -> untyped
+
+    def to_s: () -> untyped
+
+    def =~: (untyped reg) -> untyped
+
+    def template?: () -> untyped
+
+    def render: (?untyped h) -> untyped
+
+    def method_missing: (untyped meth, *untyped) ?{ (?) -> untyped } -> untyped
+  end
+end

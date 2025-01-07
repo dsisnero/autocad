@@ -8,6 +8,7 @@ module Autocad
       @values = []
     end
 
+    # @rbs return Filter
     def new_filter(clause, value)
       new_clauses = clauses.dup
       new_clauses[clause] = value
@@ -91,6 +92,7 @@ module Autocad
     end
 
     # Logical Operators
+    # @rbs return Filter
     def and(*conditions)
       new_filter(:and, conditions)
     end
@@ -98,71 +100,87 @@ module Autocad
     def merge_conditions(existing, new_condition)
     end
 
+    # @rbs return Filter
     def or(*conditions)
       new_filter(:or, conditions)
     end
 
+    # @rbs return Filter
     def xor(condition1, condition2)
       new_filter(:xor, [condition1, condition2])
     end
 
+    # @rbs return Filter
     def not(condition)
       new_filter(:not, condition)
     end
 
     # Relational Operators
     #  f.type("Circle").greater_than(5)
+    # @rbs return Filter
     def greater_than(value)
       new_filter(:gt, value)
     end
 
+    # @rbs return Filter
     def less_than(value)
       new_filter(:lt, value)
     end
 
+    # @rbs return Filter
     def equal_to(value)
       new_filter(:eq, value)
     end
 
+    # @rbs return Filter
     def not_equal_to(value)
       new_filter(:neq, value)
     end
 
+    # @rbs return Filter
     def block_reference(name = nil)
       new_filter(:block_reference, name)
     end
 
+    # @rbs return Filter
     def name(value)
       new_filter(:name, value)
     end
 
+    # @rbs return Filter
     def type(kind)
       new_filter(:type, kind)
     end
 
+    # @rbs return Filter
     def layer(name)
       new_filter(:layer, name)
     end
 
+    # @rbs return Filter
     def visible(vis = true)
       new_filter(:visible, vis)
     end
 
+    # @rbs return Filter
     def color(num)
       new_filter(:color, num)
     end
 
+    # @rbs return Filter
     def paper_space
       new_filter(:paper_space, nil)
     end
 
+    # @rbs return Filter
     def model_space
       new_filter(:model_space, nil)
     end
 
+    # @rbs str: String
+    # @rbs return Filter
     def has_text(str)
       new_filter(:text_content, str)
     end
-
   end
 end
