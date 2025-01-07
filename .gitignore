@@ -12,3 +12,5 @@
 .env
 drawings
 drawings
+spec/fixtures/autocad.log
+spec/fixtures/event_handler.log

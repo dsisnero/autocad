@@ -47,7 +47,7 @@ module Autocad
 
       def default_app_options
         {visible: false, error_proc: @default_error_proc, wait_time: 500, wait_interval: 0.5}
-        end
+      end
 
       def debug_error
         require "debug"
@@ -329,7 +329,7 @@ module Autocad
       ole_obj.ZoomCenter(pt.to_ole, magnify.to_f)
     end
 
-    def zoom_window(pt1,pt2)
+    def zoom_window(pt1, pt2)
       pt1 = Point3d(pt1)
       pt2 = Point3d(pt2)
       ole_obj.ZoomWindow(pt1.to_ole, pt2.to_ole)
@@ -360,9 +360,6 @@ module Autocad
       end
       ole_obj.ZoomScaled(magnify.to_f, scale_type)
     end
-
-
-
 
     # Zooms the current viewport to a specific center point and magnify factor
     # @rbs center: Point3d | [Float, Float, Float| nil] -- center of zoom
@@ -482,7 +479,7 @@ module Autocad
     alias_method :current_drawing, :active_drawing
 
     def model_space
-    ModelSpace.new(doc_ole.ModelSpace)
+      ModelSpace.new(doc_ole.ModelSpace)
     end
 
     def paper_space

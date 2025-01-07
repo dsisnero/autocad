@@ -13,6 +13,11 @@ module Autocad
       @ole_obj = ole || create_selection_set
     end
 
+    def delete
+      @ole_obj.Delete
+      @selection_set = nil
+    end
+
     # checks if the selection set has any items
     # @ rbs return bool
     def has_items?
@@ -34,7 +39,6 @@ module Autocad
     def filter_text_containing(str)
       @selection_set.filter_text_containing(str)
     end
-
 
     def app
       @drawing.app

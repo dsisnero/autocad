@@ -12,51 +12,51 @@ module Autocad
 end
 
 module Autocad
-
   module AcadEntity
+    def layer
+      ole_obj.Layer
+    end
 
-   def layer
-     ole_obj.Layer
-   end
+    def layer=(name)
+      ole_obj.Layer = name
+    end
 
-   def layer=(name)
-     ole_obj.Layer = name
-   end
+    def line_type
+      ole_obj.LineType
+    end
 
-    
-   def line_type
-     ole_obj.LineType
-   end
+    def line_type=(name)
+      ole_obj.LineType = name
+    end
 
-   def line_type=(name)
-     ole_obj.LineType = name
-   end
+    def visible?
+      ole_obj.Visible
+    end
 
-   def visible?
-     ole_obj.Visible
-   end
+    def copy
+    end
 
-  def copy
-  end
+    def intersects_with(obj)
+    end
 
-  def intersects_with(obj)
-  end
+    def mirror
+    end
 
-  def mirror
-  end
-
-  def move_to()
-  end
+    def move_to
+    end
 
     def update
     end
 
-      def transform_by(matrix)
+    def transform_by(matrix)
+    end
+  end
+
+  module ElementTrait
+    def block_reference?
+      false
     end
 
-
-  end
-  module ElementTrait
     #
     #
     #
@@ -209,7 +209,7 @@ module Autocad
           ::Autocad::ExternalReference.new(ole, app, typ)
         when "IAcadAttributeReference"
           ::Autocad::AttributeReference.new(ole, app, typ)
-          
+
         else
           Element.new(ole, app, typ)
         end
