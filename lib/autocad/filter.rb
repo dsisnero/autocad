@@ -37,7 +37,7 @@ module Autocad
         values << clauses[:color]
       when :block_reference
         types << 0
-        values << 'INSERT'
+        values << "INSERT"
         if clauses[:block_reference]
           types << 1
           values << clauses[:block_reference]
@@ -66,26 +66,26 @@ module Autocad
         values << "#{operator}>"
       when :not
         types << -4
-        values << '<NOT'
+        values << "<NOT"
 
         sub_types, sub_values = clauses[:not].convert_clauses
         types.concat(sub_types)
         values.concat(sub_values)
 
         types << -4
-        values << 'NOT>'
+        values << "NOT>"
       when :gt
         types.concat([-4, 40])
-        values.concat(['>=', clauses[:gt]])
+        values.concat([">=", clauses[:gt]])
       when :lt
         types.concat([-4, 40])
-        values.concat(['<=', clauses[:lt]])
+        values.concat(["<=", clauses[:lt]])
       when :eq
         types.concat([-4, 40])
-        values.concat(['=', clauses[:eq]])
+        values.concat(["=", clauses[:eq]])
       when :neq
         types.concat([-4, 40])
-        values.concat(['<>', clauses[:neq]])
+        values.concat(["<>", clauses[:neq]])
       end
 
       [types, values]

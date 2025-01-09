@@ -3,7 +3,6 @@ require_relative "../../spec_helper"
 describe Autocad::Filter do
   let(:filter) { Autocad::Filter.new }
 
-
   describe "basic operations" do
     it "creates type filter" do
       my_filter = filter.type("Circle")

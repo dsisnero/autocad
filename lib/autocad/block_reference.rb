@@ -1,4 +1,4 @@
-require_relative 'element'
+require_relative "element"
 
 module Autocad
   class BlockReference < Element
@@ -20,7 +20,7 @@ module Autocad
 
     def insertion_point
       Point3d(ole_obj.InsertionPoint)
-    rescue StandardError
+    rescue
       Autocad::Error.new("error getting insertion point of block #{name}")
     end
 
