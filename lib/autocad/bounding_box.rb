@@ -137,6 +137,19 @@ module Autocad
         h = height / 2.0
         new(-w, h, w, -h)
       end
+
+      # Create a BoundingBox from minimum and maximum points
+      def from_min_max(min_pt, max_pt)
+        min_pt = Point3d.new(min_pt)
+        max_pt = Point3d.new(max_pt)
+        
+        new(
+          min_pt.x,  # left
+          max_pt.y,  # top
+          max_pt.x,  # right
+          min_pt.y   # bottom
+        )
+      end
     end
   end
 end

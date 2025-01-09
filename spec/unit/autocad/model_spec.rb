@@ -119,4 +119,34 @@ describe "Autocad::Model" do
       _(@model_space).must_be_kind_of Autocad::Element
     end
   end
+
+  describe "BoundingBox" do
+    describe ".from_min_max" do
+      it "creates a bounding box from min and max points" do
+        min_pt = Autocad::Point3d.new(0, 0, 0)
+        max_pt = Autocad::Point3d.new(100, 100, 0)
+        box = Autocad::BoundingBox.from_min_max(min_pt, max_pt)
+
+        _(box.left).must_equal 0
+        _(box.top).must_equal 100
+        _(box.right).must_equal 100
+        _(box.bottom).must_equal 0
+        _(box.width).must_equal 100
+        _(box.height).must_equal 100
+      end
+
+      it "handles negative coordinates" do
+        min_pt = Autocad::Point3d.new(-50, -50, 0)
+        max_pt = Autocad::Point3d.new(50, 50, 0)
+        box = Autocad::BoundingBox.from_min_max(min_pt, max_pt)
+
+        _(box.left).must_equal(-50)
+        _(box.top).must_equal 50
+        _(box.right).must_equal 50
+        _(box.bottom).must_equal(-50)
+        _(box.width).must_equal 100
+        _(box.height).must_equal 100
+      end
+    end
+  end
 end
