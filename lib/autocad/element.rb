@@ -60,15 +60,17 @@ module Autocad
     end
 
     def bounds
-      minpoint = WIN32OLE::Variant.new(nil, WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_BYREF | WIN32OLE::VARIANT::VT_BYREF)
-      maxpoint = WIN32OLE::Variant.new(nil, WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_BYREF | WIN32OLE::VARIANT::VT_BYREF)
-
+      minpoint = WIN32OLE::Variant.new([0.0, 0.0, 0.0], WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_R8)
+      maxpoint = WIN32OLE::Variant.new([0.0, 0.0, 0.0], WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_R8)
+      
       ole_obj.GetBoundingBox(minpoint, maxpoint)
-
+      
       min_pt = Point3d.new(minpoint[0], minpoint[1], minpoint[2])
       max_pt = Point3d.new(maxpoint[0], maxpoint[1], maxpoint[2])
-
+      
       BoundingBox.from_min_max(min_pt, max_pt)
+    rescue => e
+      raise Autocad::Error.new("Error getting bounds: #{e.message}")
     end
     #
     #
