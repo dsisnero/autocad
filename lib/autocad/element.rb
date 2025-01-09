@@ -59,19 +59,83 @@ module Autocad
       false
     end
 
-    def bounds
-      minpoint = WIN32OLE::Variant.new([0.0, 0.0, 0.0], WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_R8)
-      maxpoint = WIN32OLE::Variant.new([0.0, 0.0, 0.0], WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_R8)
-      
-      ole_obj.GetBoundingBox(minpoint, maxpoint)
-      
-      min_pt = Point3d.new(minpoint[0], minpoint[1], minpoint[2])
-      max_pt = Point3d.new(maxpoint[0], maxpoint[1], maxpoint[2])
-      
-      BoundingBox.from_min_max(min_pt, max_pt)
-    rescue => e
-      raise Autocad::Error.new("Error getting bounds: #{e.message}")
-    end
+    # def bounds
+    #   minpoint = WIN32OLE::Variant.new([0.0, 0.0, 0.0], WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_R8)
+    #   maxpoint = WIN32OLE::Variant.new([0.0, 0.0, 0.0], WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_R8)
+    #   
+    #   ole_obj.GetBoundingBox(minpoint, maxpoint)
+    #   
+    #   min_pt = Point3d.new(minpoint[0], minpoint[1], minpoint[2])
+    #   max_pt = Point3d.new(maxpoint[0], maxpoint[1], maxpoint[2])
+    #   
+    #   BoundingBox.from_min_max(min_pt, max_pt)
+    # rescue => e
+    #   raise Autocad::Error.new("Error getting bounds: #{e.message}")
+    # end
+
+     def bounds
+   minpoint = WIN32OLE::Variant.new([0.0, 0.0, 0.0], WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_R8)
+   maxpoint = WIN32OLE::Variant.new([0.0, 0.0, 0.0], WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_R8)
+
+   puts "Before GetBoundingBox:"
+   puts "minpoint: #{minpoint.inspect}"
+   puts "maxpoint: #{maxpoint.inspect}"
+
+   ole_obj.GetBoundingBox(minpoint, maxpoint)
+
+   puts "After GetBoundingBox:"
+   puts "minpoint: #{minpoint.inspect}"
+   puts "maxpoint: #{maxpoint.inspect}"
+
+   min_pt = Point3d.new(minpoint[0], minpoint[1], minpoint[2])
+   max_pt = Point3d.new(maxpoint[0], maxpoint[1], maxpoint[2])
+
+   puts "Created points:"
+   puts "min_pt: #{min_pt.inspect}"
+   puts "max_pt: #{max_pt.inspect}"
+
+   box = BoundingBox.from_min_max(min_pt, max_pt)
+   puts "Created box: #{box.inspect}"
+
+   box
+ rescue => e
+   puts "Error in bounds: #{e.class} - #{e.message}"
+   puts e.backtrace
+   raise Autocad::Error.new("Error getting bounds: #{e.message}")
+ end
+
+    
+     def bounds_with_min
+   minpoint = WIN32OLE::Variant.new(nil, WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_R8 | WIN32OLE::VARIANT::VT_BYREF)
+   maxpoint = WIN32OLE::Variant.new(nil, WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_R8 | WIN32OLE::VARIANT::VT_BYREF)
+
+   puts "Before GetBoundingBox:"
+   puts "minpoint: #{minpoint.inspect}"
+   puts "maxpoint: #{maxpoint.inspect}"
+
+   ole_obj.GetBoundingBox(minpoint, maxpoint)
+
+   puts "After GetBoundingBox:"
+   puts "minpoint: #{minpoint.inspect}"
+   puts "maxpoint: #{maxpoint.inspect}"
+
+   min_pt = Point3d.new(minpoint[0], minpoint[1], minpoint[2])
+   max_pt = Point3d.new(maxpoint[0], maxpoint[1], maxpoint[2])
+
+   puts "Created points:"
+   puts "min_pt: #{min_pt.inspect}"
+   puts "max_pt: #{max_pt.inspect}"
+
+   box = BoundingBox.from_min_max(min_pt, max_pt)
+   puts "Created box: #{box.inspect}"
+
+   box
+ rescue => e
+   puts "Error in bounds: #{e.class} - #{e.message}"
+   puts e.backtrace
+   raise Autocad::Error.new("Error getting bounds: #{e.message}")
+ end
+    #
     #
     #
     #
