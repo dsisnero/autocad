@@ -45,23 +45,36 @@ module Autocad
     def move_to
     end
 
-    def update
-    end
-
     def transform_by(matrix)
     end
   end
 
   module ElementTrait
+    # @rbs return nil| Drawing
+    def drawing
+      app.current_drawing
+    end
+
     def block_reference?
       false
     end
 
+    def bounds
+      minpoint = WIN32OLE::Variant.new(nil, WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_BYREF | WIN32OLE::VARIANT::VT_BYREF)
+      maxpoint = WIN32OLE::Variant.new(nil, WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_BYREF | WIN32OLE::VARIANT::VT_BYREF)
+
+      ole_obj.GetBoundingBox(minpoint, maxpoint)
+
+      min_pt = Point3d.new(minpoint[0], minpoint[1], minpoint[2])
+      max_pt = Point3d.new(maxpoint[0], maxpoint[1], maxpoint[2])
+
+      BoundingBox.from_min_max(min_pt, max_pt)
+    end
     #
     #
     #
     # @rbs return bool -- true if ole type is Text
-    #
+    # def text?
     def text?
       ole_obj.ole_type == "IAcadText"
     end
@@ -199,6 +212,10 @@ module Autocad
           ::Autocad::Linetype.new(ole, app, typ)
         when "IAcadText"
           ::Autocad::Text.new(ole, app, typ)
+        when "IAcadModelSpace"
+          ::Autocad::ModelSpace.new(ole, app, typ)
+        when "IAcadPaperSpace"
+          ::Autocad::PaperSpace.new(ole, app, typ)
         when "IAcadMText"
           ::Autocad::MText.new(ole, app, typ)
         when "IAcadPViewport"
@@ -209,8 +226,15 @@ module Autocad
           ::Autocad::ExternalReference.new(ole, app, typ)
         when "IAcadAttributeReference"
           ::Autocad::AttributeReference.new(ole, app, typ)
+        when "IAcadLayout"
+          ::Autocad::Layout.new(ole, app, typ)
+        when "IAcadPlotConfiguration"
+          ::Autocad::PlotConfiguration.new(ole, app, typ)
 
+        when "IAcadPlot"
+          ::Autocad::Plot.new(ole, app, typ)
         else
+          binding.irb
           Element.new(ole, app, typ)
         end
 
@@ -304,8 +328,8 @@ module Autocad
     def redraw(el = ole_obj)
       # el.Redraw ::Autocad::MSD::MsdDrawingModeNormal if el.IsGraphical
       el.Update
-    rescue => e
-      app.error_proc.call(e, nil)
+    rescue
+      nil
     end
 
     def app_ole_obj
