@@ -12,15 +12,9 @@ module Autocad
 
     def faa_title_block: () -> untyped
 
-    def remove_translation_text: () -> untyped
-
     def block_reference_enum: () -> untyped
 
     def block_reference_selection_set: () -> untyped
-
-    def select_text_containing: (untyped str) -> untyped
-
-    def get_select_text_containing: (untyped str) -> untyped
 
     def get_block_reference_selection_set: () -> untyped
 

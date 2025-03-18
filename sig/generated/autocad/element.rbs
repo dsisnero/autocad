@@ -27,18 +27,25 @@ module Autocad
 
     def move_to: () -> untyped
 
-    def update: () -> untyped
-
     def transform_by: (untyped matrix) -> untyped
   end
 
   module ElementTrait
+    # @rbs return nil| Drawing
+    def drawing: () -> (nil | Drawing)
+
     def block_reference?: () -> untyped
+
+    def bounds: () -> untyped
+
+    def bounds_with_min: () -> untyped
 
     #
     #
     #
+    #
     # @rbs return bool -- true if ole type is Text
+    # def text?
     def text?: () -> bool
 
     # @rbs return bool -- true if ole type is TextNode

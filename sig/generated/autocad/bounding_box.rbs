@@ -1,0 +1,62 @@
+# Generated from lib/autocad/bounding_box.rb with RBS::Inline
+
+module Autocad
+  # A BoundingBox represents a bounding box around a picture.
+  #
+  # A bounding box also defines a local coordinate system for a picture. The
+  # bounding box must contain the origin of the coordinate system. However the
+  # origin need not be centered within the box.
+  #
+  # No particular guarantees are made about the tightness of the bounding box,
+  # though it can assumed to be reasonably tight.
+  class BoundingBox
+    attr_reader left: untyped
+
+    attr_reader top: untyped
+
+    attr_reader right: untyped
+
+    attr_reader bottom: untyped
+
+    def initialize: (untyped left, untyped top, untyped right, untyped bottom) -> untyped
+
+    def width: () -> untyped
+
+    def height: () -> untyped
+
+    def on: (untyped other) -> untyped
+
+    def beside: (untyped other) -> untyped
+
+    def above: (untyped other) -> untyped
+
+    # Evaluate the landmark relative to the origin of this bounding box,
+    # returning the location described by the landmark.
+    def eval: (untyped landmark) -> untyped
+
+    def at: (untyped point) -> untyped
+
+    def at_landmark: (untyped landmark) -> untyped
+
+    def origin_at: (untyped point) -> untyped
+
+    def origin_at_landmark: (untyped landmark) -> untyped
+
+    # Expand bounding box to enclose the given Point
+    def enclose: (untyped point) -> untyped
+
+    # Add expansion to all sides of this bounding box
+    def expand: (untyped expansion) -> untyped
+
+    def transform: (untyped transform) -> untyped
+
+    def self.empty: () -> untyped
+
+    # Create a BoundingBox with the given width and height and
+    # the origin centered within the box.
+    def self.centered: (untyped width, untyped height) -> untyped
+
+    # Create a BoundingBox from minimum and maximum points
+    def self.from_min_max: (untyped min_pt, untyped max_pt) -> untyped
+  end
+end

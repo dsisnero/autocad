@@ -1,0 +1,9 @@
+# Generated from lib/autocad/plot.rb with RBS::Inline
+
+module Autocad
+  class Plot < Element
+    def set_layouts_to_plot: (*untyped layouts) -> untyped
+
+    def plot_to_file: (untyped filename, ?plot_config: untyped) -> untyped
+  end
+end
