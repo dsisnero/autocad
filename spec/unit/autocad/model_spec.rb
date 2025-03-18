@@ -82,13 +82,16 @@ describe "Autocad::Model" do
     end
 
     describe "#add_spline" do
-      it "creates a spline through given points" do
+      it "creates a spline through given points with tangents" do
         points = [
           Autocad::Point3d.new(0, 0, 0),
           Autocad::Point3d.new(50, 50, 0),
           Autocad::Point3d.new(100, 0, 0)
         ]
-        spline = @model_space.add_spline(points)
+        start_tangent = Autocad::Point3d.new(1, 0, 0)
+        end_tangent = Autocad::Point3d.new(1, 0, 0)
+        
+        spline = @model_space.add_spline(points, start_tangent, end_tangent)
 
         _(spline).must_be_kind_of Autocad::Element
       end

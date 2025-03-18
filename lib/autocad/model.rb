@@ -53,25 +53,17 @@ module Autocad
     end
 
     # @rbs points: Array[Point3d] | Array[Array[Numeric]] -- array of points for the spline
-    # @rbs start_tangent: nil | Point3d | Array[Numeric] -- optional start tangent vector
-    # @rbs end_tangent: nil | Point3d | Array[Numeric] -- optional end tangent vector
+    # @rbs start_tangent: Point3d | Array[Numeric] -- start tangent vector
+    # @rbs end_tangent: Point3d | Array[Numeric] -- end tangent vector
     # @rbs return Autocad::Element -- the created spline
-    def add_spline(points, start_tangent = nil, end_tangent = nil)
+    def add_spline(points, start_tangent, end_tangent)
       pts = Point3d.pts_to_array(points)
       pts_variant = Point3d.array_to_ole(pts)
       
-      # When passing nil to COM methods, we need to use VARIANT::VT_ERROR
-      if start_tangent.nil? && end_tangent.nil?
-        ole = ole_obj.AddSpline(pts_variant)
-      elsif end_tangent.nil?
-        start_tangent_ole = Point3d.new(start_tangent).to_ole
-        ole = ole_obj.AddSpline(pts_variant, start_tangent_ole)
-      else
-        start_tangent_ole = start_tangent.nil? ? WIN32OLE::VARIANT::Nothing : Point3d.new(start_tangent).to_ole
-        end_tangent_ole = Point3d.new(end_tangent).to_ole
-        ole = ole_obj.AddSpline(pts_variant, start_tangent_ole, end_tangent_ole)
-      end
+      start_tangent_ole = Point3d.new(start_tangent).to_ole
+      end_tangent_ole = Point3d.new(end_tangent).to_ole
       
+      ole = ole_obj.AddSpline(pts_variant, start_tangent_ole, end_tangent_ole)
       app.wrap(ole)
     rescue => ex
       raise Autocad::Error.new("Error adding spline #{ex.message}")
