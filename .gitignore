@@ -8,3 +8,5 @@
 /spec/reports/
 /tmp/
 /lib/.rbnext/
+.aider*
+.envrc

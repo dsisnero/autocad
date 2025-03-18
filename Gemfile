@@ -33,3 +33,10 @@ gem "minitest-hooks", "~> 1.5"
 gem "wdm", "~> 0.2.0", groups: [:development, :test] if Gem.win_platform?
 
 gem "repl_type_completor", "~> 0.1.6"
+
+
+group :development, :test do
+  gem "standard", require: false
+  gem "rubocop-rails", require: false
+  gem "rubocop-rspec", require: false
+end
