@@ -51,12 +51,18 @@ module Autocad
       raise Autocad::Error.new("Error adding rectangle #{ex.message}")
     end
 
-    def add_spline(points)
+    # @rbs points: Array[Point3d] | Array[Array[Numeric]] -- array of points for the spline
+    # @rbs start_tangent: nil | Point3d | Array[Numeric] -- optional start tangent vector
+    # @rbs end_tangent: nil | Point3d | Array[Numeric] -- optional end tangent vector
+    # @rbs return Autocad::Element -- the created spline
+    def add_spline(points, start_tangent = nil, end_tangent = nil)
       pts = Point3d.pts_to_array(points)
       pts_variant = Point3d.array_to_ole(pts)
-      ole = ole_obj.AddSpline(pts_variant)
-      puts "pts #{pts}"
-      puts "pts_variant #{pts_variant.class} #{pts_variant}"
+      
+      start_tangent_ole = start_tangent.nil? ? nil : Point3d.new(start_tangent).to_ole
+      end_tangent_ole = end_tangent.nil? ? nil : Point3d.new(end_tangent).to_ole
+      
+      ole = ole_obj.AddSpline(pts_variant, start_tangent_ole, end_tangent_ole)
       app.wrap(ole)
     rescue => ex
       raise Autocad::Error.new("Error adding spline #{ex.message}")
