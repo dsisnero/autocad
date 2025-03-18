@@ -31,13 +31,14 @@ module Autocad
     end
 
     # @rbs center: [] | Point3d -- center of circle
-    # @rbs radius:
+    # @rbs radius: Numeric -- radius of the circle
+    # @rbs return Autocad::Element -- the created circle
     def add_circle(center, radius)
       pt = Point3d(center)
       ole_circle = ole_obj.AddCircle(pt.to_ole, radius)
       app.wrap(ole_circle)
     rescue => ex
-      raise Autocad::Error.new('Error adding circle #{ex.message}')
+      raise Autocad::Error.new("Error adding circle #{ex.message}")
     end
 
     def add_rectangle(upper_left, lower_right)
@@ -59,10 +60,18 @@ module Autocad
       pts = Point3d.pts_to_array(points)
       pts_variant = Point3d.array_to_ole(pts)
       
-      start_tangent_ole = start_tangent.nil? ? nil : Point3d.new(start_tangent).to_ole
-      end_tangent_ole = end_tangent.nil? ? nil : Point3d.new(end_tangent).to_ole
+      # When passing nil to COM methods, we need to use VARIANT::VT_ERROR
+      if start_tangent.nil? && end_tangent.nil?
+        ole = ole_obj.AddSpline(pts_variant)
+      elsif end_tangent.nil?
+        start_tangent_ole = Point3d.new(start_tangent).to_ole
+        ole = ole_obj.AddSpline(pts_variant, start_tangent_ole)
+      else
+        start_tangent_ole = start_tangent.nil? ? WIN32OLE::VARIANT::Nothing : Point3d.new(start_tangent).to_ole
+        end_tangent_ole = Point3d.new(end_tangent).to_ole
+        ole = ole_obj.AddSpline(pts_variant, start_tangent_ole, end_tangent_ole)
+      end
       
-      ole = ole_obj.AddSpline(pts_variant, start_tangent_ole, end_tangent_ole)
       app.wrap(ole)
     rescue => ex
       raise Autocad::Error.new("Error adding spline #{ex.message}")
