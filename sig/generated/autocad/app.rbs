@@ -100,6 +100,12 @@ module Autocad
     # @rbs event_handler: EventHandler
     def initialize: (?visible: bool, ?error_proc: untyped, ?event_handler: EventHandler, ?wait_interval: untyped, ?wait_time: untyped) -> untyped
 
+    # save the current drawing
+    # @rbs dir: String|Pathname -- the dir to save drawing to
+    # @rbs model: bool -- prints model space instead of paperspace in pdf document
+    # @rbs return void
+    def save_open_drawings: (?dir: String | Pathname, ?model: bool) -> void
+
     def windows_path: (untyped path) -> untyped
 
     def wrap: (untyped item, ?untyped cell) -> untyped
