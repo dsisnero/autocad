@@ -1,27 +1,31 @@
-name: Ruby
+name: CI
 
 on:
   push:
-    branches:
-      - main
-
+    branches: [main]
   pull_request:
+  schedule:
+    - cron: '0 0 * * 0' # Weekly UI tests
 
 jobs:
-  build:
+  unit_tests:
     runs-on: ubuntu-latest
-    name: Ruby ${{ matrix.ruby }}
-    strategy:
-      matrix:
-        ruby:
-          - '3.3.1'
-
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: ${{ matrix.ruby }}
-        bundler-cache: true
-    - name: Run the default task
-      run: bundle exec rake
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.3.1
+          bundler-cache: true
+      - run: bundle exec rake test
+
+  ui_tests:
+    needs: unit_tests
+    runs-on: windows-latest # AutoCAD requires Windows
+    if: github.event_name == 'schedule' # Only run on schedule
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.3.1
+          bundler-cache: true
+      - run: bundle exec rake test:ui

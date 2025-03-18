@@ -1,24 +1,72 @@
 # Autocad
 
-TODO: Delete this and the text below, and describe your gem
-
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/autocad`. To experiment with that code, run `bin/console` for an interactive prompt.
+Ruby gem for automating AutoCAD operations through the COM interface.
 
 ## Installation
 
-TODO: Replace `UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG` with your gem name right after releasing it to RubyGems.org. Please do not do it earlier due to security reasons. Alternatively, replace this section with instructions to install your gem from git if you don't plan to release to RubyGems.org.
+Add this line to your application's Gemfile:
 
-Install the gem and add to the application's Gemfile by executing:
+```ruby
+gem 'autocad'
+```
 
-    $ bundle add UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+And then execute:
 
-If bundler is not being used to manage dependencies, install the gem by executing:
+```
+$ bundle install
+```
 
-    $ gem install UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+Or install it yourself as:
+
+```
+$ gem install autocad
+```
+
+## Requirements
+
+- Windows operating system
+- AutoCAD installed
+- Ruby 3.0 or higher
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+require 'autocad'
+
+# Open AutoCAD and work with a drawing
+Autocad.run do |app|
+  drawing = app.open_drawing('path/to/drawing.dwg')
+  
+  # Get user input for a point
+  point = app.get_point(prompt: "Select a point")
+  
+  # Save as PDF
+  drawing.save_as_pdf(dir: 'output')
+end
+```
+
+### Batch Processing
+
+```ruby
+# Process all drawings in a directory
+Autocad.with_drawings_in_dir("drawings") do |drawing|
+  drawing.save_as_pdf
+end
+```
+
+## Testing
+
+The gem includes two types of tests:
+
+```
+# Run unit tests (no AutoCAD required)
+bundle exec rake test
+
+# Run UI tests (requires AutoCAD)
+bundle exec rake test:ui
+```
+
+UI tests require a working AutoCAD installation and will be skipped in CI environments unless specifically configured.
 
 ## Development
 

@@ -5,4 +5,16 @@ set -vx
 
 bundle install
 
+# Create directories needed for tests
+mkdir -p spec/ui
+mkdir -p tmp
+
+# Set up test environment
+if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
+  # Windows-specific setup
+  echo "Setting up Windows test environment"
+else
+  echo "Setting up Unix test environment"
+fi
+
 # Do any other automated setup that you need to do here

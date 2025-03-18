@@ -7,5 +7,24 @@ require "autocad"
 # You can add fixtures and/or initialization code here to make experimenting
 # with your gem easier. You can also use a different console, if you like.
 
+# Load example helpers for console use
+module AutocadConsoleHelpers
+  def example_drawing
+    puts "Opening example drawing..."
+    Autocad.run(visible: true) do |app|
+      return app.new_drawing("tmp/example.dwg")
+    end
+  rescue => e
+    puts "Error opening example: #{e.message}"
+    nil
+  end
+end
+
+# Include helpers in main
+extend AutocadConsoleHelpers
+
+puts "Autocad #{Autocad::VERSION} console"
+puts "Type 'example_drawing' to create a test drawing"
+
 require "irb"
 IRB.start(__FILE__)
