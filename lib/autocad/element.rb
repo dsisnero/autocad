@@ -75,11 +75,15 @@ module Autocad
 
     def bounds
       # Create VARIANT arrays for output parameters
-      minpoint = WIN32OLE::VARIANT.new([0.0, 0.0, 0.0], WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_R8 | WIN32OLE::VARIANT::VT_BYREF)
-      maxpoint = WIN32OLE::VARIANT.new([0.0, 0.0, 0.0], WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_R8 | WIN32OLE::VARIANT::VT_BYREF)
+
+      minpoint = WIN32OLE::Variant.new(nil)
+      maxpoint = WIN32OLE::Variant.new(nil)
       
+      
+      binding.irb
       # Get the bounding box coordinates
       ole_obj.GetBoundingBox(minpoint, maxpoint)
+
       
       # Convert the VARIANT arrays to Point3d objects
       min_pt = Point3d.new(minpoint.value[0], minpoint.value[1], minpoint.value[2])
@@ -88,7 +92,13 @@ module Autocad
       # Create and return the bounding box
       BoundingBox.from_min_max(min_pt, max_pt)
     rescue => e
-      raise Autocad::Error.new("Error getting bounds: #{e.message}")
+      puts e.message
+      binding.irb
+      load "win32ole_helper.rb"
+      load "autocad/element.rb"
+      retry
+      # raise Autocad::Error.new("Error getting bounds: #{e.message}")
+      
     end
 
     
@@ -286,6 +296,8 @@ module Autocad
 
         when "IAcadPlot"
           ::Autocad::Plot.new(ole, app, typ)
+        when "IAcadSpline"
+          ::Autocad::Spline.new(ole,app,typ)
         else
           binding.irb
           Element.new(ole, app, typ)
