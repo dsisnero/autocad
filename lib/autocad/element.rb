@@ -74,19 +74,52 @@ module Autocad
     # end
 
     def bounds
-      # Create VARIANT objects for output parameters
-      minpoint = WIN32OLE_VARIANT.new(nil, WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_R8 | WIN32OLE::VARIANT::VT_BYREF)
-      maxpoint = WIN32OLE_VARIANT.new(nil, WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_R8 | WIN32OLE::VARIANT::VT_BYREF)
-      
-      # Get the bounding box coordinates
-      ole_obj.GetBoundingBox(minpoint, maxpoint)
-      
-      # Convert the VARIANT arrays to Point3d objects
-      min_pt = Point3d.new(minpoint.value[0], minpoint.value[1], minpoint.value[2])
-      max_pt = Point3d.new(maxpoint.value[0], maxpoint.value[1], maxpoint.value[2])
-      
-      # Create and return the bounding box
-      BoundingBox.from_min_max(min_pt, max_pt)
+      # Check if the object supports GetBoundingBox
+      if ole_obj.respond_to?(:GetBoundingBox)
+        # Create VARIANT objects for output parameters
+        minpoint = WIN32OLE_VARIANT.new(nil, WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_R8 | WIN32OLE::VARIANT::VT_BYREF)
+        maxpoint = WIN32OLE_VARIANT.new(nil, WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_R8 | WIN32OLE::VARIANT::VT_BYREF)
+        
+        # Get the bounding box coordinates
+        ole_obj.GetBoundingBox(minpoint, maxpoint)
+        
+        # Convert the VARIANT arrays to Point3d objects
+        min_pt = Point3d.new(minpoint.value[0], minpoint.value[1], minpoint.value[2])
+        max_pt = Point3d.new(maxpoint.value[0], maxpoint.value[1], maxpoint.value[2])
+        
+        # Create and return the bounding box
+        BoundingBox.from_min_max(min_pt, max_pt)
+      elsif ole_obj.respond_to?(:Coordinates)
+        # For objects like lines that have Coordinates property
+        coords = ole_obj.Coordinates
+        
+        # Find min and max values
+        x_values = []
+        y_values = []
+        z_values = []
+        
+        (0...coords.size).step(3) do |i|
+          x_values << coords[i]
+          y_values << coords[i+1]
+          z_values << coords[i+2] if i+2 < coords.size
+        end
+        
+        min_pt = Point3d.new(x_values.min, y_values.min, z_values.min || 0)
+        max_pt = Point3d.new(x_values.max, y_values.max, z_values.max || 0)
+        
+        BoundingBox.from_min_max(min_pt, max_pt)
+      elsif ole_obj.respond_to?(:Center) && ole_obj.respond_to?(:Radius)
+        # For circles
+        center = Point3d.new(ole_obj.Center)
+        radius = ole_obj.Radius
+        
+        min_pt = Point3d.new(center.x - radius, center.y - radius, center.z)
+        max_pt = Point3d.new(center.x + radius, center.y + radius, center.z)
+        
+        BoundingBox.from_min_max(min_pt, max_pt)
+      else
+        raise Autocad::Error.new("Object does not support bounding box calculation")
+      end
     rescue => e
       raise Autocad::Error.new("Error getting bounds: #{e.message}")
     end
