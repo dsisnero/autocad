@@ -75,15 +75,15 @@ module Autocad
 
     def bounds
       # Create VARIANT objects for output parameters
-      minpoint = WIN32OLE::VARIANT.new(nil, WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_R8 | WIN32OLE::VARIANT::VT_BYREF)
-      maxpoint = WIN32OLE::VARIANT.new(nil, WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_R8 | WIN32OLE::VARIANT::VT_BYREF)
+      minpoint = WIN32OLE_VARIANT.new(nil, WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_R8 | WIN32OLE::VARIANT::VT_BYREF)
+      maxpoint = WIN32OLE_VARIANT.new(nil, WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_R8 | WIN32OLE::VARIANT::VT_BYREF)
       
       # Get the bounding box coordinates
-      _, min_array, max_array = ole_obj.GetBoundingBox(minpoint, maxpoint)
+      ole_obj.GetBoundingBox(minpoint, maxpoint)
       
       # Convert the VARIANT arrays to Point3d objects
-      min_pt = Point3d.new(min_array[0], min_array[1], min_array[2])
-      max_pt = Point3d.new(max_array[0], max_array[1], max_array[2])
+      min_pt = Point3d.new(minpoint.value[0], minpoint.value[1], minpoint.value[2])
+      max_pt = Point3d.new(maxpoint.value[0], maxpoint.value[1], maxpoint.value[2])
       
       # Create and return the bounding box
       BoundingBox.from_min_max(min_pt, max_pt)
