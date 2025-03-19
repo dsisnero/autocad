@@ -229,20 +229,19 @@ module Autocad
     rescue => e
       @error_proc.call(e, nil)
     end
-    
-      # save the current drawing
-      # @rbs dir: String|Pathname -- the dir to save drawing to
-      # @rbs model: bool -- prints model space instead of paperspace in pdf document
-      # @rbs return void
-      def save_open_drawings(dir: Pathname.getwd,  model: false)
-          return unless has_drawings?
-          drawings.each do |d|
-            d.copy(dir:)
-            d.save_as_pdf(dir:, model:)
-            # d.close(false)
-          end
-      
+
+    # save the current drawing
+    # @rbs dir: String|Pathname -- the dir to save drawing to
+    # @rbs model: bool -- prints model space instead of paperspace in pdf document
+    # @rbs return void
+    def save_open_drawings(dir: Pathname.getwd, model: false)
+      return unless has_drawings?
+      drawings.each do |d|
+        d.copy(dir:)
+        d.save_as_pdf(dir:, model:)
+        # d.close(false)
       end
+    end
 
     def windows_path(path)
       @windows.windows_path(path)

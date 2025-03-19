@@ -1,0 +1,111 @@
+# Generated from lib/autocad/plot_configuration.rb with RBS::Inline
+
+module Autocad
+  class PlotConfiguration < Element
+    # the name of the plot configuration
+    # @rbs return String
+    def name: () -> String
+
+    # assign a plot device file to the plot config
+    # @rbs name: String
+    # @rbs return void
+    def device_name=: (String name) -> void
+
+    def device_name: () -> untyped
+
+    def read_ole: (untyped ole) -> untyped
+
+    def write_ole: (untyped value) -> untyped
+
+    # @rbs return Point3d -- the plot origin in wcs coordinates - always mm unit returned
+    def plot_origin: () -> Point3d
+
+    # @rbs -- accepts the same parameters as Point3d.new
+    def plot_origin=: () -> untyped
+
+    def plot_style_mode: () -> untyped
+
+    def plot_style_mode_variable: () -> untyped
+
+    def color_style_mode?: () -> untyped
+
+    def named_style_mode?: () -> untyped
+
+    # setup(device_name: "FAA.pc3", media_name: "ANSI_D_(36.00)",
+    #      style: "acad.ctb", plot_type: :extents, rotation: 0  )
+    def setup: () -> untyped
+
+    def update: (untyped value) -> untyped
+
+    # shows the current plot configuration settings
+    def display_setup: () -> untyped
+
+    # @rbs param pc: PlotConfiguration
+    # @rbs return void
+    def copy_plot_configuration: (untyped pc) -> void
+
+    def plot_style_mode=: (untyped sym) -> untyped
+
+    def ansi_b_landscape: () -> untyped
+
+    def ansi_d_landscape: () -> untyped
+
+    def refresh: () -> untyped
+
+    def style_sheet=: (untyped style) -> untyped
+
+    def style_sheet: () -> untyped
+
+    # The media devices available to for plotting
+    # @rbs return Array[String]
+    def device_names: () -> Array[String]
+
+    # The current device_name for printing as its Canonomical Name
+    # use this name when changing
+    # @rbs return String
+    def canonical_media_name: () -> String
+
+    def canonomical_media_name=: (untyped name) -> untyped
+
+    # The available paper sizes for the configured device. Use this
+    # when setting the media_name:
+    # @rbs return Array[String]
+    def media_names: () -> Array[String]
+
+    def locale_media_name: () -> untyped
+
+    # Returns the different plot tables. Use one of these
+    # when setting style_sheet
+    # @rbs return Array[String]
+    def plot_style_table_names: () -> Array[String]
+
+    # The different plot bounds or types
+    # @rbs return Array[Symbol]
+    def plot_types: () -> Array[Symbol]
+
+    # @rbs return Array[Float, Float] -- the numerator and denominator for a custom scale
+    def custom_scale: () -> Array[Float, Float]
+
+    # The different paper units
+    # @rbs return Array[Symbol]
+    def paper_units_types: () -> Array[Symbol]
+
+    def paper_units: () -> untyped
+
+    def paper_units_scale_factor: () -> untyped
+
+    private
+
+    def paper_units_to_ole: (untyped unit) -> untyped
+
+    def paper_units_from_ole: (untyped unit) -> untyped
+
+    def rotation_degree_to_ole: (untyped degree) -> untyped
+
+    def rotation_ole_to_degree: (untyped rot) -> untyped
+
+    def plot_type_ole_to_sym: (untyped typ) -> untyped
+
+    def plot_type_to_ole: (untyped typ) -> untyped
+  end
+end

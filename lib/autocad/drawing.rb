@@ -312,9 +312,13 @@ module Autocad
       ole_obj.Linetypes.each { |o| yield app.wrap(o) }
     end
 
-    # @rbs name: String -- layer name to create
+    # @rbs name: String | Layer -- layer name to create
     # @rbs return Acad::Layer
     def create_layer(name, color: nil)
+      if name.class == Acad::Layer
+        name.Color = color if color
+        return name
+      end
       ole_layer = begin
         ole_obj.Layers.Item(name)
       rescue
@@ -399,6 +403,20 @@ module Autocad
 
     def model_space
       ModelSpace.new(ole_obj.ModelSpace, app)
+    end
+
+    # @rbs return Enumerator[PlotConfiguration] | void
+    # @rbs &: (PlotConfiguration) -> void
+    def plot_configurations
+      return to_enum(__callee__) unless block_given?
+      ole_obj.PlotConfigurations.each { |o| yield app.wrap(o) }
+    end
+
+    # @rbs return Enumerator[Layout] | void
+    # @rbs &: (Layout) -> void
+    def plot_configurations
+      return to_enum(__callee__) unless block_given?
+      ole_obj.Layouts.each { |o| yield app.wrap(o) }
     end
 
     def paper_space

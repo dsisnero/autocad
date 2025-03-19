@@ -59,10 +59,10 @@ module Autocad
     def add_spline(points, start_tangent, end_tangent)
       pts = Point3d.pts_to_array(points)
       pts_variant = Point3d.array_to_ole(pts)
-      
+
       start_tangent_ole = Point3d.new(start_tangent).to_ole
       end_tangent_ole = Point3d.new(end_tangent).to_ole
-      
+
       ole = ole_obj.AddSpline(pts_variant, start_tangent_ole, end_tangent_ole)
       app.wrap(ole)
     rescue => ex

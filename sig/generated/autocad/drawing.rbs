@@ -130,9 +130,9 @@ module Autocad
 
     def linetypes: () -> untyped
 
-    # @rbs name: String -- layer name to create
+    # @rbs name: String | Layer -- layer name to create
     # @rbs return Acad::Layer
-    def create_layer: (String name, ?color: untyped) -> Acad::Layer
+    def create_layer: (String | Layer name, ?color: untyped) -> Acad::Layer
 
     # @rbs message: String -- the String to put in Autocad prompt
     def prompt: (String message) -> untyped
@@ -162,6 +162,14 @@ module Autocad
     def selection_sets: () { (SelectionSet) -> void } -> (Enumerator[SelectionSet] | void)
 
     def model_space: () -> untyped
+
+    # @rbs return Enumerator[PlotConfiguration] | void
+    # @rbs &: (PlotConfiguration) -> void
+    def plot_configurations: () { (PlotConfiguration) -> void } -> (Enumerator[PlotConfiguration] | void)
+
+    # @rbs return Enumerator[Layout] | void
+    # @rbs &: (Layout) -> void
+    def plot_configurations: () { (Layout) -> void } -> (Enumerator[Layout] | void)
 
     def paper_space: () -> untyped
 

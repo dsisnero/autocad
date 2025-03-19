@@ -1,0 +1,38 @@
+# Generated from lib/faa/cleanup.rb with RBS::Inline
+
+module Faa
+  # returns the project_dir from Documents folder
+  def self.project_dir: () -> Pathname
+
+  # returns the rtir project dir
+  def self.rtr_dir: () -> Pathname
+
+  # returns the nexcom_dir project folder
+  def self.nexcom_dir: () -> Pathname
+
+  module Cleanup
+    # Removes the text "TRANSLATION" and removes the border in model space
+    # and deletes the title block
+    def cleanup_model: () -> untyped
+
+    # Adds the faaborder to layout
+    # @rbs return BlockReference -- add faaDborder
+    def add_title_block: (?scale: untyped) -> BlockReference
+
+    # after deleting title block in model space, asks you to select a region to
+    # cleanup the rest of title block (attributes)
+    def cleanup_title_block: () -> untyped
+
+    def fix_layout: () -> untyped
+
+    def faa_title_block: () -> untyped
+
+    def remove_translation_text: () -> untyped
+  end
+end
+
+module Autocad
+  class Drawing
+    include Faa::Cleanup
+  end
+end

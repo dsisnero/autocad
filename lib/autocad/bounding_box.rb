@@ -8,6 +8,33 @@ module Autocad
   # No particular guarantees are made about the tightness of the bounding box,
   # though it can assumed to be reasonably tight.
   class BoundingBox
+    class << self
+      def empty
+        new(0, 0, 0, 0)
+      end
+
+      # Create a BoundingBox with the given width and height and
+      # the origin centered within the box.
+      def centered(width, height)
+        w = width / 2.0
+        h = height / 2.0
+        new(-w, h, w, -h)
+      end
+
+      # Create a BoundingBox from minimum and maximum points
+      def from_min_max(min_pt, max_pt)
+        min_pt = Point3d.new(min_pt)
+        max_pt = Point3d.new(max_pt)
+
+        new(
+          min_pt.x,  # left
+          max_pt.y,  # top
+          max_pt.x,  # right
+          min_pt.y   # bottom
+        )
+      end
+    end
+
     attr_reader :left, :top, :right, :bottom
 
     def initialize(left, top, right, bottom)
@@ -21,7 +48,7 @@ module Autocad
       right - left
     end
 
-    def height 
+    def height
       top - bottom
     end
 
@@ -123,33 +150,6 @@ module Autocad
         .enclose(transform.call(Point3d.new(right, top, 0)))
         .enclose(transform.call(Point3d.new(left, bottom, 0)))
         .enclose(transform.call(Point3d.new(right, bottom, 0)))
-    end
-
-    class << self
-      def empty
-        new(0, 0, 0, 0)
-      end
-
-      # Create a BoundingBox with the given width and height and
-      # the origin centered within the box.
-      def centered(width, height)
-        w = width / 2.0
-        h = height / 2.0
-        new(-w, h, w, -h)
-      end
-
-      # Create a BoundingBox from minimum and maximum points
-      def from_min_max(min_pt, max_pt)
-        min_pt = Point3d.new(min_pt)
-        max_pt = Point3d.new(max_pt)
-        
-        new(
-          min_pt.x,  # left
-          max_pt.y,  # top
-          max_pt.x,  # right
-          min_pt.y   # bottom
-        )
-      end
     end
   end
 end

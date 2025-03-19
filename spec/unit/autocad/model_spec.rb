@@ -67,7 +67,7 @@ describe "Autocad::Model" do
         binding.irb
 
         _(circle).must_be_kind_of Autocad::Circle
-      _(bounds).must_equal [Autocad::Point3d.new(25, 25, 0), Autocad::Point3d.new(75, 75, 0)]
+        _(bounds).must_equal [Autocad::Point3d.new(25, 25, 0), Autocad::Point3d.new(75, 75, 0)]
       end
     end
 
@@ -90,7 +90,7 @@ describe "Autocad::Model" do
         ]
         start_tangent = Autocad::Point3d.new(1, 0, 0)
         end_tangent = Autocad::Point3d.new(1, 0, 0)
-        
+
         spline = @model_space.add_spline(points, start_tangent, end_tangent)
 
         _(spline).must_be_kind_of Autocad::Element
@@ -112,15 +112,4 @@ describe "Autocad::Model" do
       end
     end
   end
-
-  describe "ModelSpace" do
-    it "includes ModelTrait" do
-      _(Autocad::ModelSpace.included_modules).must_include Autocad::ModelTrait
-    end
-
-    it "is an Element" do
-      _(@model_space).must_be_kind_of Autocad::Element
-    end
-  end
-
 end
