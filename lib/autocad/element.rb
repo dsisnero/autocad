@@ -1,5 +1,5 @@
 # rbs_inline: enabled
-
+require_relative "bounding_box"
 # require "autocad/property_handler"
 
 class WIN32OLE
