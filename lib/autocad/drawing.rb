@@ -7,6 +7,14 @@ require_relative "selection_set_adapter"
 require "debug"
 
 module Autocad
+  # Represents an AutoCAD drawing document and provides interface for:
+  # - File operations (save/open/close)
+  # - Space management (Model/Paper)
+  # - Layer/block/text management
+  # - Plot configuration
+  # - User interaction
+  # - Selection sets
+  # - System variables
   class Drawing
     include Common
     attr_reader :app
@@ -20,6 +28,9 @@ module Autocad
     end
 
     # Initialize a new Drawing instance
+    # @param app [Autocad::App] The application instance
+    # @param ole [WIN32OLE] The OLE object for the drawing
+    # @param requested_name [String, nil] Optional name for the drawing before it's saved
     # @rbs app: Autocad::App -- the application instance
     # @rbs ole: WIN32OLE -- the OLE object for the drawing
     # @rbs requested_name: String? -- optional name for the drawing before it's saved
@@ -30,11 +41,21 @@ module Autocad
       @requested_name = requested_name
     end
 
+    # Get the event handler for this drawing
+    # @return [EventHandler] The event handler instance
+    # @rbs return EventHandler
     def event_handler #: EventHandler
       @event_handler ||= default_event_handler
     end
 
     # Create a new selection set in the drawing
+    # @param name [String] The name for the selection set
+    # @yield [SelectionSetAdapter] Optional block for configuring the selection set
+    # @return [SelectionSetAdapter] The created selection set adapter
+    # @example Create a selection set with a filter
+    #   create_selection_set("walls") do |ss|
+    #     ss.filter.layer("WALLS").and.block_reference
+    #   end
     # @rbs name: String -- the name for the selection set
     # @rbs return SelectionSetAdapter -- the created selection set adapter
     def create_selection_set(name)
@@ -43,8 +64,11 @@ module Autocad
       SelectionSetAdapter.new(self, ss)
     end
 
-    # register an handler
-    #
+    # Register an event handler
+    # @param event [String] Event key for handler
+    # @yield Handler procedure to execute when event occurs
+    # @example Register a handler for BeginCommand event
+    #   register_handler("BeginCommand") { puts "Command started" }
     # @rbs event: String -- event key for handler
     # @rbs &: {() -> void} - handler Proc
     def register_handler(event, &) #:void
@@ -52,18 +76,21 @@ module Autocad
     end
 
     # Check if the drawing is read-only
+    # @return [Boolean] True if drawing is read only
     # @rbs return bool -- true if drawing is read only
     def read_only?
       ole_obj.ReadOnly
     end
 
     # Check if the drawing has been saved before
+    # @return [Boolean] True if drawing is previously saved
     # @rbs return bool -- true if drawing is previously saved
     def previously_saved?
       ole_obj.FullName != ""
     end
 
     # Check if the drawing has been modified since the last save
+    # @return [Boolean] True if drawing is modified
     # @rbs return bool -- true if drawing is modified
     def modified?
       ole_obj.Saved == false
@@ -71,6 +98,11 @@ module Autocad
 
     # Saves the drawing
     # If the drawing hasn't been saved yet and no name is provided, uses the requested name
+    # @param name [String, nil] Optional new name for the drawing
+    # @param dir [String, Pathname, nil] Optional directory to save to
+    # @return [void]
+    # @example Save drawing with new name in specific directory
+    #   drawing.save(name: "floor_plan_v2", dir: "C:/Projects/Building")
     # @rbs name: String? -- optional new name for the drawing
     # @rbs dir: String|Pathname? -- optional directory to save to
     # @rbs return void
@@ -93,10 +125,15 @@ module Autocad
       end
     end
 
-    # save the drawing as a pdf file
-    # if the name or directory is given it uses
-    # those params. If not it uses the drawing name
-    # and the drawing directory
+    # Save the drawing as a PDF file
+    # If name or directory is given, uses those params
+    # Otherwise uses the drawing name and directory
+    # @param name [String, nil] The name of the PDF file
+    # @param dir [String, Pathname, nil] The directory to save the PDF
+    # @param model [Boolean] Whether to use model space (true) or paper space (false)
+    # @return [void]
+    # @example Export to PDF with custom name
+    #   drawing.save_as_pdf(name: "presentation", dir: "C:/Exports")
     # @rbs name: String? - the name of the file
     # @rbs dir: String? - the directory to save the drawing
     def save_as_pdf(name: nil, dir: nil, model: false) #: void
@@ -105,13 +142,21 @@ module Autocad
       puts "saved #{out_name}"
     end
 
-    # Todo
+    # Get the center point of the current view
+    # @return [Point3d] The center of the view in world coordinates
     # @rbs return Point3d -- the center of the view in world coordinates
     def view_center
       center = get_variable("VIEWCTR")
       Point3d(center)
     end
 
+    # Add a new plot configuration to the drawing
+    # @param name [String] Name for the new plot configuration
+    # @param model [Boolean] Whether this is for model space (true) or paper space (false)
+    # @return [PlotConfiguration] The created plot configuration
+    # @example Create a new PDF plot configuration
+    #   pdf_config = drawing.add_plot_configuration("PDF_Export")
+    #   pdf_config.device_name = "AutoCAD PDF.pc3"
     # @rbs name: String
     # @rbs return PlotConfiguration
     def add_plot_configuration(name, model: false)
@@ -123,23 +168,36 @@ module Autocad
       app.error_proc.call(ex, self)
     end
 
-    # returns the defined plot configuration "faa_ansid_bw".
+    # Get the predefined PDF plot configuration "faa_ansid_bw"
+    # Creates it if it doesn't exist
+    # @return [PlotConfiguration] The PDF plot configuration
+    # @rbs return PlotConfiguration
     def pdf_plot_config #: PlotConfiguration
       @pdf_plot_config ||= create_pdf_plot_configutation
     end
 
+    # Get the plot object for this drawing
+    # @return [Plot] The plot object
+    # @rbs return Plot
     def plot #: Plot
       ole = ole_obj.Plot
       ole.QuietErrorMode = true
       app.wrap(ole_obj.Plot)
     end
 
+    # Get the first layout that is not "Model"
+    # @return [Layout] The first paper space layout
     # @rbs return Layout -- The first layout that is not "Model"
     def paper_space_layout
       layouts.reject { it.name == "Model" }.first
     end
 
-    # copy the drawing
+    # Copy the drawing to a new file
+    # @param name [String, Pathname, nil] Name of the file
+    # @param dir [String, Pathname, nil] Target directory
+    # @return [void]
+    # @example Create a backup copy
+    #   drawing.copy(name: "backup_#{Time.now.strftime('%Y%m%d')}.dwg")
     # @rbs name: String | Pathname --name of the file
     # @rbs dir: String|Pathname -- dir
     def copy(name: nil, dir: nil) #: void
@@ -155,24 +213,34 @@ module Autocad
     end
 
     # Check if paper space is active
+    # @return [Boolean] True if paper space is active
     # @rbs return bool -- true if paper space is active
     def paper_space? #: bool
       ole_obj.ActiveSpace == ACAD::AcPaperSpace
     end
 
     # Check if model space is active
+    # @return [Boolean] True if model space is active
     # @rbs return bool -- true if model space is active
     def model_space? #: bool
       ole_obj.ActiveSpace == ACAD::AcModelSpace
     end
 
     # Switch to paper space
+    # @return [void]
+    # @example Switch to paper space and add a viewport
+    #   drawing.to_paper_space
+    #   viewport = drawing.paper.add_pv_viewport(center, width: 200, height: 150)
     # @rbs return void
     def to_paper_space #: void
       ole_obj.ActiveSpace = ACAD::AcPaperSpace
     end
 
     # Switch to model space
+    # @return [void]
+    # @example Switch to model space and add geometry
+    #   drawing.to_model_space
+    #   drawing.model.add_circle([0,0,0], 10)
     # @rbs return void
     def to_model_space #: void
       ole_obj.ActiveSpace = ACAD::AcModelSpace
@@ -180,6 +248,7 @@ module Autocad
 
     # Returns the name of the drawing
     # If the drawing hasn't been saved yet, returns the requested name
+    # @return [String] The name of the drawing with .dwg extension
     # @rbs return String -- the name of the drawing
     def name
       if @requested_name && !previously_saved?
@@ -191,24 +260,28 @@ module Autocad
     end
 
     # Get the basename of the drawing as a Pathname
+    # @return [Pathname] The name as Pathname
     # @rbs return Pathname -- the name as Pathname
     def basename
       Pathname.new(name)
     end
 
     # Get the directory of the drawing
+    # @return [Pathname] The directory of the file
     # @rbs return Pathname -- the directory of the file
     def dirname
       Pathname.new(ole_obj.Path).expand_path
     end
 
     # Get the full path of the drawing
+    # @return [Pathname] The complete path of file
     # @rbs return Pathname -- the complete path of file
     def path
       dirname + basename
     end
 
     # Get the active layer in the drawing
+    # @return [Layer] The active layer
     # @rbs return Layer -- the active layer
     def active_layer
       ole = ole_obj.ActiveLayer
@@ -216,11 +289,17 @@ module Autocad
     end
 
     # Get the name of the active layer
+    # @return [String] The name of the active layer
     # @rbs return String -- the name of the active layer
     def active_layer_name
       ole_obj.ActiveLayer.Name
     end
 
+    # Set the active layer
+    # @param layer [Layer, String] Layer object or name to make active
+    # @raise [RuntimeError] If layer not found
+    # @example Set active layer by name
+    #   drawing.active_layer = "Walls"
     # @rbs layer: Layer | String -- make the given layer active
     def active_layer=(layer)
       if layer.is_a?(String)
@@ -232,13 +311,17 @@ module Autocad
       ole_obj.ActiveLayer = layer.to_ole
     end
 
+    # Set the active paper space viewport
+    # @param vport [Autocad::PViewport] Viewport to make active
+    # @return [void]
     # @rbs vport: Autocad::PViewport -- viewport to make active
     # @rbs return void
     def active_pviewport=(vport)
       ole_obj.ActivePViewport = vport.to_ole
     end
 
-    # return the active PViewport
+    # Get the active paper space viewport
+    # @return [PViewport] The active viewport
     # @rbs return PViewport
     def active_pviewport
       ole = ole_obj.ActivePViewport
@@ -247,17 +330,27 @@ module Autocad
       app.error_proc.call(ex, self)
     end
 
+    # Get the active layout
+    # @return [Layout] The active layout
     # @rbs return Layout
     def active_layout
       ole = ole_obj.ActiveLayout
       app.wrap(ole)
     end
 
+    # Set the active layout
+    # @param layout [Layout] Layout to make active
+    # @return [void]
+    # @example Switch to a specific layout
+    #   layout = drawing.layouts.find { |l| l.name == "Layout1" }
+    #   drawing.active_layout = layout
     # @rbs layout: Layout -- layout to make active
     def active_layout=(layout)
       ole_obj.ActiveLayout = layout.to_ole
     end
 
+    # Get the currently active space (model or paper)
+    # @return [ModelSpace, PaperSpace] The active space object
     def active_space
       ole = ole_obj.ActiveSpace
 
@@ -270,6 +363,11 @@ module Autocad
     end
 
     # Close the drawing
+    # @param save [Boolean] Whether to save changes before closing
+    # @return [void]
+    # @raise [Autocad::DrawingClose] If closure fails
+    # @example Close without saving
+    #   drawing.close(false)
     # @rbs save: bool -- whether to save changes before closing
     # @rbs return void
     def close(save = true)
@@ -295,6 +393,11 @@ module Autocad
       end
     end
 
+    # Get a selection set by name
+    # @param name [String] Selection set name to return
+    # @return [SelectionSet, nil] The selection set or nil if not found
+    # @example Get or create a selection set
+    #   ss = drawing.get_selection_set("my_selection") || drawing.create_selection_set("my_selection")
     # @rbs name: String -- selection set name to return
     # @rbs return SelectionSet | nil
     def get_selection_set(name)
@@ -303,6 +406,10 @@ module Autocad
     end
 
     # Get all blocks in the drawing
+    # @return [Enumerator<Block>] An enumerator of blocks
+    # @yield [Block] Optional block to process each block
+    # @example Iterate through all blocks
+    #   drawing.blocks.each { |block| puts block.name }
     # @rbs return Enumerator[Block] -- an enumerator of blocks
     # @rbs &: (Block) -> void -- optional block to process each block
     def blocks
@@ -311,6 +418,10 @@ module Autocad
     end
 
     # Get all layouts in the drawing
+    # @return [Enumerator<Layout>] An enumerator of layouts
+    # @yield [Layout] Optional block to process each layout
+    # @example Find a layout by name
+    #   title_layout = drawing.layouts.find { |layout| layout.name == "Title Block" }
     # @rbs return Enumerator[Layout] -- an enumerator of layouts
     # @rbs &: (Layout) -> void -- optional block to process each layout
     def layouts
@@ -319,6 +430,10 @@ module Autocad
     end
 
     # Get all layers in the drawing
+    # @return [Enumerator<Layer>] An enumerator of layers
+    # @yield [Layer] Optional block to process each layer
+    # @example Find frozen layers
+    #   frozen_layers = drawing.layers.select { |layer| layer.frozen? }
     # @rbs return Enumerator[Layer] -- an enumerator of layers
     # @rbs &: (Layer) -> void -- optional block to process each layer
     def layers
@@ -328,6 +443,12 @@ module Autocad
     end
 
     # Get all linetypes in the drawing
+    # @return [Enumerator<Linetype>] An enumerator of linetypes
+    # @yield [Linetype] Optional block to process each linetype
+    # @example Load a new linetype
+    #   unless drawing.linetypes.any? { |lt| lt.name == "DASHED" }
+    #     drawing.load_linetype("acad.lin", "DASHED")
+    #   end
     # @rbs return Enumerator[Linetype] -- an enumerator of linetypes
     # @rbs &: (Linetype) -> void -- optional block to process each linetype
     def linetypes
@@ -335,6 +456,14 @@ module Autocad
       ole_obj.Linetypes.each { |o| yield app.wrap(o) }
     end
 
+    # Create a new layer or get an existing one
+    # @param name [String, Layer] Layer name to create or existing Layer object
+    # @param color [Integer, Symbol, String, nil] Color for the layer (can be ACAD::COLOR constant, symbol, or integer)
+    # @return [Acad::Layer] The created or existing layer
+    # @example Create a red layer
+    #   walls_layer = drawing.create_layer("Walls", :red)
+    # @example Create a layer with a specific color index
+    #   detail_layer = drawing.create_layer("Details", 42)
     # @rbs name: String | Layer -- layer name to create
     # @rbs color: Integer|Symbol|String -- color for the layer (can be ACAD::COLOR constant, symbol, or integer)
     # @rbs return Acad::Layer
@@ -353,9 +482,12 @@ module Autocad
       app.wrap(ole_layer)
     end
 
-    # Regenerate the drawing
-    # view_ports is from AcRegenType enum from autocad
-    # [:all, :active]
+    # Regenerate the drawing display
+    # @param view_ports [Symbol] Viewports to regenerate (:all or :active)
+    # @return [void]
+    # @example Regenerate all viewports
+    #   drawing.regen(:all)
+    # @note Uses AcRegenType enum from AutoCAD
     # @rbs view_ports: Symbol -- :all or :active
     # @rbs return void
     def regen(view_ports = :all)
@@ -366,6 +498,10 @@ module Autocad
       ole_obj.Regen vp_type
     end
 
+    # Get all block references in model space
+    # @return [Enumerator<BlockReference>] All block references in model space
+    # @example Find all title blocks in model space
+    #   title_blocks = drawing.model_block_references.select { |br| br.name == "TITLE_BLOCK" }
     # @rbs return Enumerator[BlockReference] -- all block references in model space
     def model_block_references
       ss = selection_sets.find { it.name == "model_block_references" }
@@ -378,6 +514,12 @@ module Autocad
       ss.each
     end
 
+    # Get all block references in paper space
+    # @return [Enumerator<BlockReference>] All block references in paper space
+    # @example Delete all border blocks in paper space
+    #   drawing.paper_block_references.each do |br|
+    #     br.delete if br.name == "BORDER"
+    #   end
     # @rbs return Enumerator[BlockReference] -- all block references in paper space
     def paper_block_references
       ss = selection_sets.find { it.name == "paper_block_references" }
@@ -390,6 +532,11 @@ module Autocad
       ss.each
     end
 
+    # Select all text objects containing the specified string
+    # @param str [String] Text pattern to search for (supports wildcards)
+    # @return [Enumerator<Element>] Text elements containing the pattern
+    # @example Find all text containing "REVISION"
+    #   revision_texts = drawing.select_text_containing("*REVISION*")
     def select_text_containing(str)
       varname = "@text_containg_#{str}".tr("*", "_")
       ss = if instance_variable_defined?(varname)
@@ -402,10 +549,15 @@ module Autocad
       ss.each
     end
 
+    # Check if the drawing has any paper space viewports
+    # @return [Boolean] True if paper space has at least one viewport
     def has_pviewport?
       paper_space.pviewports.count > 0
     end
 
+    # Get a selection set containing text with the specified string
+    # @param str [String] Text pattern to search for
+    # @return [SelectionSetAdapter] Selection set with matching text
     def get_select_text_containing(str)
       name = "text_containing_#{str}"
       varname = "@#{name}".tr("*", "_")
@@ -418,6 +570,12 @@ module Autocad
       ss
     end
 
+    # Get all block references in the drawing
+    # @yield [BlockReference] Optional block to process each reference
+    # @return [Enumerator<BlockReference>] All block references
+    # @example Count references by block name
+    #   counts = Hash.new(0)
+    #   drawing.block_references { |br| counts[br.name] += 1 }
     # &: (BlockReference) -> void
     # @rbs return Enumerator[BlockReference]
     def block_references
@@ -430,6 +588,11 @@ module Autocad
       end
     end
 
+    # Get all dimension styles in the drawing
+    # @yield [DimStyle] Optional block to process each dimension style
+    # @return [Enumerator<DimStyle>] Enumerator of dimension styles
+    # @example Find architectural dimension style
+    #   arch_style = drawing.dim_styles.find { |ds| ds.name == "ARCHITECTURAL" }
     # &: (DimStyle) -> void
     # @rbs return Enumerator[DimStyle] -- enumerator of dimension styles in document
     def dim_styles
@@ -437,6 +600,11 @@ module Autocad
       ole_obj.DimStyles.each { |o| yield app.wrap(o) }
     end
 
+    # Get all text styles in the drawing
+    # @yield [TextStyle] Optional block to process each text style
+    # @return [Enumerator<TextStyle>] Enumerator of text styles
+    # @example Find a specific text style
+    #   romans = drawing.text_styles.find { |ts| ts.name == "Romans" }
     # &: (TextStyle) -> void
     # @rbs return Enumerator[TextStyle] -- enumerator of text styles in document
     def text_styles
@@ -444,12 +612,23 @@ module Autocad
       ole_obj.TextStyles.each { |o| yield app.wrap(o) }
     end
 
+    # Get a selection set adapter for block references
+    # @return [SelectionSetAdapter] Selection set adapter for block references
+    # @example Use the selection set to filter block references
+    #   ss = drawing.block_reference_selection_set
+    #   ss.filter { |f| f.and(f.layer("Furniture"), f.block_reference) }
     # @rbs return SelectionSetAdapter
     def block_reference_selection_set
       @block_reference_selection_set ||= get_block_reference_selection_set
     end
 
     # Get the value of a system variable
+    # @param name [String] The name of the system variable
+    # @return [Object] The value of the system variable
+    # @example Get current layer
+    #   current_layer = drawing.get_variable("CLAYER")
+    # @example Get dimension scale
+    #   dim_scale = drawing.get_variable("DIMSCALE")
     # @rbs name: String -- the name of the system variable
     # @rbs return Object -- the value of the system variable
     def get_variable(name)
@@ -457,6 +636,13 @@ module Autocad
     end
 
     # Set the value of a system variable
+    # @param name [String] The name of the system variable
+    # @param value [Object] The value to set
+    # @return [void]
+    # @example Set dimension scale
+    #   drawing.set_variable("DIMSCALE", 2.5)
+    # @example Set current layer
+    #   drawing.set_variable("CLAYER", "Dimensions")
     # @rbs name: String -- the name of the system variable
     # @rbs value: Object -- the value to set
     # @rbs return void
@@ -465,6 +651,14 @@ module Autocad
     end
 
     # Set multiple system variables at once
+    # @param names [Array<String>] The names of the system variables
+    # @param values [Array<Object>] The values to set
+    # @return [void]
+    # @example Set multiple dimension variables
+    #   drawing.set_variables(
+    #     ["DIMSCALE", "DIMLWD", "DIMCLRT"],
+    #     [2.5, 2, Autocad::Color::Blue]
+    #   )
     # @rbs names: Array[String] -- the names of the system variables
     # @rbs values: Array[Object] -- the values to set
     # @rbs return void
@@ -476,6 +670,18 @@ module Autocad
     end
 
     # Temporarily set system variables and restore them after the block executes
+    # @param names [Array<String>] The names of the system variables
+    # @param values [Array<Object>] The values to set
+    # @yield Block to execute with the temporary variable values
+    # @return [Object] The result of the block
+    # @example Temporarily change text settings
+    #   drawing.with_system_variables(
+    #     ["TEXTSTYLE", "TEXTSIZE"],
+    #     ["Standard", 2.5]
+    #   ) do
+    #     # Add text with these settings
+    #     drawing.model.add_text("Note", [0,0,0])
+    #   end
     # @rbs names: Array[String] -- the names of the system variables
     # @rbs values: Array[Object] -- the values to set
     # @rbs &block: Proc -- the block to execute with the temporary variable values
@@ -490,6 +696,10 @@ module Autocad
     end
 
     # Get the values of multiple system variables
+    # @param *atts [Array<String>] The names of the system variables
+    # @return [Array<Object>] The values of the system variables
+    # @example Get multiple dimension settings
+    #   scale, arrow_size = drawing.get_variables("DIMSCALE", "DIMASZ")
     # @rbs *atts: Array[String] -- the names of the system variables
     # @rbs return Array[Object] -- the values of the system variables
     def get_variables(*atts)
@@ -513,14 +723,24 @@ module Autocad
     #   nil
     # end
 
-    # @rbs message: String -- the String to put in Autocad prompt
     # Display a message in the AutoCAD command line
-    # @rbs message: String -- the message to display
+    # @param message [String] The message to display
+    # @return [void]
+    # @example Show a status message
+    #   drawing.prompt("Processing complete. Select objects to continue.")
+    # @rbs message: String -- the String to put in Autocad prompt
     # @rbs return void
     def prompt(message)
       utility.Prompt(message)
     end
 
+    # Get a string input from the user
+    # @param prompt [String] The string to prompt the user
+    # @param spaces [Boolean] Whether the string returned can contain spaces
+    # @return [String] User input
+    # @raise [Autocad::Error] If input operation fails
+    # @example Get a filename from user
+    #   filename = drawing.get_input_string(prompt: "Enter filename:", spaces: false)
     # @rbs prompt: String -- the string to prompt the user for String
     # @rbs has_spaces: bool -- whether the string returned can contain spaces
     def get_input_string(prompt: "Enter a string", spaces: true)
@@ -529,6 +749,12 @@ module Autocad
       raise Autocad::Error.new("Error getting string input from user #{ex}")
     end
 
+    # Get an integer input from the user
+    # @param prompt [String] The string to prompt the user
+    # @return [Integer] User input
+    # @raise [Autocad::Error] If input operation fails
+    # @example Get number of copies
+    #   copies = drawing.get_input_integer(prompt: "Enter number of copies:")
     # @rbs prompt: String -- the string to prompt the user for Integer
     def get_input_integer(prompt: "Enter a integer")
       utility.GetInteger(prompt)
@@ -536,16 +762,28 @@ module Autocad
       raise Autocad::Error.new("Error getting integer input from user #{ex}")
     end
 
+    # Get a floating point input from the user
+    # @param prompt [String] The string to prompt the user
+    # @return [Float] User input
+    # @raise [Autocad::Error] If input operation fails
+    # @example Get a scale factor
+    #   scale = drawing.get_float(prompt: "Enter scale factor:")
     def get_float(prompt: "Enter a float")
       utility.GetReal(prompt)
     rescue => ex
       raise Autocad::Error.new("Error getting float input from user #{ex}")
     end
 
-    # In a running Autocad instance, prompts the user for a point.
-    # Uses the prompt argument as the prompt string.
-    # If base_point is provided, it is used as the base point and a
-    # stretched line is drawn from the base point to the returned point.
+    # Prompt the user for a point in the drawing
+    # @param prompt [String] The prompt string to display
+    # @param base_point [Array, Point3d, nil] Optional base point for rubber-band line
+    # @return [Point3d] The selected point
+    # @raise [Autocad::Error] If point selection fails
+    # @example Get start and end points for a line
+    #   start = drawing.get_point(prompt: "Select start point:")
+    #   end_pt = drawing.get_point(prompt: "Select end point:", base_point: start)
+    #   drawing.model.add_line(start, end_pt)
+    # @note If base_point is provided, a stretched line is drawn from the base point
     # @rbs prompt: String
     # @rbs base_point: Array, Point3d, nil
     # @rbs return [Point3d]
@@ -563,6 +801,11 @@ module Autocad
       raise Autocad::Error.new("Error getting point input from user #{ex}")
     end
 
+    # Prompt the user to select a rectangular region
+    # @return [Array<Point3d>] Two points defining opposite corners of the region
+    # @example Get a region for a window selection
+    #   corner1, corner2 = drawing.get_region
+    #   # Use corners for window selection
     def get_region
       pt = get_point(prompt: "Specify first corner")
       prompt("X: #{pt.x}, Y: #{pt.y}, Z: #{pt.z}\n")
@@ -572,6 +815,10 @@ module Autocad
     end
 
     # Get all selection sets in the drawing
+    # @return [Enumerator<SelectionSetAdapter>] An enumerator of selection sets
+    # @yield [SelectionSetAdapter] Optional block to process each selection set
+    # @example Find a specific selection set
+    #   walls_ss = drawing.selection_sets.find { |ss| ss.name == "WALLS" }
     # @rbs return Enumerator[SelectionSetAdapter] -- an enumerator of selection sets
     # @rbs &: (SelectionSetAdapter) -> void -- optional block to process each selection set
     def selection_sets
@@ -580,11 +827,19 @@ module Autocad
     end
 
     # Get the model space of the drawing
+    # @return [ModelSpace] The model space container
+    # @example Add a circle to model space
+    #   drawing.model_space.add_circle([0,0,0], 10)
     # @rbs return ModelSpace -- the model space
     def model_space
       app.wrap ole_obj.ModelSpace
     end
 
+    # Get all plot configurations in the drawing
+    # @return [Enumerator<PlotConfiguration>] Enumerator of plot configurations
+    # @yield [PlotConfiguration] Optional block to process each configuration
+    # @example Find a specific plot configuration
+    #   pdf_config = drawing.plot_configurations.find { |pc| pc.name == "PDF_Export" }
     # @rbs return Enumerator[PlotConfiguration] | void
     # @rbs &: (PlotConfiguration) -> void
     def plot_configurations
@@ -592,6 +847,9 @@ module Autocad
       ole_obj.PlotConfigurations.each { |o| yield app.wrap(o) }
     end
 
+    # Get all layouts in the drawing (duplicate method, should be removed)
+    # @return [Enumerator<Layout>] Enumerator of layouts
+    # @yield [Layout] Optional block to process each layout
     # @rbs return Enumerator[Layout] | void
     # @rbs &: (Layout) -> void
     def plot_configurations
@@ -600,15 +858,21 @@ module Autocad
     end
 
     # Get the paper space of the drawing
+    # @return [PaperSpace] The paper space container
+    # @example Add a viewport to paper space
+    #   drawing.paper_space.add_pv_viewport([5,5,0], width: 200, height: 150)
     # @rbs return PaperSpace -- the paper space
     def paper_space
       app.wrap ole_obj.PaperSpace
     end
 
+    # Aliases for convenience
     alias_method :model, :model_space
     alias_method :paper, :paper_space
 
-
+    # Get the underlying OLE object
+    # @return [WIN32OLE] The OLE object for the drawing
+    # @raise [DrawingClose] If drawing is closed or invalid
     def ole_obj
       if @drawing_closed || @ole_obj.nil?
         # Use a local variable to avoid recursive call to name method
