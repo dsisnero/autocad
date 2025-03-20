@@ -12,52 +12,72 @@ module Autocad
   end
 end
 
-module ACAD
-  module COLOR
+module Autocad
+  module Color
     # Standard AutoCAD color indices
-    RED = 1
-    YELLOW = 2
-    GREEN = 3
-    CYAN = 4
-    BLUE = 5
-    MAGENTA = 6
-    WHITE = 7
-    BLACK = 0
+    Red = 1
+    Yellow = 2
+    Green = 3
+    Cyan = 4
+    Blue = 5
+    Magenta = 6
+    White = 7
+    Black = 0
 
     # Additional common colors
-    GRAY = 8
-    LIGHT_GRAY = 9
-    DARK_RED = 10
-    DARK_GREEN = 96
-    DARK_BLUE = 174
-    ORANGE = 30
-    PURPLE = 200
-    BROWN = 35
+    Gray = 8
+    LightGray = 9
+    DarkRed = 10
+    DarkGreen = 96
+    DarkBlue = 174
+    Orange = 30
+    Purple = 200
+    Brown = 35
 
     # Convert a color symbol or name to its integer value
     # @param color [Symbol, String, Integer] color name or index
     # @return [Integer] AutoCAD color index
     def self.to_index(color)
       return color if color.is_a?(Integer)
-
-      color_name = color.to_s.upcase
-      if const_defined?(color_name)
-        const_get(color_name)
-      else
-        raise ArgumentError, "Unknown color: #{color}. Use a valid color name or integer index."
+      
+      # Handle both camelCase and snake_case in symbols and strings
+      color_str = color.to_s
+      
+      # Try direct match first (for exact constant names)
+      constants.each do |const_name|
+        return const_get(const_name) if const_name.to_s.downcase == color_str.downcase
       end
+      
+      # Try normalized version (convert snake_case to CamelCase)
+      normalized = color_str.split('_').map(&:capitalize).join
+      constants.each do |const_name|
+        return const_get(const_name) if const_name.to_s.downcase == normalized.downcase
+      end
+      
+      raise ArgumentError, "Unknown color: #{color}. Use a valid color name or integer index."
     end
-
+    
     # Convert an integer color index to a symbolic name if possible
     # @param index [Integer] AutoCAD color index
     # @return [Symbol, Integer] Color name as symbol or original index if no name exists
     def self.from_index(index)
       constants.each do |const_name|
-        return const_name.downcase.to_sym if const_get(const_name) == index
+        return underscore(const_name).to_sym if const_get(const_name) == index
       end
       index # Return the original index if no matching constant
     end
+    
+    # Helper method to convert to snake_case
+    def self.underscore(camel_case)
+      camel_case.to_s.gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
+                .gsub(/([a-z\d])([A-Z])/, '\1_\2')
+                .downcase
+    end
   end
+end
+
+module ACAD
+  # Keep the module for backward compatibility
 end
 
 require "logger"
@@ -82,7 +102,7 @@ module Autocad
   # @return [Integer] AutoCAD color index
   def self.color_to_index(color)
     return color if color.is_a?(Integer)
-    ACAD::COLOR.to_index(color)
+    Color.to_index(color)
   end
 
   class << self

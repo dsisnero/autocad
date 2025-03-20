@@ -21,7 +21,7 @@ module Autocad
     # Get the symbolic color name if available
     # @rbs return Symbol|Integer -- the symbolic color name or integer if no name exists
     def color_name
-      ACAD::COLOR.from_index(color)
+      Autocad::Color.from_index(color)
     end
 
     # set the name of the layer

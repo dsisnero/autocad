@@ -62,7 +62,7 @@ end
 
 ```ruby
 # Colors can be specified in multiple ways:
-layer.color = ACAD::COLOR::BLUE       # Using constants
+layer.color = Autocad::Color::Blue    # Using constants
 layer.color = :green                  # Using symbols
 layer.color = "RED"                   # Using strings
 layer.color = 1                       # Using AutoCAD color indices

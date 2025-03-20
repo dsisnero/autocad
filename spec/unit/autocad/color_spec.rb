@@ -1,36 +1,51 @@
 require_relative '../../spec_helper'
 
-describe ACAD::COLOR do
+describe Autocad::Color do
   describe '.to_index' do
     it 'returns the integer value for a color constant' do
-      _(ACAD::COLOR.to_index(:red)).must_equal 1
-      _(ACAD::COLOR.to_index(:blue)).must_equal 5
-      _(ACAD::COLOR.to_index(:green)).must_equal 3
+      _(Autocad::Color.to_index(:red)).must_equal 1
+      _(Autocad::Color.to_index(:blue)).must_equal 5
+      _(Autocad::Color.to_index(:green)).must_equal 3
     end
 
     it 'accepts string color names' do
-      _(ACAD::COLOR.to_index('RED')).must_equal 1
-      _(ACAD::COLOR.to_index('blue')).must_equal 5
+      _(Autocad::Color.to_index('RED')).must_equal 1
+      _(Autocad::Color.to_index('blue')).must_equal 5
+    end
+
+    it 'accepts camelCase color names' do
+      _(Autocad::Color.to_index('darkRed')).must_equal 10
+      _(Autocad::Color.to_index('lightGray')).must_equal 9
+    end
+
+    it 'accepts snake_case color names' do
+      _(Autocad::Color.to_index('dark_red')).must_equal 10
+      _(Autocad::Color.to_index('light_gray')).must_equal 9
     end
 
     it 'passes through integer values' do
-      _(ACAD::COLOR.to_index(1)).must_equal 1
-      _(ACAD::COLOR.to_index(42)).must_equal 42
+      _(Autocad::Color.to_index(1)).must_equal 1
+      _(Autocad::Color.to_index(42)).must_equal 42
     end
 
     it 'raises an error for unknown color names' do
-      assert_raises(ArgumentError) { ACAD::COLOR.to_index(:not_a_color) }
+      assert_raises(ArgumentError) { Autocad::Color.to_index(:not_a_color) }
     end
   end
 
   describe '.from_index' do
     it 'returns the symbolic name for known color indices' do
-      _(ACAD::COLOR.from_index(1)).must_equal :red
-      _(ACAD::COLOR.from_index(5)).must_equal :blue
+      _(Autocad::Color.from_index(1)).must_equal :red
+      _(Autocad::Color.from_index(5)).must_equal :blue
+    end
+
+    it 'returns snake_case names for camelCase constants' do
+      _(Autocad::Color.from_index(9)).must_equal :light_gray
+      _(Autocad::Color.from_index(10)).must_equal :dark_red
     end
 
     it 'returns the original index for unknown color indices' do
-      _(ACAD::COLOR.from_index(42)).must_equal 42
+      _(Autocad::Color.from_index(42)).must_equal 42
     end
   end
 end
@@ -69,9 +84,9 @@ describe Autocad::Layer do
       _(layer.color).must_equal 3 # Green is 3 in AutoCAD
     end
 
-    it 'sets the color using ACAD::COLOR constants' do
+    it 'sets the color using Autocad::Color constants' do
       layer = @drawing.create_layer('ColorTestLayer4')
-      layer.color = ACAD::COLOR::MAGENTA
+      layer.color = Autocad::Color::Magenta
       _(layer.color).must_equal 6 # Magenta is 6 in AutoCAD
     end
   end
@@ -101,8 +116,8 @@ describe Autocad::Layer do
       _(layer.color).must_equal 1 # Red
     end
 
-    it 'creates a layer with the specified ACAD::COLOR constant' do
-      layer = @drawing.create_layer('CreateColorLayer3', ACAD::COLOR::BLUE)
+    it 'creates a layer with the specified Autocad::Color constant' do
+      layer = @drawing.create_layer('CreateColorLayer3', Autocad::Color::Blue)
       _(layer.color).must_equal 5 # Blue
     end
   end
