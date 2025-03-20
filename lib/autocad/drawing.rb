@@ -11,10 +11,18 @@ module Autocad
     include Common
     attr_reader :app
 
+    # Create a Drawing instance from an OLE object
+    # @rbs app: Autocad::App -- the application instance
+    # @rbs ole: WIN32OLE -- the OLE object for the drawing
+    # @rbs return Drawing -- a new Drawing instance
     def self.from_ole_obj(app, ole) #: Drawing
       new(app, ole)
     end
 
+    # Initialize a new Drawing instance
+    # @rbs app: Autocad::App -- the application instance
+    # @rbs ole: WIN32OLE -- the OLE object for the drawing
+    # @rbs requested_name: String? -- optional name for the drawing before it's saved
     def initialize(app, ole, requested_name = nil)
       @app = app
       @ole_obj = ole
@@ -26,7 +34,9 @@ module Autocad
       @event_handler ||= default_event_handler
     end
 
-    # @rbs return SelectionSetAdapter
+    # Create a new selection set in the drawing
+    # @rbs name: String -- the name for the selection set
+    # @rbs return SelectionSetAdapter -- the created selection set adapter
     def create_selection_set(name)
       ss = SelectionSet.new(name)
       yield ss if block_given?
@@ -41,21 +51,29 @@ module Autocad
       @event_handler.add_handler(event, &) unless event == "OnQuit"
     end
 
+    # Check if the drawing is read-only
     # @rbs return bool -- true if drawing is read only
     def read_only?
       ole_obj.ReadOnly
     end
 
+    # Check if the drawing has been saved before
     # @rbs return bool -- true if drawing is previously saved
     def previously_saved?
       ole_obj.FullName != ""
     end
 
+    # Check if the drawing has been modified since the last save
     # @rbs return bool -- true if drawing is modified
     def modified?
       ole_obj.Saved == false
     end
 
+    # Saves the drawing
+    # If the drawing hasn't been saved yet and no name is provided, uses the requested name
+    # @rbs name: String? -- optional new name for the drawing
+    # @rbs dir: String|Pathname? -- optional directory to save to
+    # @rbs return void
     def save(name: nil, dir: nil) #: void
       return if read_only?
       
@@ -137,22 +155,32 @@ module Autocad
       FileUtils.copy path.to_s, copy_path.to_s, verbose: true
     end
 
+    # Check if paper space is active
+    # @rbs return bool -- true if paper space is active
     def paper_space? #: bool
       ole_obj.ActiveSpace == ACAD::AcPaperSpace
     end
 
+    # Check if model space is active
+    # @rbs return bool -- true if model space is active
     def model_space? #: bool
       ole_obj.ActiveSpace == ACAD::AcModelSpace
     end
 
+    # Switch to paper space
+    # @rbs return void
     def to_paper_space #: void
       ole_obj.ActiveSpace = ACAD::AcPaperSpace
     end
 
+    # Switch to model space
+    # @rbs return void
     def to_model_space #: void
       ole_obj.ActiveSpace = ACAD::AcModelSpace
     end
 
+    # Returns the name of the drawing
+    # If the drawing hasn't been saved yet, returns the requested name
     # @rbs return String -- the name of the drawing
     def name
       if @requested_name && !previously_saved?
@@ -163,27 +191,32 @@ module Autocad
       ole_obj.Name
     end
 
+    # Get the basename of the drawing as a Pathname
     # @rbs return Pathname -- the name as Pathname
     def basename
       Pathname.new(name)
     end
 
+    # Get the directory of the drawing
     # @rbs return Pathname -- the directory of the file
     def dirname
       Pathname.new(ole_obj.Path).expand_path
     end
 
+    # Get the full path of the drawing
     # @rbs return Pathname -- the complete path of file
     def path
       dirname + basename
     end
 
+    # Get the active layer in the drawing
     # @rbs return Layer -- the active layer
     def active_layer
       ole = ole_obj.ActiveLayer
       app.wrap(ole)
     end
 
+    # Get the name of the active layer
     # @rbs return String -- the name of the active layer
     def active_layer_name
       ole_obj.ActiveLayer.Name
@@ -238,7 +271,8 @@ module Autocad
     end
 
     # Close the drawing
-    # @rbs save: bool -- whether to save the drawing
+    # @rbs save: bool -- whether to save changes before closing
+    # @rbs return void
     def close(save = true)
       # Store the name before marking as closed
       drawing_name = @ole_obj.respond_to?(:Name) ? @ole_obj.Name : "unknown"
@@ -269,29 +303,33 @@ module Autocad
       app.wrap(ole) if ole
     end
 
-    # @rbs return Enumerator[Block]
-    # @rbs &: (Block) -> void
+    # Get all blocks in the drawing
+    # @rbs return Enumerator[Block] -- an enumerator of blocks
+    # @rbs &: (Block) -> void -- optional block to process each block
     def blocks
       return to_enum(__callee__) unless block_given?
       ole_obj.Blocks.each { |o| yield app.wrap(o) }
     end
 
-    # @rbs return Enumerator[Layout]
-    # @rbs &: (Layout) -> void
+    # Get all layouts in the drawing
+    # @rbs return Enumerator[Layout] -- an enumerator of layouts
+    # @rbs &: (Layout) -> void -- optional block to process each layout
     def layouts
       return to_enum(__callee__) unless block_given?
       ole_obj.Layouts.each { |o| yield app.wrap(o) }
     end
-    # return the layers for the drawing
-
-    # @rbs return Enumerator[Layer]
-    # @rbs &: (Layer) -> void
+    # Get all layers in the drawing
+    # @rbs return Enumerator[Layer] -- an enumerator of layers
+    # @rbs &: (Layer) -> void -- optional block to process each layer
     def layers
       return to_enum(__callee__) unless block_given?
 
       ole_obj.Layers.each { |o| yield app.wrap(o) }
     end
 
+    # Get all linetypes in the drawing
+    # @rbs return Enumerator[Linetype] -- an enumerator of linetypes
+    # @rbs &: (Linetype) -> void -- optional block to process each linetype
     def linetypes
       return to_enum(__callee__) unless block_given?
       ole_obj.Linetypes.each { |o| yield app.wrap(o) }
@@ -315,11 +353,11 @@ module Autocad
       app.wrap(ole_layer)
     end
 
-    # regen the current drawing
-    #  view_ports is fr AcRegenType enum from autocad
-    #  [:all, :active]
-    #  @rbs view_ports: Symbol -- :all or :active
-    #  @rbs return void
+    # Regenerate the drawing
+    # view_ports is from AcRegenType enum from autocad
+    # [:all, :active]
+    # @rbs view_ports: Symbol -- :all or :active
+    # @rbs return void
     def regen(view_ports = :all)
       vp_type = case view_ports
       when :all then 1
@@ -411,14 +449,25 @@ module Autocad
       @block_reference_selection_set ||= get_block_reference_selection_set
     end
 
+    # Get the value of a system variable
+    # @rbs name: String -- the name of the system variable
+    # @rbs return Object -- the value of the system variable
     def get_variable(name)
       ole_obj.GetVariable(name)
     end
 
+    # Set the value of a system variable
+    # @rbs name: String -- the name of the system variable
+    # @rbs value: Object -- the value to set
+    # @rbs return void
     def set_variable(name, value)
       ole_obj.SetVariable(name, value)
     end
 
+    # Set multiple system variables at once
+    # @rbs names: Array[String] -- the names of the system variables
+    # @rbs values: Array[Object] -- the values to set
+    # @rbs return void
     def set_variables(names, values)
       atts = names.zip(values).to_h
       atts.each do |k, v|
@@ -426,6 +475,11 @@ module Autocad
       end
     end
 
+    # Temporarily set system variables and restore them after the block executes
+    # @rbs names: Array[String] -- the names of the system variables
+    # @rbs values: Array[Object] -- the values to set
+    # @rbs &block: Proc -- the block to execute with the temporary variable values
+    # @rbs return Object -- the result of the block
     def with_system_variables(names, values, &block)
       atts
       current_values = get_variables(names)
@@ -435,6 +489,9 @@ module Autocad
       set_variables(names, current_values)
     end
 
+    # Get the values of multiple system variables
+    # @rbs *atts: Array[String] -- the names of the system variables
+    # @rbs return Array[Object] -- the values of the system variables
     def get_variables(*atts)
       return [] if atts.empty?
       if atts.first.class == Array
@@ -457,6 +514,9 @@ module Autocad
     # end
 
     # @rbs message: String -- the String to put in Autocad prompt
+    # Display a message in the AutoCAD command line
+    # @rbs message: String -- the message to display
+    # @rbs return void
     def prompt(message)
       utility.Prompt(message)
     end
@@ -511,13 +571,16 @@ module Autocad
       [pt, pt2]
     end
 
-    # @rbs return Enumerator[SelectionSet] | void
-    # @rbs &: (SelectionSet) -> void
+    # Get all selection sets in the drawing
+    # @rbs return Enumerator[SelectionSetAdapter] -- an enumerator of selection sets
+    # @rbs &: (SelectionSetAdapter) -> void -- optional block to process each selection set
     def selection_sets
       return to_enum(__callee__) unless block_given?
       ole_selection_sets.each { |o| yield app.wrap(o) }
     end
 
+    # Get the model space of the drawing
+    # @rbs return ModelSpace -- the model space
     def model_space
       app.wrap ole_obj.ModelSpace
     end
@@ -536,6 +599,8 @@ module Autocad
       ole_obj.Layouts.each { |o| yield app.wrap(o) }
     end
 
+    # Get the paper space of the drawing
+    # @rbs return PaperSpace -- the paper space
     def paper_space
       app.wrap ole_obj.PaperSpace
     end

@@ -7,10 +7,60 @@ module Autocad
 end
 
 module ACAD
+  module COLOR
+    # Standard AutoCAD color indices
+    RED: ::Integer
+
+    YELLOW: ::Integer
+
+    GREEN: ::Integer
+
+    CYAN: ::Integer
+
+    BLUE: ::Integer
+
+    MAGENTA: ::Integer
+
+    WHITE: ::Integer
+
+    BLACK: ::Integer
+
+    # Additional common colors
+    GRAY: ::Integer
+
+    LIGHT_GRAY: ::Integer
+
+    DARK_RED: ::Integer
+
+    DARK_GREEN: ::Integer
+
+    DARK_BLUE: ::Integer
+
+    ORANGE: ::Integer
+
+    PURPLE: ::Integer
+
+    BROWN: ::Integer
+
+    # Convert a color symbol or name to its integer value
+    # @param color [Symbol, String, Integer] color name or index
+    # @return [Integer] AutoCAD color index
+    def self.to_index: (untyped color) -> untyped
+
+    # Convert an integer color index to a symbolic name if possible
+    # @param index [Integer] AutoCAD color index
+    # @return [Symbol, Integer] Color name as symbol or original index if no name exists
+    def self.from_index: (untyped index) -> untyped
+  end
 end
 
 module Autocad
   ROOT: untyped
+
+  # Convert a color value (symbol, string, or integer) to an AutoCAD color index
+  # @param color [Symbol, String, Integer] color name or index
+  # @return [Integer] AutoCAD color index
+  def self.color_to_index: (untyped color) -> untyped
 
   # @yield [Autocad::App]
   def self.run: () -> void

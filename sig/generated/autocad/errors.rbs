@@ -17,6 +17,12 @@ module Autocad
     def initialize: (untyped message, untyped drawing) -> untyped
   end
 
+  class DrawingClose < Error
+    attr_reader drawing_name: untyped
+
+    def initialize: (untyped message, untyped drawing_name) -> untyped
+  end
+
   class ExistingFile < Error
     def initialize: (untyped path) -> untyped
   end

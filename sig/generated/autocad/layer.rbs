@@ -5,6 +5,19 @@ module Autocad
     # @rbs return String -- the name of the layer
     def name: () -> String
 
+    # Get the color of the layer
+    # @rbs return Integer -- the color index of the layer
+    def color: () -> Integer
+
+    # Set the color of the layer
+    # @rbs color: Integer|Symbol -- the color to set (can be ACAD::COLOR constant, symbol, or integer)
+    # @rbs return void
+    def color=: (Integer | Symbol color) -> void
+
+    # Get the symbolic color name if available
+    # @rbs return Symbol|Integer -- the symbolic color name or integer if no name exists
+    def color_name: () -> (Symbol | Integer)
+
     # set the name of the layer
     # @rbs name: String
     # @rbs return void

@@ -6,18 +6,24 @@ module Autocad
 
     attr_reader app: untyped
 
-    def self.from_ole_obj: (untyped app, untyped ole) -> Drawing
+    # Create a Drawing instance from an OLE object
+    # @rbs app: Autocad::App -- the application instance
+    # @rbs ole: WIN32OLE -- the OLE object for the drawing
+    # @rbs return Drawing -- a new Drawing instance
+    def self.from_ole_obj: (Autocad::App app, WIN32OLE ole) -> Drawing
 
-    def initialize: (untyped app, untyped ole) -> untyped
+    # Initialize a new Drawing instance
+    # @rbs app: Autocad::App -- the application instance
+    # @rbs ole: WIN32OLE -- the OLE object for the drawing
+    # @rbs requested_name: String? -- optional name for the drawing before it's saved
+    def initialize: (Autocad::App app, WIN32OLE ole, ?String? requested_name) -> untyped
 
     def event_handler: () -> EventHandler
 
-    def default_event_handler: () -> untyped
-
-    def app_ole: () -> untyped
-
-    # @rbs return SelectionSetAdapter
-    def create_selection_set: (untyped name) -> SelectionSetAdapter
+    # Create a new selection set in the drawing
+    # @rbs name: String -- the name for the selection set
+    # @rbs return SelectionSetAdapter -- the created selection set adapter
+    def create_selection_set: (String name) -> SelectionSetAdapter
 
     # register an handler
     #
@@ -25,20 +31,24 @@ module Autocad
     # @rbs &: {() -> void} - handler Proc
     def register_handler: (String event) ?{ (?) -> untyped } -> void
 
+    # Check if the drawing is read-only
     # @rbs return bool -- true if drawing is read only
     def read_only?: () -> bool
 
+    # Check if the drawing has been saved before
     # @rbs return bool -- true if drawing is previously saved
     def previously_saved?: () -> bool
 
+    # Check if the drawing has been modified since the last save
     # @rbs return bool -- true if drawing is modified
     def modified?: () -> bool
 
-    def save: (?name: untyped, ?dir: untyped) -> void
-
-    def dwg_path: (?name: untyped, ?dir: untyped) -> untyped
-
-    def dwg_name: (untyped name) -> untyped
+    # Saves the drawing
+    # If the drawing hasn't been saved yet and no name is provided, uses the requested name
+    # @rbs name: String? -- optional new name for the drawing
+    # @rbs dir: String|Pathname? -- optional directory to save to
+    # @rbs return void
+    def save: (?name: String?, ?dir: String | Pathname?) -> void
 
     # save the drawing as a pdf file
     # if the name or directory is given it uses
@@ -47,10 +57,6 @@ module Autocad
     # @rbs name: String? - the name of the file
     # @rbs dir: String? - the directory to save the drawing
     def save_as_pdf: (?name: String?, ?dir: String?, ?model: untyped) -> void
-
-    def pdf_path: (?name: untyped, ?dir: untyped) -> untyped
-
-    def get_current_view_size: () -> untyped
 
     # Todo
     # @rbs return Point3d -- the center of the view in world coordinates
@@ -63,60 +69,54 @@ module Autocad
     # returns the defined plot configuration "faa_ansid_bw".
     def pdf_plot_config: () -> PlotConfiguration
 
-    def default_plot_setup: () -> untyped
-
-    # creates the "faa_ansid_bw" plot configuration
-    def create_pdf_plot_configutation: () -> PlotConfiguration
-
-    # Return the pdf name for the drawing.
-    #
-    # If a name is provided use the name provided otherwise use the drawing name
-    #
-    # @rbs name: String | nil -- change ext to pdf and return Pathname from
-    # the name or drawing name
-    def pdf_name: (?String | nil name) -> Pathname
-
     def plot: () -> Plot
-
-    def print_pdf: (untyped print_path, ?model: untyped) -> untyped
 
     # @rbs return Layout -- The first layout that is not "Model"
     def paper_space_layout: () -> Layout
-
-    def print_paper_space_pdf: (untyped print_path) -> untyped
 
     # copy the drawing
     # @rbs name: String | Pathname --name of the file
     # @rbs dir: String|Pathname -- dir
     def copy: (?name: String | Pathname, ?dir: String | Pathname) -> void
 
-    # If you copy the file the name to use
-    # @rbs backup_str: String -- the bqckup string to use for copies
-    def copy_name: (?String backup_str) -> untyped
-
+    # Check if paper space is active
+    # @rbs return bool -- true if paper space is active
     def paper_space?: () -> bool
 
+    # Check if model space is active
+    # @rbs return bool -- true if model space is active
     def model_space?: () -> bool
 
+    # Switch to paper space
+    # @rbs return void
     def to_paper_space: () -> void
 
+    # Switch to model space
+    # @rbs return void
     def to_model_space: () -> void
 
+    # Returns the name of the drawing
+    # If the drawing hasn't been saved yet, returns the requested name
     # @rbs return String -- the name of the drawing
     def name: () -> String
 
+    # Get the basename of the drawing as a Pathname
     # @rbs return Pathname -- the name as Pathname
     def basename: () -> Pathname
 
+    # Get the directory of the drawing
     # @rbs return Pathname -- the directory of the file
     def dirname: () -> Pathname
 
+    # Get the full path of the drawing
     # @rbs return Pathname -- the complete path of file
     def path: () -> Pathname
 
+    # Get the active layer in the drawing
     # @rbs return Layer -- the active layer
     def active_layer: () -> Layer
 
+    # Get the name of the active layer
     # @rbs return String -- the name of the active layer
     def active_layer_name: () -> String
 
@@ -140,36 +140,44 @@ module Autocad
     def active_space: () -> untyped
 
     # Close the drawing
-    # @rbs save: bool -- whether to save the drawing
-    def close: (?bool save) -> untyped
+    # @rbs save: bool -- whether to save changes before closing
+    # @rbs return void
+    def close: (?bool save) -> void
 
     # @rbs name: String -- selection set name to return
     # @rbs return SelectionSet | nil
     def get_selection_set: (String name) -> (SelectionSet | nil)
 
-    # @rbs return Enumerator[Block]
-    # @rbs &: (Block) -> void
+    # Get all blocks in the drawing
+    # @rbs return Enumerator[Block] -- an enumerator of blocks
+    # @rbs &: (Block) -> void -- optional block to process each block
     def blocks: () { (Block) -> void } -> Enumerator[Block]
 
-    # @rbs return Enumerator[Layout]
-    # @rbs &: (Layout) -> void
+    # Get all layouts in the drawing
+    # @rbs return Enumerator[Layout] -- an enumerator of layouts
+    # @rbs &: (Layout) -> void -- optional block to process each layout
     def layouts: () { (Layout) -> void } -> Enumerator[Layout]
 
-    # @rbs return Enumerator[Layer]
-    # @rbs &: (Layer) -> void
+    # Get all layers in the drawing
+    # @rbs return Enumerator[Layer] -- an enumerator of layers
+    # @rbs &: (Layer) -> void -- optional block to process each layer
     def layers: () { (Layer) -> void } -> Enumerator[Layer]
 
-    def linetypes: () -> untyped
+    # Get all linetypes in the drawing
+    # @rbs return Enumerator[Linetype] -- an enumerator of linetypes
+    # @rbs &: (Linetype) -> void -- optional block to process each linetype
+    def linetypes: () { (Linetype) -> void } -> Enumerator[Linetype]
 
     # @rbs name: String | Layer -- layer name to create
+    # @rbs color: Integer|Symbol|String -- color for the layer (can be ACAD::COLOR constant, symbol, or integer)
     # @rbs return Acad::Layer
-    def create_layer: (String | Layer name, ?untyped color) -> Acad::Layer
+    def create_layer: (String | Layer name, ?Integer | Symbol | String color) -> Acad::Layer
 
-    # regen the current drawing
-    #  view_ports is fr AcRegenType enum from autocad
-    #  [:all, :active]
-    #  @rbs view_ports: Symbol -- :all or :active
-    #  @rbs return void
+    # Regenerate the drawing
+    # view_ports is from AcRegenType enum from autocad
+    # [:all, :active]
+    # @rbs view_ports: Symbol -- :all or :active
+    # @rbs return void
     def regen: (?Symbol view_ports) -> void
 
     # @rbs return Enumerator[BlockReference] -- all block references in model space
@@ -199,18 +207,40 @@ module Autocad
     # @rbs return SelectionSetAdapter
     def block_reference_selection_set: () -> SelectionSetAdapter
 
-    def get_variable: (untyped name) -> untyped
+    # Get the value of a system variable
+    # @rbs name: String -- the name of the system variable
+    # @rbs return Object -- the value of the system variable
+    def get_variable: (String name) -> Object
 
-    def set_variable: (untyped name, untyped value) -> untyped
+    # Set the value of a system variable
+    # @rbs name: String -- the name of the system variable
+    # @rbs value: Object -- the value to set
+    # @rbs return void
+    def set_variable: (String name, Object value) -> void
 
-    def set_variables: (untyped names, untyped values) -> untyped
+    # Set multiple system variables at once
+    # @rbs names: Array[String] -- the names of the system variables
+    # @rbs values: Array[Object] -- the values to set
+    # @rbs return void
+    def set_variables: (Array[String] names, Array[Object] values) -> void
 
-    def with_system_variables: (untyped names, untyped values) ?{ (?) -> untyped } -> untyped
+    # Temporarily set system variables and restore them after the block executes
+    # @rbs names: Array[String] -- the names of the system variables
+    # @rbs values: Array[Object] -- the values to set
+    # @rbs &block: Proc -- the block to execute with the temporary variable values
+    # @rbs return Object -- the result of the block
+    def with_system_variables: (Array[String] names, Array[Object] values) ?{ (?) -> untyped } -> Object
 
-    def get_variables: (*untyped atts) -> untyped
+    # Get the values of multiple system variables
+    # @rbs *atts: Array[String] -- the names of the system variables
+    # @rbs return Array[Object] -- the values of the system variables
+    def get_variables: (*Array[String] atts) -> Array[Object]
 
     # @rbs message: String -- the String to put in Autocad prompt
-    def prompt: (String message) -> untyped
+    # Display a message in the AutoCAD command line
+    # @rbs message: String -- the message to display
+    # @rbs return void
+    def prompt: (String message) -> void
 
     # @rbs prompt: String -- the string to prompt the user for String
     # @rbs has_spaces: bool -- whether the string returned can contain spaces
@@ -232,11 +262,14 @@ module Autocad
 
     def get_region: () -> untyped
 
-    # @rbs return Enumerator[SelectionSet] | void
-    # @rbs &: (SelectionSet) -> void
-    def selection_sets: () { (SelectionSet) -> void } -> (Enumerator[SelectionSet] | void)
+    # Get all selection sets in the drawing
+    # @rbs return Enumerator[SelectionSetAdapter] -- an enumerator of selection sets
+    # @rbs &: (SelectionSetAdapter) -> void -- optional block to process each selection set
+    def selection_sets: () { (SelectionSetAdapter) -> void } -> Enumerator[SelectionSetAdapter]
 
-    def model_space: () -> untyped
+    # Get the model space of the drawing
+    # @rbs return ModelSpace -- the model space
+    def model_space: () -> ModelSpace
 
     # @rbs return Enumerator[PlotConfiguration] | void
     # @rbs &: (PlotConfiguration) -> void
@@ -246,13 +279,46 @@ module Autocad
     # @rbs &: (Layout) -> void
     def plot_configurations: () { (Layout) -> void } -> (Enumerator[Layout] | void)
 
-    def paper_space: () -> untyped
-
-    def utility: () -> untyped
+    # Get the paper space of the drawing
+    # @rbs return PaperSpace -- the paper space
+    def paper_space: () -> PaperSpace
 
     def ole_obj: () -> untyped
 
     private
+
+    def default_event_handler: () -> untyped
+
+    def app_ole: () -> untyped
+
+    def dwg_path: (?name: untyped, ?dir: untyped) -> untyped
+
+    def dwg_name: (untyped name) -> untyped
+
+    def pdf_path: (?name: untyped, ?dir: untyped) -> untyped
+
+    def get_current_view_size: () -> untyped
+
+    def default_plot_setup: () -> untyped
+
+    # creates the "faa_ansid_bw" plot configuration
+    def create_pdf_plot_configutation: () -> PlotConfiguration
+
+    # Return the pdf name for the drawing.
+    #
+    # If a name is provided use the name provided otherwise use the drawing name
+    #
+    # @rbs name: String | nil -- change ext to pdf and return Pathname from
+    # the name or drawing name
+    def pdf_name: (?String | nil name) -> Pathname
+
+    def print_pdf: (untyped print_path, ?model: untyped) -> untyped
+
+    def print_paper_space_pdf: (untyped print_path) -> untyped
+
+    # If you copy the file the name to use
+    # @rbs backup_str: String -- the bqckup string to use for copies
+    def copy_name: (?String backup_str) -> untyped
 
     def get_block_reference_selection_set: () -> untyped
 
@@ -261,5 +327,7 @@ module Autocad
     def get_ole_selection_set: (String name) -> (SelectionSet | nil)
 
     def ole_selection_sets: () -> untyped
+
+    def utility: () -> untyped
   end
 end

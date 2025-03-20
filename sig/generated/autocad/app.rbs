@@ -91,7 +91,7 @@ module Autocad
     # @rbs return void
     def active_drawing=: (Drawing drawing) -> void
 
-    def drawing_from_ole: (untyped ole) -> Drawing
+    def drawing_from_ole: (untyped ole, ?untyped requested_name) -> Drawing
 
     attr_reader visible: untyped
 
@@ -173,6 +173,11 @@ module Autocad
     def quit: () -> untyped
 
     def close_all_drawings: (?save: untyped) -> untyped
+
+    # Close a specific drawing
+    # @rbs drawing: Drawing | String -- the drawing or drawing name to close
+    # @rbs save: bool -- whether to save the drawing
+    def close_drawing: (Drawing | String drawing, ?bool save) -> untyped
 
     def close_active_drawing: () -> untyped
 
