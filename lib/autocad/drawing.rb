@@ -25,16 +25,6 @@ module Autocad
       @event_handler ||= default_event_handler
     end
 
-    def default_event_handler
-      handler = EventHandler.new
-      @app_event.handler = handler
-      handler
-    end
-
-    def app_ole
-      app.ole_obj
-    end
-
     # @rbs return SelectionSetAdapter
     def create_selection_set(name)
       ss = SelectionSet.new(name)
@@ -77,17 +67,6 @@ module Autocad
       puts "saved #{windows_name}"
     end
 
-    def dwg_path(name: nil, dir: nil)
-      name ||= self.name
-      dir = Pathname.new(dir || dirname).expand_path
-      dir.mkpath unless dir.directory?
-      dir + dwg_name(name)
-    end
-
-    def dwg_name(name)
-      Pathname.new(name).sub_ext(".dwg")
-    end
-
     # save the drawing as a pdf file
     # if the name or directory is given it uses
     # those params. If not it uses the drawing name
@@ -98,20 +77,6 @@ module Autocad
       out_name = pdf_path(name: name, dir: dir)
       print_pdf(out_name, model:)
       puts "saved #{out_name}"
-    end
-
-    def pdf_path(name: nil, dir: nil)
-      name ||= self.name
-      dir = Pathname.new(dir || dirname).expand_path
-      dir.mkpath unless dir.directory?
-      dir + pdf_name(name)
-    end
-
-    def get_current_view_size
-      h = get_variable("VIEWSIZE")
-      screen_size = Point3d(get_variable("SCREENSIZE"))
-      w = h * screen_size.x / screen_size.y
-      [w, h]
     end
 
     # Todo
@@ -137,32 +102,6 @@ module Autocad
       @pdf_plot_config ||= create_pdf_plot_configutation
     end
 
-    def default_plot_setup
-      {device_name: "AutoCAD PDF (High Quality Print).pc3",
-       media_name: "ANSI_D_(34.00_x_22.00_Inches)",
-       style_sheet: "FAA_Black&Gray.ctb",
-       plot_type: :layout,
-       rotation: 0,
-       paper_units: :inches}
-    end
-
-    # creates the "faa_ansid_bw" plot configuration
-    def create_pdf_plot_configutation #: PlotConfiguration
-      pc = add_plot_configuration("faa_ansid_bw")
-      pc.update(default_plot_setup)
-      pc
-    end
-
-    # Return the pdf name for the drawing.
-    #
-    # If a name is provided use the name provided otherwise use the drawing name
-    #
-    # @rbs name: String | nil -- change ext to pdf and return Pathname from
-    # the name or drawing name
-    def pdf_name(name = nil) #: Pathname
-      name ||= self.name
-      Pathname.new(name).sub_ext(".pdf")
-    end
 
     def plot #: Plot
       ole = ole_obj.Plot
@@ -170,26 +109,9 @@ module Autocad
       app.wrap(ole_obj.Plot)
     end
 
-    def print_pdf(print_path, model: false)
-      if model
-        "puts print model"
-      else
-        print_paper_space_pdf(print_path)
-      end
-    end
-
     # @rbs return Layout -- The first layout that is not "Model"
     def paper_space_layout
       layouts.reject { it.name == "Model" }.first
-    end
-
-    def print_paper_space_pdf(print_path)
-      plotter = plot
-      plotter.set_layouts_to_plot paper_space_layout
-      if print_path.file?
-        print_path.delete if print_path.file?
-      end
-      plotter.plot_to_file(print_path)
     end
 
     # copy the drawing
@@ -205,14 +127,6 @@ module Autocad
       end
       copy_path = dir_path + lname
       FileUtils.copy path.to_s, copy_path.to_s, verbose: true
-    end
-
-    # If you copy the file the name to use
-    # @rbs backup_str: String -- the bqckup string to use for copies
-    def copy_name(backup_str = ".copy")
-      lname = name.dup
-      ext = File.extname(lname)
-      "#{File.basename(lname, ext)}#{backup_str}#{ext}"
     end
 
     def paper_space? #: bool
@@ -616,9 +530,6 @@ module Autocad
     alias_method :model, :model_space
     alias_method :paper, :paper_space
 
-    def utility
-      ole_obj.Utility
-    end
 
     def ole_obj
       if @drawing_closed || @ole_obj.nil?
@@ -641,6 +552,93 @@ module Autocad
 
     private
 
+    def default_event_handler
+      handler = EventHandler.new
+      @app_event.handler = handler
+      handler
+    end
+
+    def app_ole
+      app.ole_obj
+    end
+
+    def dwg_path(name: nil, dir: nil)
+      name ||= self.name
+      dir = Pathname.new(dir || dirname).expand_path
+      dir.mkpath unless dir.directory?
+      dir + dwg_name(name)
+    end
+
+    def dwg_name(name)
+      Pathname.new(name).sub_ext(".dwg")
+    end
+
+    def pdf_path(name: nil, dir: nil)
+      name ||= self.name
+      dir = Pathname.new(dir || dirname).expand_path
+      dir.mkpath unless dir.directory?
+      dir + pdf_name(name)
+    end
+
+    def get_current_view_size
+      h = get_variable("VIEWSIZE")
+      screen_size = Point3d(get_variable("SCREENSIZE"))
+      w = h * screen_size.x / screen_size.y
+      [w, h]
+    end
+
+    def default_plot_setup
+      {device_name: "AutoCAD PDF (High Quality Print).pc3",
+       media_name: "ANSI_D_(34.00_x_22.00_Inches)",
+       style_sheet: "FAA_Black&Gray.ctb",
+       plot_type: :layout,
+       rotation: 0,
+       paper_units: :inches}
+    end
+
+    # creates the "faa_ansid_bw" plot configuration
+    def create_pdf_plot_configutation #: PlotConfiguration
+      pc = add_plot_configuration("faa_ansid_bw")
+      pc.update(default_plot_setup)
+      pc
+    end
+
+    # Return the pdf name for the drawing.
+    #
+    # If a name is provided use the name provided otherwise use the drawing name
+    #
+    # @rbs name: String | nil -- change ext to pdf and return Pathname from
+    # the name or drawing name
+    def pdf_name(name = nil) #: Pathname
+      name ||= self.name
+      Pathname.new(name).sub_ext(".pdf")
+    end
+
+    def print_pdf(print_path, model: false)
+      if model
+        "puts print model"
+      else
+        print_paper_space_pdf(print_path)
+      end
+    end
+
+    def print_paper_space_pdf(print_path)
+      plotter = plot
+      plotter.set_layouts_to_plot paper_space_layout
+      if print_path.file?
+        print_path.delete if print_path.file?
+      end
+      plotter.plot_to_file(print_path)
+    end
+
+    # If you copy the file the name to use
+    # @rbs backup_str: String -- the bqckup string to use for copies
+    def copy_name(backup_str = ".copy")
+      lname = name.dup
+      ext = File.extname(lname)
+      "#{File.basename(lname, ext)}#{backup_str}#{ext}"
+    end
+
     def get_block_reference_selection_set
       ss = get_selection_set("block_reference") || create_selection_set("block_reference")
       ss.filter do |f|
@@ -662,6 +660,10 @@ module Autocad
 
     def ole_selection_sets
       ole_obj.SelectionSets
+    end
+
+    def utility
+      ole_obj.Utility
     end
 
     # # @rbs objects: nil | Enumerator[Element] | SelectionSetAdapter | Element
