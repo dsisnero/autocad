@@ -121,14 +121,14 @@ module Autocad
   end
 
   class Circle < Element
-    # the center of the circle
+    # The center point of the circle in World Coordinate System (WCS)
     # @rbs return Point3d
     def center
       Point3d.new(ole_obj.Center)
     end
 
-    # the radius of the circle
-    # @rbs return Point3d
+    # The radius of the circle
+    # @rbs return float
     def radius
       ole_obj.Radius
     end
@@ -139,11 +139,13 @@ module Autocad
   end
 
   class Polyline < Element
-    # @rbs return Point3d
+    # The total length of all polyline segments
+    # @rbs return float
     def length
       Point3d.new @ole_obj.Length
     end
 
+    # Array of all vertex coordinates in the polyline
     # @rbs return Array[Point3d]
     def coordinates
       @ole_obj.coordinates.map { |pt| Point3d.new(pt) }
