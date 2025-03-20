@@ -32,6 +32,10 @@ module Autocad
       ole_obj.Clear
     end
 
+    def clear_filter
+      selection_set.clear_filter
+    end
+
     def filter_text(str)
       @selection_set.filter_text(str)
     end
@@ -63,7 +67,11 @@ module Autocad
     end
 
     def select_on_screen(ft = ole_filter_types, fv = ole_filter_values)
-      @ole_obj.SelectOnScreen(ft, fv)
+      if filter_types.empty? && filter_values.empty?
+        @ole_obj.SelectOnScreen(nil, nil)
+      else
+        @ole_obj.SelectOnScreen(ft, fv)
+      end
     end
 
     def select(mode: :all, pt1: nil, pt2: nil, ft: ole_filter_types, fv: ole_filter_values)
@@ -82,6 +90,8 @@ module Autocad
         Acad::AcSelectionSetAll
       end
       @ole_obj.Select(acad_mode, nil, nil, ft, fv)
+    rescue => ex
+      binding.irb
     end
 
     # accepts Point3d | [x,y] | (x,y)
@@ -104,7 +114,7 @@ module Autocad
     # @param mode [:fence, :window, :crossing] Selection mode
     def select_by_polygon(points: [], mode: :fence)
       # Convert points to arrays of coordinates
-      point_coords = points.map { |p| [p.x, p.y] }
+      point_coords = points.map { |p| Point3d(p) }.map { |p| [p.x, p.y, p.z] }.flatten
 
       mode_code = case mode
       when :fence then 5
@@ -113,8 +123,10 @@ module Autocad
       else
         raise ArgumentError, "Invalid selection mode: #{mode}. Must be :fence, :window, or :crossing"
       end
+      ole_point_coords = WIN32OLE::Variant.new(point_coords, WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_R8)
 
-      @ole_obj.SelectByPolygon(mode_code, point_coords, filter_types, filter_values)
+      binding.irb
+      @ole_obj.SelectByPolygon(mode_code, ole_point_coords, filter_types, filter_values)
     end
 
     def filter(&)

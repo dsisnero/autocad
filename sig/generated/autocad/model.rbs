@@ -36,7 +36,7 @@ module Autocad
     # @return Autocad::Ellipse
     def add_ellipse: ([ ] | Point3d center, Float major_axis, Float radius_ratio) -> untyped
 
-    def add_spline: (untyped points) -> untyped
+    def add_spline: (untyped points, untyped start_tangent, untyped end_tangent) -> untyped
 
     def drawing: () -> untyped
 
@@ -45,7 +45,7 @@ module Autocad
 
     private
 
-    def create_layer: (untyped name) -> untyped
+    def create_layer: (untyped name, ?untyped color) -> untyped
   end
 
   class PaperSpace < Element

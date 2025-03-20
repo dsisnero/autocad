@@ -60,6 +60,10 @@ module Autocad
       app.current_drawing
     end
 
+    def pviewport?
+      false
+    end
+
     def block_reference?
       false
     end
@@ -85,8 +89,8 @@ module Autocad
       begin
         if ole_obj.ole_respond_to?(:GetBoundingBox)
           # Create VARIANT objects for output parameters
-        minpoint = WIN32OLE::Variant.new(nil, WIN32OLE::VARIANT::VT_VARIANT|WIN32OLE::VARIANT::VT_BYREF)
-        maxpoint = WIN32OLE::Variant.new(nil, WIN32OLE::VARIANT::VT_VARIANT|WIN32OLE::VARIANT::VT_BYREF)
+          minpoint = WIN32OLE::Variant.new(nil, WIN32OLE::VARIANT::VT_VARIANT | WIN32OLE::VARIANT::VT_BYREF)
+          maxpoint = WIN32OLE::Variant.new(nil, WIN32OLE::VARIANT::VT_VARIANT | WIN32OLE::VARIANT::VT_BYREF)
           # Last resort - try GetBoundingBox if available
 
 
@@ -184,9 +188,17 @@ module Autocad
       ole_obj.ole_type == "IAcadText"
     end
 
-    # @rbs return bool -- true if ole type is TextNode
-    def mtext?
-      ole_obj.ole_type == "IAcadMText"
+    # &: (Element) -> void
+    # @rbs return Enumerator[Element] -- explode element
+    def explode
+      return enum_for(__callee__) unless block_given?
+
+      ole = ole_obj.explode
+      ole.each do |ole|
+        yield app.wrap(ole)
+      end
+    rescue => e
+      binding.irb
     end
 
     def has_tags?
@@ -206,13 +218,17 @@ module Autocad
     #   ole_obj.IsComplexElement
     # end
 
-    # @rbs return bool -- true if Text or TextNode
-    def textual?
-      text? || mtext?
+    def highlight(flag = true)
+      ole_obj.Highlight(flag)
+      ole_obj.Update
     end
+
+    def
 
     def autocad_id
       @ole_obj.ObjectId
+    rescue
+      nil
     end
 
     def visible?
@@ -229,7 +245,11 @@ module Autocad
     end
 
     def inspect
-      "<#{self.class}: #{autocad_id}>"
+      "<#{self.class} -name: #{begin
+        name
+      rescue
+        nil
+      end}> #{acad_type}"
     end
 
     def parent
@@ -327,6 +347,8 @@ module Autocad
           ::Autocad::PViewport.new(ole, app, typ)
         when "IAcadBlockReference"
           ::Autocad::BlockReference.new(ole, app, typ)
+        when "IAcadBlock"
+          ::Autocad::Block.new(ole, app, typ)
         when "IAcadExternalReference"
           ::Autocad::ExternalReference.new(ole, app, typ)
         when "IAcadAttributeReference"
@@ -335,13 +357,23 @@ module Autocad
           ::Autocad::Layout.new(ole, app, typ)
         when "IAcadPlotConfiguration"
           ::Autocad::PlotConfiguration.new(ole, app, typ)
-
+        when "IAcadDimStyle"
+          ::Autocad::DimStyle.new(ole, app, typ)
+        when "IAcadTextStyle"
+          ::Autocad::TextStyle.new(ole, app, typ)
+        when "IAcadArc"
+          ::Autocad::Arc.new(ole, app, typ)
         when "IAcadPlot"
           ::Autocad::Plot.new(ole, app, typ)
         when "IAcadSpline"
           ::Autocad::Spline.new(ole, app, typ)
+        when "IAcadViewport"
+          ::Autocad::Viewport.new(ole, app, typ)
+        when "IAcadPoint"
+          ::Autocad::Point.new(ole, app, typ)
+
         else
-          binding.irb
+          # binding.irb
           Element.new(ole, app, typ)
         end
 
@@ -443,8 +475,9 @@ module Autocad
       app.ole_obj
     end
 
-    def delete
+    def delete(regen: true)
       ole_obj.Delete
+      drawing.regen if regen
     rescue => ex
       raise Autocad::Error.new("Error deleting object #{self} #{ex}")
     end

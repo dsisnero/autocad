@@ -1,0 +1,9 @@
+# Generated from lib/win32ole_helper.rb with RBS::Inline
+
+module WIN32OLE::Helper
+  def help: (untyped method_name) -> untyped
+
+  def help_methods: () -> untyped
+
+  def self.extended: (untyped obj) -> untyped
+end

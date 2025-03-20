@@ -3,6 +3,11 @@
 module Autocad
   class Point3d
     class << self
+      # @rbs return Point3d -- return a Point3d at [0,0,0]
+      def zero
+        new(0.0, 0.0, 0, 0)
+      end
+
       def cartesian_to_polar(x, y)
         r = Math.sqrt(x * x + y * y)
         angle = Angle.radians(Math.atan2(y, x))
@@ -91,7 +96,7 @@ module Autocad
       {x: @x, y: @y, z: @z}
     end
 
-    # @rbs return [Float,Float, Float]
+    # @rbs return [
     def to_ary
       [x, y, z]
     end
@@ -110,6 +115,17 @@ module Autocad
       [x, y]
     end
 
+    # @rbs model_space: bool
+    # @return Autocad::Point
+    def to_acad_point(model_space = true)
+      ole = if model_space
+        drawing.ModelSpace.AddPoint(x, y, z)
+      else
+        drawing.PaperSpace.AddPoint(x, y, z)
+      end
+      app.wrap(ole)
+    end
+
     def xy_bounds(other)
       x2, y2 = Points3d.new(other).to_xy
       [x, y, x2, y, x2, y2, x, y2, x, y]
@@ -124,20 +140,11 @@ module Autocad
       [x, y, z]
     end
 
-    # @rbs return Point3d -- return a Point3d at [0,0,0]
-    def zero
-      new(0.0, 0.0, 0, 0)
-    end
-
     def to_cartesian
     end
 
     def to_ole
-      ole = WIN32OLE::Variant.array([3], WIN32OLE::VARIANT::VT_R8)
-      ole[0] = x
-      ole[1] = y
-      ole[z] = z
-      ole
+      WIN32OLE::Variant.new([x, y, z], WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_R8)
     end
   end
 end

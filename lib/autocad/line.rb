@@ -54,7 +54,11 @@ module Autocad
     # the radius of the circle
     # @rbs return Point3d
     def radius
-      Point3d.new(ole_obj.Radius)
+      ole_obj.Radius
+    end
+
+    def inspect
+      "#<#{self.class} center=#{center} radius=#{radius}>"
     end
   end
 

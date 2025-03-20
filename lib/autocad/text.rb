@@ -6,12 +6,21 @@ module Autocad
       ole_obj.TextString
     end
 
+    def text?
+      true
+    end
+
     def write_ole(text)
       ole_obj.TextString = text
     end
 
     def to_regexp
       Regexp.new(read_ole.to_s)
+    end
+
+    def highlight(flag = true)
+      ole_obj.Highlight(flag)
+      ole_obj.Update
     end
 
     def =~(reg)

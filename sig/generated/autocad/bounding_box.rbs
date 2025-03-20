@@ -29,6 +29,12 @@ module Autocad
 
     def initialize: (untyped left, untyped top, untyped right, untyped bottom) -> untyped
 
+    def hash: () -> untyped
+
+    def eql?: (untyped other) -> untyped
+
+    def ==: (untyped other) -> untyped
+
     def upper_right: () -> untyped
 
     def lower_left: () -> untyped

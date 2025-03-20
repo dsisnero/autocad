@@ -2,26 +2,27 @@
 
 # require "pw_print"
 
-require "minitest/autorun"
-require "minitest/spec"
-require "minitest/mock"
-require "pathname"
-require "tmpdir"
-require "fileutils"
-require "acrobat"
+require 'minitest/autorun'
+require 'minitest/spec'
+require 'minitest/mock'
+require 'pathname'
+require 'tmpdir'
+require 'fileutils'
+require 'minitest/hooks/default'
+require 'acrobat'
 
 TEST_DIR = Pathname.new(__dir__)
-FIXTURES_DIR = TEST_DIR.join("fixtures")
+FIXTURES_DIR = TEST_DIR.join('fixtures')
 FIXTURES_DIR.mkpath unless FIXTURES_DIR.exist?
 ROOT = TEST_DIR.parent
-LIB_DIR = ROOT.join("lib")
+LIB_DIR = ROOT.join('lib')
 
-TEMP_DIR = TEST_DIR.join("temp")
+TEMP_DIR = TEST_DIR.join('temp')
 TEMP_DIR.mkpath unless TEMP_DIR.exist?
 $LOAD_PATH.unshift LIB_DIR
 # $LOAD_PATH.unshift File.expand_path("../exe", __dir__)
 
-require "autocad"
+require 'autocad'
 
 module TestHelper
   def fixture_file(name)
@@ -61,7 +62,7 @@ module TestHelper
 
   def cleanup_test_drawing(filename)
     path = temp_file(filename).basename.expand_path
-    Acrobat::App.close(path.sub_ext(".pdf"))
+    Acrobat::App.close(path.sub_ext('.pdf'))
     path.delete if path.exist?
   end
 
@@ -72,8 +73,8 @@ module TestHelper
     # Basic file integrity check
     test_size = File.size(test_drawing)
     ref_size = File.size(reference_drawing)
-    assert test_size > 0, "Test drawing is empty"
-    assert ref_size > 0, "Reference drawing is empty"
+    assert test_size > 0, 'Test drawing is empty'
+    assert ref_size > 0, 'Reference drawing is empty'
 
     # Open both drawings to compare properties
     test_app = Microstation::App.new
@@ -89,7 +90,7 @@ module TestHelper
       # Compare models
       test_models = test_dwg.models
       ref_models = ref_dwg.models
-      assert_equal ref_models.count, test_models.count, "Model count mismatch"
+      assert_equal ref_models.count, test_models.count, 'Model count mismatch'
 
       # Compare elements if needed
       # test_elements = test_dwg.scan_elements.to_a
@@ -98,12 +99,12 @@ module TestHelper
     ensure
       begin
         test_app.close_active_drawing
-      rescue
+      rescue StandardError
         nil
       end
       begin
         ref_app.close_active_drawing
-      rescue
+      rescue StandardError
         nil
       end
     end
@@ -123,7 +124,7 @@ module TestHelper
     ensure
       begin
         app.close_active_drawing
-      rescue
+      rescue StandardError
         nil
       end
       cleanup_test_drawing(original_name)
@@ -139,7 +140,7 @@ module TestHelper
   end
 
   def normalize_path(p)
-    p.to_s.sub(/[c,C]:/, "C:")
+    p.to_s.sub(/[c,C]:/, 'C:')
   end
 
   # Test drawing management helpers

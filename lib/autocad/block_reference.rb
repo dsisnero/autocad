@@ -6,6 +6,17 @@ module Autocad
       true
     end
 
+    def explode
+      return enum_for(__callee__) unless block_given?
+
+      ole = ole_obj.explode
+      ole.each do |ole|
+        yield app.wrap(ole)
+      end
+    rescue => e
+      binding.irb
+    end
+
     def each
       return enum_for(:each) unless block_given?
 
@@ -16,6 +27,12 @@ module Autocad
 
     def external?
       false
+    end
+
+    def get_block_extents
+      min_point = ole_obj.GeometricExtents.MinPoint
+      max_point = ole_obj.GeometricExtents.MaxPoint
+      BoundingBox.from_min_max(min_point, max_point)
     end
 
     def insertion_point
@@ -34,6 +51,11 @@ module Autocad
 
     def name
       @ole_obj.Name
+    end
+
+    def scale_by(amt)
+      @ole_obj.XScaleFactor = amt
+      @ole_obj.YScaleFactor = amt
     end
 
     def x_scale_factor
@@ -62,6 +84,8 @@ module Autocad
 
     def layout?
       @ole_obj.IsLayout
+    rescue
+      false
     end
 
     def attribute_hash
@@ -71,7 +95,7 @@ module Autocad
     end
 
     def inspect
-      "<BlockReference: #{autocad_id}>"
+      "<BlockReference: name:#{name}>"
     end
 
     def attributes
@@ -89,6 +113,11 @@ module Autocad
       true
     end
 
+    # @rbs return Pathname -- the path of the external reference
+    def path
+      Pathname(ole_obj.Path)
+    end
+
     def ins_units
       @ole_obj.InsUnits
     end
@@ -98,7 +127,7 @@ module Autocad
     end
 
     def inspect
-      "<ExternalReference: #{autocad_id}>"
+      "<ExternalReference: name: #{name}>"
     end
   end
 

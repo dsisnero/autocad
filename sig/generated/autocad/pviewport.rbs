@@ -36,8 +36,6 @@ module Autocad
     # @rbs return void
     def off: () -> void
 
-    def standard_scale=: (untyped scale) -> untyped
-
     # the standard scale from Autocad AcViewportScale enum converted to symbol
     # @rbs return Symbol
     def standard_scale: () -> Symbol

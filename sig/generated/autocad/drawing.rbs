@@ -163,7 +163,7 @@ module Autocad
 
     # @rbs name: String | Layer -- layer name to create
     # @rbs return Acad::Layer
-    def create_layer: (String | Layer name, ?color: untyped) -> Acad::Layer
+    def create_layer: (String | Layer name, ?untyped color) -> Acad::Layer
 
     # regen the current drawing
     #  view_ports is fr AcRegenType enum from autocad

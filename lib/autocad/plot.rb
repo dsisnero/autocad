@@ -14,9 +14,20 @@ module Autocad
       ole_obj.SetLayoutsToPlot(ole_layout_values)
     end
 
+    def plot_preview
+      ole_obj.DisplayPlotPreview 1
+    end
+
+    def plot_to_device
+      ole_obj.PlotToDevice
+    end
+
     def plot_to_file(filename, plot_config: nil)
       path = app.windows_path(filename)
       ole_obj.PlotToFile(path, plot_config)
+    rescue => e
+      puts e.message
+      binding.irb
     end
   end
 end

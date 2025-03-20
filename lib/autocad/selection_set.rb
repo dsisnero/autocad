@@ -39,6 +39,11 @@ module Autocad
       self
     end
 
+    def clear_filter
+      @filter_types = []
+      @filter_values = []
+    end
+
     # Helper methods for common operations
     def filter_by_type(*types)
       filter { |f| f.or(*types.map { |t| f.type(t) }) }

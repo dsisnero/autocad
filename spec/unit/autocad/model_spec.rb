@@ -1,29 +1,30 @@
 # frozen_string_literal: true
 
-require_relative "../../spec_helper"
+require_relative '../../spec_helper'
 
-describe "Autocad::Model" do
+describe 'Autocad::Model' do
   include TestHelper
 
   before(:all) do
     @app = Autocad::App.new(visible: false)
-    @drawing = @app.new_drawing(temp_file("model_test.dwg"))
+    @drawing = @app.new_drawing(temp_file('model_test.dwg'))
     @model_space = @drawing.model_space
   end
 
   after(:all) do
     @drawing.close(false)
     cleanup_temp_files
+    # @app.quit
   end
 
-  describe "ModelTrait" do
-    describe "#each" do
-      it "returns an enumerator when no block given" do
+  describe 'ModelTrait' do
+    describe '#each' do
+      it 'returns an enumerator when no block given' do
         enum = @model_space.each
         _(enum).must_be_kind_of Enumerator
       end
 
-      it "yields elements when block given" do
+      it 'yields elements when block given' do
         # Add a line to have something to enumerate
         pt1 = Autocad::Point3d.new(0, 0, 0)
         pt2 = Autocad::Point3d.new(100, 100, 0)
@@ -39,8 +40,8 @@ describe "Autocad::Model" do
       end
     end
 
-    describe "#add_line" do
-      it "creates a line between two points" do
+    describe '#add_line' do
+      it 'creates a line between two points' do
         pt1 = Autocad::Point3d.new(0, 0, 0)
         pt2 = Autocad::Point3d.new(100, 100, 0)
         line = @model_space.add_line(pt1, pt2)
@@ -48,31 +49,30 @@ describe "Autocad::Model" do
         _(line).must_be_kind_of Autocad::Line
       end
 
-      it "creates a line with specified layer" do
+      it 'creates a line with specified layer' do
         pt1 = Autocad::Point3d.new(0, 0, 0)
         pt2 = Autocad::Point3d.new(100, 100, 0)
-        layer_name = "TestLayer"
+        layer_name = 'TestLayer'
         line = @model_space.add_line(pt1, pt2, layer: layer_name)
 
         _(line.layer).must_equal layer_name
       end
     end
 
-    describe "#add_circle" do
-      it "creates a circle with center and radius" do
+    describe '#add_circle' do
+      it 'creates a circle with center and radius' do
         center = Autocad::Point3d.new(50, 50, 0)
         radius = 25.0
         circle = @model_space.add_circle(center, radius)
         bounds = circle.bounds
 
         _(circle).must_be_kind_of Autocad::Circle
-
-        _(bounds).must_equal [Autocad::Point3d.new(25, 25, 0), Autocad::Point3d.new(75, 75, 0)]
+        _(bounds).must_equal Autocad::BoundingBox.from_min_max([25, 25], [75, 75])
       end
     end
 
-    describe "#add_rectangle" do
-      it "creates a rectangle from upper left and lower right points" do
+    describe '#add_rectangle' do
+      it 'creates a rectangle from upper left and lower right points' do
         upper_left = Autocad::Point3d.new(0, 100, 0)
         lower_right = Autocad::Point3d.new(100, 0, 0)
         rectangle = @model_space.add_rectangle(upper_left, lower_right)
@@ -81,8 +81,8 @@ describe "Autocad::Model" do
       end
     end
 
-    describe "#add_spline" do
-      it "creates a spline through given points with tangents" do
+    describe '#add_spline' do
+      it 'creates a spline through given points with tangents' do
         points = [
           Autocad::Point3d.new(0, 0, 0),
           Autocad::Point3d.new(50, 50, 0),
@@ -98,13 +98,13 @@ describe "Autocad::Model" do
     end
   end
 
-  describe "PaperSpace" do
+  describe 'PaperSpace' do
     before do
       @paper_space = @drawing.paper_space
     end
 
-    describe "#add_pv_viewport" do
-      it "creates a paper space viewport" do
+    describe '#add_pv_viewport' do
+      it 'creates a paper space viewport' do
         point = Autocad::Point3d.new(0, 0, 0)
         viewport = @paper_space.add_pv_viewport(point, width: 100, height: 100)
 
@@ -113,12 +113,12 @@ describe "Autocad::Model" do
     end
   end
 
-  describe "ModelSpace" do
-    it "includes ModelTrait" do
+  describe 'ModelSpace' do
+    it 'includes ModelTrait' do
       _(Autocad::ModelSpace.included_modules).must_include Autocad::ModelTrait
     end
 
-    it "is an Element" do
+    it 'is an Element' do
       _(@model_space).must_be_kind_of Autocad::Element
     end
   end
