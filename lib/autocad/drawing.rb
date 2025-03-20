@@ -318,7 +318,14 @@ module Autocad
       @drawing_closed = true
       
       begin
-        @ole_obj.Close(save)
+        if @ole_obj.respond_to?(:Close)
+          @ole_obj.Close(save)
+        elsif @ole_obj.respond_to?(:close)
+          @ole_obj.close(save)
+        else
+          # If we can't close it directly, try through the app
+          app.close_drawing(drawing_name, save)
+        end
       rescue => ex
         # Instead of just calling error_proc, raise a specific DrawingClose error
         # Use drawing name instead of the drawing object
