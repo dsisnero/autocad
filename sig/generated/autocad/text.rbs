@@ -1,23 +1,78 @@
 # Generated from lib/autocad/text.rb with RBS::Inline
 
 module Autocad
+  # Single-line text annotation element in AutoCAD
+  #
+  # Represents a simple text entity with a single line of content.
+  # Provides methods for reading, writing, and manipulating text properties.
+  #
+  # @example Create and modify text
+  #   text = drawing.model.add_text("Label", [10,5,0])
+  #   text.height = 2.5
+  #   text.update("New Label")
   class Text < Element
-    def read_ole: (untyped _ole) -> untyped
+    # Read text content from OLE object
+    #
+    # @param _ole [WIN32OLE] The OLE object to read from (unused parameter)
+    # @return [String] The text content
+    # @rbs (_ole: WIN32OLE) -> String
+    def read_ole: (_ole: WIN32OLE) -> String
 
-    def text?: () -> untyped
+    # Confirm this is a text element (always true)
+    #
+    # @return [Boolean] Always returns true for Text objects
+    # @rbs return bool
+    def text?: () -> bool
 
-    def write_ole: (untyped text) -> untyped
+    # Update text content in AutoCAD
+    #
+    # @param text [String] The new text content
+    # @return [void]
+    # @rbs text: String -> void
+    def write_ole: (String text) -> untyped
 
-    def to_regexp: () -> untyped
+    # Convert text content to regex pattern
+    #
+    # @return [Regexp] A regular expression based on the text content
+    # @rbs return Regexp
+    def to_regexp: () -> Regexp
 
-    def highlight: (?untyped flag) -> untyped
+    # Toggle text highlighting in the drawing
+    #
+    # @param flag [Boolean] Whether to highlight (true) or unhighlight (false)
+    # @return [void]
+    # @example Highlight selected text
+    #   selected_text.each { |t| t.highlight }
+    # @rbs flag: bool -> void
+    def highlight: (?bool flag) -> untyped
 
-    def =~: (untyped reg) -> untyped
+    # Regex pattern matching against text content
+    #
+    # @param reg [Regexp] The regular expression to match against
+    # @return [Integer, nil] Match position or nil if no match
+    # @rbs reg: Regexp -> Integer?
+    def =~: (Regexp reg) -> untyped
 
-    def to_s: () -> untyped
+    # Get text content as string
+    #
+    # @return [String] The text content
+    # @rbs return String
+    def to_s: () -> String
 
-    def bounds: () -> untyped
+    # Experimental bounding box calculation
+    #
+    # @return [BoundingBox] The text's bounding box
+    # @note Contains debug code - use with caution
+    # @rbs return BoundingBox
+    def bounds: () -> BoundingBox
 
-    def method_missing: (untyped meth, *untyped) ?{ (?) -> untyped } -> untyped
+    # Delegate uppercase methods to OLE object, lowercase to string methods
+    #
+    # @param meth [Symbol] The method name
+    # @param * [Array] Method arguments
+    # @param & [Proc] Optional block
+    # @return [Object] Result of the method call
+    # @rbs (Symbol, *untyped) -> untyped
+    def method_missing: (Symbol, *untyped) -> untyped
   end
 end

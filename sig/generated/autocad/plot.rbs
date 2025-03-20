@@ -2,12 +2,25 @@
 
 module Autocad
   class Plot < Element
-    def set_layouts_to_plot: (*untyped layouts) -> untyped
+    # Configure which layouts to include in the plot
+    # @rbs *layouts: Array[String | Autocad::Layout] | String | Autocad::Layout
+    # @rbs return void
+    def set_layouts_to_plot: (*Array[String | Autocad::Layout] | String | Autocad::Layout layouts) -> void
 
-    def plot_preview: () -> untyped
+    # Display full plot preview window
+    # @rbs return void
+    def plot_preview: () -> void
 
-    def plot_to_device: () -> untyped
+    # Execute plot using configured device
+    # @rbs return void
+    # @raise [Autocad::Error] If device communication fails
+    def plot_to_device: () -> void
 
-    def plot_to_file: (untyped filename, ?plot_config: untyped) -> untyped
+    # Plot to file with specified configuration
+    # @rbs filename: String | Pathname
+    # @rbs plot_config: String | Autocad::PlotConfiguration?
+    # @rbs return void
+    # @raise [Autocad::Error] If file creation fails
+    def plot_to_file: (String | Pathname filename, ?plot_config: String | Autocad::PlotConfiguration?) -> void
   end
 end

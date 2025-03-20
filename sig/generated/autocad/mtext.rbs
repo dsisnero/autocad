@@ -1,39 +1,123 @@
 # Generated from lib/autocad/mtext.rb with RBS::Inline
 
 module Autocad
+  # Multi-line formatted text container in AutoCAD
+  #
+  # Represents a rich text entity with multiple lines and formatting.
+  # Supports Liquid templates, table cell awareness, and line-by-line operations.
+  #
+  # @example Create and render a template
+  #   specs = drawing.model.add_mtext("Project: {{name}}")
+  #   specs.render(name: "Tower A")
   class MText < Element
+    # @rbs attr_reader original: String
+    # @rbs attr_reader ole_obj: WIN32OLE
     attr_reader original: untyped
 
+    # @rbs attr_reader original: String
+    # @rbs attr_reader ole_obj: WIN32OLE
     attr_reader ole_obj: untyped
 
-    def to_regexp: () -> untyped
+    # Convert content to regex pattern
+    #
+    # @return [Regexp] A regular expression based on the text content
+    # @rbs return Regexp
+    def to_regexp: () -> Regexp
 
-    def empty?: () -> untyped
+    # Check for empty content
+    #
+    # @return [Boolean] True if the MText has no content
+    # @rbs return bool
+    def empty?: () -> bool
 
-    def mtext?: () -> untyped
+    # Type check for multi-line text (always true)
+    #
+    # @return [Boolean] Always returns true for MText objects
+    # @rbs return bool
+    def mtext?: () -> bool
 
-    def text?: () -> untyped
+    # Override text type check (always false)
+    #
+    # @return [Boolean] Always returns false for MText objects
+    # @rbs return bool
+    def text?: () -> bool
 
-    def size: () -> untyped
+    # Get number of text lines
+    #
+    # @return [Integer] The number of lines in the MText
+    # @rbs return Integer
+    def size: () -> Integer
 
-    def read_ole: (untyped ole) -> untyped
+    # Read content from OLE object
+    #
+    # @param ole [WIN32OLE] The OLE object to read from
+    # @return [String] The text content
+    # @rbs ole: WIN32OLE -> String
+    def read_ole: (WIN32OLE ole) -> untyped
 
-    def write_ole: (untyped text) -> untyped
+    # Update text content with cell awareness
+    #
+    # @param text [String] The new text content
+    # @return [void]
+    # @rbs text: String -> void
+    def write_ole: (String text) -> untyped
 
-    def write_ole_regular: (untyped text) -> untyped
+    # Update text content for regular MText
+    #
+    # @param text [String] The new text content
+    # @return [void]
+    # @rbs text: String -> void
+    def write_ole_regular: (String text) -> untyped
 
-    def write_ole_in_cell: (untyped text) -> untyped
+    # Update text content for MText in table cell
+    #
+    # @param text [String] The new text content
+    # @return [void]
+    # @rbs text: String -> void
+    def write_ole_in_cell: (String text) -> untyped
 
-    def update_ole!: (untyped text) -> untyped
+    # Full content rewrite with line-by-line updates
+    #
+    # @param text [String] The new text content
+    # @return [void]
+    # @rbs text: String -> void
+    def update_ole!: (String text) -> untyped
 
-    def to_s: () -> untyped
+    # Get content as string
+    #
+    # @return [String] The text content
+    # @rbs return String
+    def to_s: () -> String
 
-    def =~: (untyped reg) -> untyped
+    # Regex pattern matching against text content
+    #
+    # @param reg [Regexp] The regular expression to match against
+    # @return [Integer, nil] Match position or nil if no match
+    # @rbs reg: Regexp -> Integer?
+    def =~: (Regexp reg) -> untyped
 
-    def template?: () -> untyped
+    # Check for Liquid template placeholders
+    #
+    # @return [Boolean] True if the text contains template placeholders
+    # @rbs return bool
+    def template?: () -> bool
 
-    def render: (?untyped h) -> untyped
+    # Render Liquid template with provided context
+    #
+    # @param h [Hash] The template variables
+    # @return [self] The MText object
+    # @example Render a template with variables
+    #   mtext.render(client: "ABC Corp", floors: 42)
+    # @rbs h: Hash[Symbol, untyped] -> self
+    def render: (?Hash[Symbol, untyped] h) -> untyped
 
-    def method_missing: (untyped meth, *untyped) ?{ (?) -> untyped } -> untyped
+    # Delegate uppercase methods to OLE object, lowercase to string methods
+    #
+    # @param meth [Symbol] The method name
+    # @param * [Array] Method arguments
+    # @param & [Proc] Optional block
+    # @return [Object] Result of the method call
+    # @rbs (Symbol, *untyped) -> untyped
+    def method_missing: (Symbol, *untyped) -> untyped
   end
 end

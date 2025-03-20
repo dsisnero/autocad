@@ -2,62 +2,113 @@
 
 module Autocad
   module ModelTrait
-    def each: () -> untyped
+    # Iterate through all elements in the model space
+    # @rbs return Enumerator[Autocad::Element]
+    # @rbs &: (Autocad::Element) -> void
+    def each: () { (Autocad::Element) -> void } -> Enumerator[Autocad::Element]
 
-    def xref?: () -> untyped
+    # Check if this model is an external reference
+    # @rbs return bool
+    def xref?: () -> bool
 
-    def attach_external_reference: (untyped path, name: untyped, ?pt: untyped, ?x_scale: untyped, ?y_scale: untyped, ?z_scale: untyped, ?rotation: untyped, ?overlay: untyped, ?password: untyped) -> untyped
+    # Attach an external reference to the model
+    # @rbs path: String
+    # @rbs name: String
+    # @rbs pt: Array[Numeric] | Autocad::Point3d
+    # @rbs x_scale: Numeric
+    # @rbs y_scale: Numeric
+    # @rbs z_scale: Numeric
+    # @rbs rotation: Numeric
+    # @rbs overlay: bool
+    # @rbs password: String?
+    # @rbs return Autocad::BlockReference?
+    def attach_external_reference: (String path, name: String, ?pt: Array[Numeric] | Autocad::Point3d, ?x_scale: Numeric, ?y_scale: Numeric, ?z_scale: Numeric, ?rotation: Numeric, ?overlay: bool, ?password: String?) -> Autocad::BlockReference?
 
-    # @rbs pt1: Autocad::Point3d
-    # @rbs return Autocad::Line
-    def add_line: (Autocad::Point3d pt1, untyped pt2, ?layer: untyped) -> Autocad::Line
+    # Add a line to the model
+    # @rbs pt1: Array[Numeric] | Autocad::Point3d
+    # @rbs pt2: Array[Numeric] | Autocad::Point3d
+    # @rbs layer: String?
+    # @rbs return Autocad::Line?
+    def add_line: (Array[Numeric] | Autocad::Point3d pt1, Array[Numeric] | Autocad::Point3d pt2, ?layer: String?) -> Autocad::Line?
 
-    def layout: () -> untyped
-
-    # add an arc to the model
-    # @rbs center: [] | Point3d -- center of arc
-    # @rbs radius: Float -- radius of arc
-    # @rbs start_angle: Float -- start angle of arc
-    # @rbs end_angle: Float -- end angle of arc
-    # @rbs return Autocad::Arc
-    def add_arc: ([ ] | Point3d center, Float radius, Float start_angle, Float end_angle) -> Autocad::Arc
-
-    # @rbs center: [] | Point3d -- center of circle
-    # @rbs radius: Numeric -- radius of the circle
-    # @rbs return Autocad::Element -- the created circle
-    def add_circle: ([ ] | Point3d center, Numeric radius) -> Autocad::Element
-
-    def add_rectangle: (untyped lower_left, untyped upper_right) -> untyped
-
-    # add an ellilpse to the model
-    # @rbs center: [] | Point3d -- center of ellipse
-    # @rbs major_axis: Float -- major axis of ellipse
-    # @rbs radius_ratio: Float -- ratio of major axis to minor axis , a value of 1 is a circle
-    # @return Autocad::Ellipse
-    def add_ellipse: ([ ] | Point3d center, Float major_axis, Float radius_ratio) -> untyped
-
-    def add_spline: (untyped points, untyped start_tangent, untyped end_tangent) -> untyped
-
-    def drawing: () -> untyped
-
-    # @rbs return Autocad::Layout -- the layout for the model
+    # Get the layout associated with this model
+    # @rbs return Autocad::Layout
     def layout: () -> Autocad::Layout
+
+    # Add an arc to the model
+    # @rbs center: Array[Numeric] | Autocad::Point3d
+    # @rbs radius: Numeric
+    # @rbs start_angle: Numeric
+    # @rbs end_angle: Numeric
+    # @rbs return Autocad::Arc
+    # @raise [Autocad::Error] If arc creation fails
+    def add_arc: (Array[Numeric] | Autocad::Point3d center, Numeric radius, Numeric start_angle, Numeric end_angle) -> Autocad::Arc
+
+    # Add a circle to the model
+    # @rbs center: Array[Numeric] | Autocad::Point3d
+    # @rbs radius: Numeric
+    # @rbs return Autocad::Circle
+    # @raise [Autocad::Error] If circle creation fails
+    def add_circle: (Array[Numeric] | Autocad::Point3d center, Numeric radius) -> Autocad::Circle
+
+    # Add a rectangular polyline to the model
+    # @rbs lower_left: Array[Numeric] | Autocad::Point3d
+    # @rbs upper_right: Array[Numeric] | Autocad::Point3d
+    # @rbs return Autocad::Element
+    # @raise [Autocad::Error] If rectangle creation fails
+    def add_rectangle: (Array[Numeric] | Autocad::Point3d lower_left, Array[Numeric] | Autocad::Point3d upper_right) -> Autocad::Element
+
+    # Add an ellipse to the model
+    # @rbs center: Array[Numeric] | Autocad::Point3d
+    # @rbs major_axis: Numeric
+    # @rbs radius_ratio: Numeric
+    # @rbs return Autocad::Ellipse
+    # @raise [Autocad::Error] If ellipse creation fails
+    def add_ellipse: (Array[Numeric] | Autocad::Point3d center, Numeric major_axis, Numeric radius_ratio) -> Autocad::Ellipse
+
+    # Add a spline to the model
+    # @rbs points: Array[Array[Numeric] | Autocad::Point3d]
+    # @rbs start_tangent: Array[Numeric] | Autocad::Point3d
+    # @rbs end_tangent: Array[Numeric] | Autocad::Point3d
+    # @rbs return Autocad::Spline
+    # @raise [Autocad::Error] If spline creation fails
+    def add_spline: (Array[Array[Numeric] | Autocad::Point3d] points, Array[Numeric] | Autocad::Point3d start_tangent, Array[Numeric] | Autocad::Point3d end_tangent) -> Autocad::Spline
+
+    # Get the parent drawing document
+    # @rbs return Autocad::Drawing
+    def drawing: () -> Autocad::Drawing
 
     private
 
-    def create_layer: (untyped name, ?untyped color) -> untyped
+    # Internal method to create/get a layer
+    # @rbs name: String
+    # @rbs color: Numeric | Symbol | String?
+    # @rbs return Autocad::Layer
+    def create_layer: (String name, ?Numeric | Symbol | String? color) -> Autocad::Layer
   end
 
+  # Paper space container class
   class PaperSpace < Element
     include ModelTrait
 
-    def add_pv_viewport: (untyped center, width: untyped, height: untyped) -> untyped
+    # Add a paper space viewport
+    # @rbs center: Array[Numeric] | Autocad::Point3d
+    # @rbs width: Numeric
+    # @rbs height: Numeric
+    # @rbs return Autocad::PViewport
+    # @raise [StandardError] If viewport creation fails
+    def add_pv_viewport: (Array[Numeric] | Autocad::Point3d center, width: Numeric, height: Numeric) -> Autocad::PViewport
 
-    def pviewports: () -> untyped
+    # Get all paper space viewports
+    # @rbs return Array[Autocad::PViewport]
+    def pviewports: () -> Array[Autocad::PViewport]
 
-    def clear_pviewports: () -> untyped
+    # Delete all paper space viewports
+    # @rbs return void
+    def clear_pviewports: () -> void
   end
 
+  # Model space container class
   class ModelSpace < Element
     include ModelTrait
   end

@@ -33,12 +33,17 @@ module Autocad
   end
 
   module ElementTrait
-    # @rbs return nil| Drawing
-    def drawing: () -> (nil | Drawing)
+    # Get the parent drawing of this element
+    # @rbs return Drawing?
+    def drawing: () -> Drawing?
 
-    def pviewport?: () -> untyped
+    # Check if this element is a paper space viewport
+    # @rbs return bool
+    def pviewport?: () -> bool
 
-    def block_reference?: () -> untyped
+    # Check if this element is a block reference
+    # @rbs return bool
+    def block_reference?: () -> bool
 
     def bounds: () -> untyped
 
@@ -48,41 +53,70 @@ module Autocad
     #
     # @rbs return bool -- true if ole type is Text
     # def text?
+    # Check if this element is a text object
+    # @rbs return bool
     def text?: () -> bool
 
-    # &: (Element) -> void
-    # @rbs return Enumerator[Element] -- explode element
-    def explode: () -> Enumerator[Element]
+    # Explode this element into its component parts
+    # @rbs &: (Element) -> void
+    # @rbs return Enumerator[Element]
+    def explode: () { (Element) -> void } -> Enumerator[Element]
 
-    def has_tags?: () -> untyped
+    # Check if this element has any tags
+    # @rbs return bool
+    def has_tags?: () -> bool
 
-    def to_ole: () -> untyped
+    # Get the underlying OLE object
+    # @rbs return WIN32OLE
+    def to_ole: () -> WIN32OLE
 
-    # @rbs return bool -- true if object is of type cell
+    # Check if this element is a cell
+    # @rbs return bool
     def cell?: () -> bool
 
-    def highlight: (?untyped flag) -> untyped
+    # Highlight this element in the drawing
+    # @rbs flag: bool
+    # @rbs return void
+    def highlight: (?bool flag) -> void
 
     def def: (untyped autocad_id) -> untyped
 
-    def visible?: () -> untyped
+    # Check if this element is visible
+    # @rbs return bool
+    def visible?: () -> bool
 
-    # @rbs return bool -- true if ole type is TypeLine
+    # Check if this element is a line
+    # @rbs return bool
     def line?: () -> bool
 
-    def graphical?: () -> untyped
+    # Check if this element is graphical
+    # @rbs return bool
+    def graphical?: () -> bool
 
-    def inspect: () -> untyped
+    # Get string representation of this element
+    # @rbs return String
+    def inspect: () -> String
 
-    def parent: () -> untyped
+    # Get the parent element
+    # @rbs return Element?
+    def parent: () -> Element?
 
-    def id_from_record: (untyped id) -> untyped
+    # Convert record ID to element ID
+    # @rbs id: WIN32OLE_RECORD
+    # @rbs return Integer?
+    def id_from_record: (WIN32OLE_RECORD id) -> Integer?
 
-    def select: () -> untyped
+    # Select this element in the drawing
+    # @rbs return void
+    def select: () -> void
 
-    def autocad_type: () -> untyped
+    # Get the AutoCAD object type name
+    # @rbs return String
+    def autocad_type: () -> String
 
-    def model: () -> untyped
+    # Get the model containing this element
+    # @rbs return Model
+    def model: () -> Model
   end
 
   class Element

@@ -2,122 +2,139 @@
 
 module Autocad
   module Common
-    def method_missing: (untyped method) -> untyped
+    # Handle uppercase method calls by forwarding to OLE object
+    # @rbs (Symbol, untyped) -> untyped
+    def method_missing: (Symbol, untyped) -> untyped
+  end
+end
+
+module Autocad
+  module Color
+    # Standard AutoCAD color indices
+    Red: ::Integer
+
+    Yellow: ::Integer
+
+    Green: ::Integer
+
+    Cyan: ::Integer
+
+    Blue: ::Integer
+
+    Magenta: ::Integer
+
+    White: ::Integer
+
+    Black: ::Integer
+
+    # Additional common colors
+    Gray: ::Integer
+
+    LightGray: ::Integer
+
+    DarkRed: ::Integer
+
+    DarkGreen: ::Integer
+
+    DarkBlue: ::Integer
+
+    Orange: ::Integer
+
+    Purple: ::Integer
+
+    Brown: ::Integer
+
+    # Convert a color symbol or name to its integer value
+    # @rbs color: Symbol | String | Integer
+    # @rbs return Integer
+    def self.to_index: (Symbol | String | Integer color) -> Integer
+
+    # Convert an integer color index to a symbolic name if possible
+    # @rbs index: Integer
+    # @rbs return Symbol | Integer
+    def self.from_index: (Integer index) -> (Symbol | Integer)
+
+    # Helper method to convert to snake_case
+    # @rbs camel_case: String
+    # @rbs return String
+    def self.underscore: (String camel_case) -> String
   end
 end
 
 module ACAD
-  module COLOR
-    # Standard AutoCAD color indices
-    RED: ::Integer
-
-    YELLOW: ::Integer
-
-    GREEN: ::Integer
-
-    CYAN: ::Integer
-
-    BLUE: ::Integer
-
-    MAGENTA: ::Integer
-
-    WHITE: ::Integer
-
-    BLACK: ::Integer
-
-    # Additional common colors
-    GRAY: ::Integer
-
-    LIGHT_GRAY: ::Integer
-
-    DARK_RED: ::Integer
-
-    DARK_GREEN: ::Integer
-
-    DARK_BLUE: ::Integer
-
-    ORANGE: ::Integer
-
-    PURPLE: ::Integer
-
-    BROWN: ::Integer
-
-    # Convert a color symbol or name to its integer value
-    # @param color [Symbol, String, Integer] color name or index
-    # @return [Integer] AutoCAD color index
-    def self.to_index: (untyped color) -> untyped
-
-    # Convert an integer color index to a symbolic name if possible
-    # @param index [Integer] AutoCAD color index
-    # @return [Symbol, Integer] Color name as symbol or original index if no name exists
-    def self.from_index: (untyped index) -> untyped
-  end
 end
 
 module Autocad
   ROOT: untyped
 
   # Convert a color value (symbol, string, or integer) to an AutoCAD color index
-  # @param color [Symbol, String, Integer] color name or index
-  # @return [Integer] AutoCAD color index
-  def self.color_to_index: (untyped color) -> untyped
+  # @rbs color: Symbol | String | Integer
+  # @rbs return Integer
+  def self.color_to_index: (Symbol | String | Integer color) -> Integer
 
-  # @yield [Autocad::App]
-  def self.run: () -> void
+  # @rbs &: (Autocad::App) -> void
+  # @rbs return void
+  def self.run: () { (Autocad::App) -> void } -> void
 
-  # @return [Pathname]
+  # @rbs return Pathname
   def self.root: () -> Pathname
 
-  # @rbs dir: String -- the directory of drawing dgn|dwg -- to convert
-  # @rbs outdir: String -- the output dir for converted pdf files
-  def self.dgn2pdf: (untyped dir_or_file, ?outdir: String, ?mode: untyped) -> untyped
+  # Convert DGN/DWG files to PDF
+  # @rbs dir_or_file: String | Pathname
+  # @rbs outdir: String | Pathname
+  # @rbs mode: :dir | :file
+  # @rbs return void
+  # @raise [RuntimeError] Invalid mode
+  def self.dgn2pdf: (String | Pathname dir_or_file, ?outdir: String | Pathname, ?mode: :dir | :file) -> void
 
-  # runs autocad app and yields each open drawing
+  # Process currently open drawings
   # @rbs &: (Drawing) -> void
   # @rbs return void
   def self.with_open_drawings: () { (Drawing) -> void } -> void
 
-  # save the current drawing
-  # @rbs dir: String|Pathname -- the dir to save drawing to
-  # @rbs exit: bool -- whether to exit afterwards or start irb
-  # @rbs model: bool -- prints model space instead of paperspace in pdf document
+  # Save all open drawings
+  # @rbs dir: String | Pathname
+  # @rbs exit: bool
+  # @rbs model: bool
   # @rbs return void
   def self.save_open_drawings: (?dir: String | Pathname, ?exit: bool, ?model: bool) -> void
 
-  # save the current drawing
-  # @rbs dir: String|Dir -- the dir to save drawing to
-  # @rbs exit: bool -- whether to exit afterwards or start irb
-  # @rbs model: bool -- prints model space in pdf document
+  # Save current drawing with options
+  # @rbs dir: String | Pathname
+  # @rbs exit: bool
+  # @rbs model: bool
   # @rbs return void
-  def self.save_current_drawing: (String | Dir dir, ?exit: bool, ?model: bool) -> void
+  def self.save_current_drawing: (String | Pathname dir, ?exit: bool, ?model: bool) -> void
 
-  # save the current drawing as pdf
-  # @rbs dir: String|Dir -- the dir to save drawing to
+  # Save current drawing as PDF
+  # @rbs dir: String | Pathname
   # @rbs return void
-  def self.save_current_drawing_as_pdf: (String | Dir dir) -> void
+  def self.save_current_drawing_as_pdf: (String | Pathname dir) -> void
 
-  # gets all dwg and dgn dfiles in a directory
-  # @rbs dir: String|Pathname
-  def self.drawings_in_dir: (String | Pathname dir) -> untyped
+  # Find drawings in directory
+  # @rbs dir: String | Pathname
+  # @rbs return Array[Pathname]
+  def self.drawings_in_dir: (String | Pathname dir) -> Array[Pathname]
 
-  def self.open_drawing: (untyped drawing) -> untyped
+  # Open single drawing
+  # @rbs drawing: String | Pathname
+  # @rbs return Drawing
+  def self.open_drawing: (String | Pathname drawing) -> Drawing
 
-  # Runs the app, opening the filenames
-  # and yielding each open drawing to the
-  # supplied block
-  # it automatically closes the drawing and
-  # the app when done
-  #
-  # @rbs *files: Array[String|Pathname]
-  # @rbs visible: bool -- show the app window
+  # Process multiple drawings
+  # @rbs *files: Array[String | Pathname]
+  # @rbs visible: bool
   # @rbs error_proc: (Exception, Drawing) -> void
-  # @rbs wait_time: Integer -- the total amount of time to wait to open file (500)
-  # @rbs wait_interval: Float -- the amount of time to wait between attempts (0.5)
+  # @rbs wait_time: Integer
+  # @rbs wait_interval: Float
   # @rbs read_only: bool
   # @rbs &: (Drawing) -> void
-  def self.with_drawings: () { (Drawing) -> void } -> untyped
+  # @rbs return void
+  def self.with_drawings: () { (Drawing) -> void } -> void
 
-  # Finds the drawing in dir and calls with_drawing forwarding all params
-  # @rbs dir: String|Pathname -- directory to search for drawings
-  def self.with_drawings_in_dir: (String | Pathname dir) -> untyped
+  # Process drawings in directory
+  # @rbs dir: String | Pathname
+  # @rbs ...: untyped
+  # @rbs return void
+  def self.with_drawings_in_dir: ...
 end

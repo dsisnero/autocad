@@ -2,47 +2,63 @@
 
 module Autocad
   class Layout < PlotConfiguration
-    def insert_block: (untyped block, ?pt: untyped) -> untyped
+    # Inserts a block into the layout
+    # @rbs block: Block
+    # @rbs pt: Point3d?
+    # @rbs return void
+    def insert_block: (Block block, ?pt: Point3d?) -> void
 
-    # The name of the layout
+    # Get the layout name
     # @rbs return String
     def name: () -> String
 
-    # @rbs name: String -- the name of the layout
+    # Set the layout name
+    # @rbs str: String
     # @rbs return void
-    def name=: (untyped str) -> void
+    def name=: (String str) -> void
 
-    # @rbs param pc: PlotConfiguration
+    # Copy plot settings from another configuration
+    # @rbs pc: PlotConfiguration
     # @rbs return void
-    def copy_plot_configuration: (untyped pc) -> void
+    def copy_plot_configuration: (PlotConfiguration pc) -> void
 
-    # @rbs name: String -- the name of the block to add
-    # @rbs pt: Point3d -- the point to insert the block
-    # @rbs rotation: Float -- the rotation of the block
-    # @rbs scale: Float -- the scale of the block
-    # @rbs return BlockReference
-    def add_block_reference: (String name, pt: Point3d, ?rotation: Float, ?scale: Float) -> BlockReference
+    # Insert a block reference into the layout
+    # @rbs name: String
+    # @rbs pt: Point3d
+    # @rbs rotation: Float
+    # @rbs scale: Float
+    # @rbs return BlockReference?
+    # @raise [StandardError] On insertion failure
+    def add_block_reference: (String name, pt: Point3d, ?rotation: Float, ?scale: Float) -> BlockReference?
 
-    # @rbs return Integer -- the TabOrder of layout
+    # Get layout tab order position
+    # @rbs return Integer
     def tab_order: () -> Integer
 
-    # set the TabOrder of a named layout
+    # Set layout tab order position
     # @rbs n: Integer
     # @rbs return void
     def tab_order=: (Integer n) -> void
 
-    # in inches -note paper units is for display and doesnt affect the return
-    # value of GetPaperSize returns mm paper size
-    # @rbs return Array[Float, Float] -- return the width and height of the paper
-    def paper_size: () -> Array[Float, Float]
+    # Get paper dimensions in millimeters
+    # @rbs return [Float, Float]
+    def paper_size: () -> [ Float, Float ]
 
-    # make a Autocad::BoundingBox from the usable_area
-    def bounds: () -> untyped
+    # Calculate usable area bounds with margins
+    # @rbs return BoundingBox
+    def bounds: () -> BoundingBox
 
-    def paper_size_inches: () -> untyped
+    # Get paper size in inches
+    # @rbs return [Float, Float]
+    def paper_size_inches: () -> [ Float, Float ]
 
-    def add_pviewport: (?untyped scale) -> untyped
+    # Add a paper space viewport
+    # @rbs scale: Symbol
+    # @rbs return PViewport
+    def add_pviewport: (?Symbol scale) -> PViewport
 
-    def paper_margins: () -> untyped
+    # Get page margins
+    # @rbs return [[Float, Float], [Float, Float]]
+    def paper_margins: () -> [ [ Float, Float ], [ Float, Float ] ]
   end
 end

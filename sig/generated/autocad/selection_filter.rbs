@@ -1,50 +1,226 @@
 # Generated from lib/autocad/selection_filter.rb with RBS::Inline
 
 module Autocad
+  # Builds AutoCAD selection filter criteria using group codes
+  #
+  # Provides a fluent interface for creating complex entity filters
+  # based on AutoCAD DXF group codes and logical operations.
+  #
+  # Key Features:
+  # - Logical operators (AND, OR, NOT, XOR)
+  # - Comparison operators (>, <, =, !=)
+  # - Entity property filters (type, layer, color)
+  # - Text content matching
+  # - Space-specific filtering (model/paper)
+  #
+  # @example Create a filter for red circles
+  #   filter = SelectionFilter.new
+  #     .and(
+  #       SelectionFilter.new.type("CIRCLE"),
+  #       SelectionFilter.new.color(1)
+  #     )
+  #
+  # @example Complex filter with nested conditions
+  #   filter = SelectionFilter.new
+  #     .and(
+  #       SelectionFilter.new.layer("WALLS"),
+  #       SelectionFilter.new.or(
+  #         SelectionFilter.new.type("LINE"),
+  #         SelectionFilter.new.type("POLYLINE")
+  #       )
+  #     )
   class SelectionFilter
+    # @rbs attr_reader types: Array[Integer] -- AutoCAD group codes (e.g., 0=Entity type)
+    # @rbs attr_reader values: Array[untyped] -- Filter values matching group codes
     attr_reader types: untyped
 
+    # @rbs attr_reader types: Array[Integer] -- AutoCAD group codes (e.g., 0=Entity type)
+    # @rbs attr_reader values: Array[untyped] -- Filter values matching group codes
     attr_reader values: untyped
 
-    def initialize: () -> untyped
+    # Initialize empty filter
+    # @return [void]
+    # @rbs return void
+    def initialize: () -> void
 
-    def has_filters?: () -> untyped
+    # Check if filter has any conditions
+    # @return [Boolean] True if filter has conditions
+    # @example Skip empty filter
+    #   next unless filter.has_filters?
+    # @rbs return bool
+    def has_filters?: () -> bool
 
-    # Logical Operators
-    def and: (*untyped conditions) -> untyped
+    # Logical AND combination of filters
+    # @param conditions [Array<SelectionFilter>] Filters to combine
+    # @return [self] The filter for chaining
+    # @example Combine multiple conditions with AND
+    #   filter.and(
+    #     SelectionFilter.new.type("LINE"),
+    #     SelectionFilter.new.layer("WALLS")
+    #   )
+    # @rbs *conditions: Array[SelectionFilter] -- Filters to combine
+    # @rbs return SelectionFilter
+    def and: (*Array[SelectionFilter] conditions) -> SelectionFilter
 
-    def or: (*untyped conditions) -> untyped
+    # Logical OR combination of filters
+    # @param conditions [Array<SelectionFilter>] Filters to combine
+    # @return [self] The filter for chaining
+    # @example Match entities on multiple layers
+    #   filter.or(
+    #     SelectionFilter.new.layer("WALLS"),
+    #     SelectionFilter.new.layer("DOORS")
+    #   )
+    # @rbs *conditions: Array[SelectionFilter]
+    # @rbs return SelectionFilter
+    def or: (*Array[SelectionFilter] conditions) -> SelectionFilter
 
-    def xor: (untyped condition1, untyped condition2) -> untyped
+    # Logical XOR combination of two filters
+    # @param condition1 [SelectionFilter] First filter
+    # @param condition2 [SelectionFilter] Second filter
+    # @return [self] The filter for chaining
+    # @example Select entities that match exactly one condition
+    #   filter.xor(
+    #     SelectionFilter.new.type("CIRCLE"),
+    #     SelectionFilter.new.layer("SPECIAL")
+    #   )
+    # @rbs condition1: SelectionFilter
+    # @rbs condition2: SelectionFilter
+    # @rbs return SelectionFilter
+    def xor: (SelectionFilter condition1, SelectionFilter condition2) -> SelectionFilter
 
-    def not: (untyped condition) -> untyped
+    # Logical NOT for a filter condition
+    # @param condition [SelectionFilter] Filter to negate
+    # @return [self] The filter for chaining
+    # @example Select everything except circles
+    #   filter.not(SelectionFilter.new.type("CIRCLE"))
+    # @rbs condition: SelectionFilter
+    # @rbs return SelectionFilter
+    def not: (SelectionFilter condition) -> SelectionFilter
 
-    # Relational Operators
-    #  f.type("Circle").greater_than(5)
-    def greater_than: (untyped value) -> untyped
+    # Greater than comparison
+    # @param value [Numeric] Comparison value
+    # @return [self] The filter for chaining
+    # @example Find circles with radius > 5
+    #   filter.type("CIRCLE").greater_than(5)
+    # @rbs value: Numeric -- Comparison value
+    # @rbs return SelectionFilter
+    def greater_than: (Numeric value) -> SelectionFilter
 
-    def less_than: (untyped value) -> untyped
+    # Less than comparison
+    # @param value [Numeric] Comparison value
+    # @return [self] The filter for chaining
+    # @example Find circles with radius < 10
+    #   filter.type("CIRCLE").less_than(10)
+    # @rbs value: Numeric -- Comparison value
+    # @rbs return SelectionFilter
+    def less_than: (Numeric value) -> SelectionFilter
 
-    def equal_to: (untyped value) -> untyped
+    # Equal to comparison
+    # @param value [Numeric] Comparison value
+    # @return [self] The filter for chaining
+    # @example Find circles with radius = 7.5
+    #   filter.type("CIRCLE").equal_to(7.5)
+    # @rbs value: Numeric -- Comparison value
+    # @rbs return SelectionFilter
+    def equal_to: (Numeric value) -> SelectionFilter
 
-    def not_equal_to: (untyped value) -> untyped
+    # Not equal to comparison
+    # @param value [Numeric] Comparison value
+    # @return [self] The filter for chaining
+    # @example Find circles with radius != 5
+    #   filter.type("CIRCLE").not_equal_to(5)
+    # @rbs value: Numeric -- Comparison value
+    # @rbs return SelectionFilter
+    def not_equal_to: (Numeric value) -> SelectionFilter
 
-    def block_reference: (?untyped name) -> untyped
+    # Filter by block references
+    # @param name [String, nil] Optional block name pattern
+    # @return [self] The filter for chaining
+    # @example Find any block reference
+    #   filter.block_reference
+    # @example Find specific block
+    #   filter.block_reference("DOOR")
+    # @rbs name: String? -- Optional block name pattern
+    # @rbs return SelectionFilter
+    def block_reference: (?String? name) -> SelectionFilter
 
-    def name: (untyped value) -> untyped
+    # Filter by entity name/type
+    # @param value [String] Entity type name (e.g., "CIRCLE")
+    # @return [self] The filter for chaining
+    # @example Filter by entity name
+    #   filter.name("CIRCLE")
+    # @rbs value: String -- Entity type name (e.g., "CIRCLE")
+    # @rbs return SelectionFilter
+    def name: (String value) -> SelectionFilter
 
-    def type: (untyped kind) -> untyped
+    # Filter by entity type
+    # @param kind [String] Entity type name (e.g., "CIRCLE")
+    # @return [self] The filter for chaining
+    # @example Filter for lines
+    #   filter.type("LINE")
+    # @rbs kind: String -- Entity type name (e.g., "CIRCLE")
+    # @rbs return SelectionFilter
+    def type: (String kind) -> SelectionFilter
 
-    def layer: (untyped name) -> untyped
+    # Filter by layer name
+    # @param name [String] Layer name
+    # @return [self] The filter for chaining
+    # @example Filter for entities on a specific layer
+    #   filter.layer("WALLS")
+    # @rbs name: String -- Layer name
+    # @rbs return SelectionFilter
+    def layer: (String name) -> SelectionFilter
 
-    def visible: (?untyped vis) -> untyped
+    # Filter by visibility state
+    # @param vis [Boolean] True for visible entities
+    # @return [self] The filter for chaining
+    # @example Filter for visible entities
+    #   filter.visible(true)
+    # @example Filter for hidden entities
+    #   filter.visible(false)
+    # @rbs vis: bool -- True for visible entities
+    # @rbs return SelectionFilter
+    def visible: (?bool vis) -> SelectionFilter
 
-    def color: (untyped num) -> untyped
+    # Filter by color index
+    # @param num [Integer] AutoCAD color number (0-256)
+    # @return [self] The filter for chaining
+    # @example Filter for red entities (color 1)
+    #   filter.color(1)
+    # @rbs num: Integer -- AutoCAD color number (0-256)
+    # @rbs return SelectionFilter
+    def color: (Integer num) -> SelectionFilter
 
-    def paper_space: () -> untyped
+    # Filter for paper space entities
+    # @return [self] The filter for chaining
+    # @example Filter for paper space entities
+    #   filter.paper_space
+    # @rbs return SelectionFilter
+    def paper_space: () -> SelectionFilter
 
-    def model_space: () -> untyped
+    # Filter for model space entities
+    # @return [self] The filter for chaining
+    # @example Filter for model space entities
+    #   filter.model_space
+    # @rbs return SelectionFilter
+    def model_space: () -> SelectionFilter
 
-    def contains: (untyped str) -> untyped
+    # Filter text content using wildcards
+    # @param str [String] Search pattern (e.g., "*REV*")
+    # @return [self] The filter for chaining
+    # @example Find text containing "REVISION"
+    #   filter.contains("*REVISION*")
+    # @rbs str: String -- Search pattern (e.g., "*REV*")
+    # @rbs return SelectionFilter
+    def contains: (String str) -> SelectionFilter
+
+    # Helper method for text content matching
+    # @param str [String] Text to search for
+    # @return [self] The filter for chaining
+    # @example Find text containing specific content
+    #   filter.has_text("Revision")
+    # @rbs str: String -- Text to search for
+    # @rbs return SelectionFilter
+    def has_text: (String str) -> SelectionFilter
   end
 end

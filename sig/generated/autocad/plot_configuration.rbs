@@ -2,55 +2,90 @@
 
 module Autocad
   class PlotConfiguration < Element
-    # the name of the plot configuration
+    # Get the name of the plot configuration
     # @rbs return String
     def name: () -> String
 
-    # assign a plot device file to the plot config
+    # Set the plot device configuration file
     # @rbs name: String
     # @rbs return void
     def device_name=: (String name) -> void
 
-    def device_name: () -> untyped
+    # Get the current plot device configuration name
+    # @rbs return String
+    def device_name: () -> String
 
-    def read_ole: (untyped ole) -> untyped
+    # Read current configuration properties from OLE object
+    # @rbs return Hash[Symbol, Object]
+    def read_ole: (?untyped ole) -> Hash[Symbol, Object]
 
-    def write_ole: (untyped value) -> untyped
+    # Write configuration settings to OLE object
+    # @rbs value: Hash[Symbol, Object]
+    # @rbs return void
+    def write_ole: (Hash[Symbol, Object] value) -> void
 
-    # @rbs return Point3d -- the plot origin in wcs coordinates - always mm unit returned
+    # Get plot origin point in millimeters
+    # @rbs return Point3d
     def plot_origin: () -> Point3d
 
-    # @rbs -- accepts the same parameters as Point3d.new
-    def plot_origin=: () -> untyped
+    # Set plot origin point
+    # @rbs ...: Numeric | Array[Numeric] | Point3d
+    # @rbs return void
+    # @raise [ArgumentError] For invalid coordinate values
+    def plot_origin=: ...
 
-    def plot_style_mode: () -> untyped
+    # Get current plot style mode
+    # @rbs return Symbol
+    def plot_style_mode: () -> Symbol
 
     def plot_style_mode_variable: () -> untyped
 
-    def color_style_mode?: () -> untyped
+    # Check if using color-dependent plot styles
+    # @rbs return bool
+    def color_style_mode?: () -> bool
 
-    def named_style_mode?: () -> untyped
+    # Check if using named plot styles
+    # @rbs return bool
+    def named_style_mode?: () -> bool
 
-    # setup(device_name: "FAA.pc3", media_name: "ANSI_D_(36.00)",
-    #      style: "acad.ctb", plot_type: :extents, rotation: 0  )
-    def setup: () -> untyped
-
-    def update: (untyped value) -> untyped
-
-    # shows the current plot configuration settings
-    def display_setup: () -> untyped
-
-    # @rbs param pc: PlotConfiguration
+    # Configure multiple plot settings at once
+    # @rbs kwargs: Hash{Symbol => Object} -- See write_ole for valid keys
     # @rbs return void
-    def copy_plot_configuration: (untyped pc) -> void
+    # @example Configure for PDF output
+    #   setup(
+    #     device_name: "AutoCAD PDF.pc3",
+    #     media_name: "ANSI_D",
+    #     style_sheet: "monochrome.ctb",
+    #     plot_type: :layout
+    #   )
+    def setup: () -> void
+
+    # Update configuration with merged values
+    # @rbs value: Hash{Symbol => Object} -- Partial configuration updates
+    # @rbs return void
+    def update: (Hash value) -> void
+
+    # Print current configuration to console
+    # @rbs return void
+    def display_setup: () -> void
+
+    # Copy settings from another configuration
+    # @rbs pc: PlotConfiguration -- Source configuration
+    # @rbs return void
+    def copy_plot_configuration: (PlotConfiguration pc) -> void
 
     def plot_style_mode=: (untyped sym) -> untyped
 
-    def ansi_b_landscape: () -> untyped
+    # ANSI B landscape paper size name
+    # @rbs return String -- Canonical name "ANSI_B_(17.00_x_11.00_Inches)"
+    def ansi_b_landscape: () -> String
 
     def ansi_d_landscape: () -> untyped
 
-    def refresh: () -> untyped
+    # Refresh plot device information
+    # @rbs return void
+    # @note Required after changing device configurations
+    def refresh: () -> void
 
     def style_sheet=: (untyped style) -> untyped
 
@@ -70,13 +105,14 @@ module Autocad
     # The available paper sizes for the configured device. Use this
     # when setting the media_name:
     # @rbs return Array[String]
+    # @note Call refresh() first if device was changed
     def media_names: () -> Array[String]
 
     def locale_media_name: () -> untyped
 
     # Returns the different plot tables. Use one of these
     # when setting style_sheet
-    # @rbs return Array[String]
+    # @rbs return Array[String] -- CTB/STB file names
     def plot_style_table_names: () -> Array[String]
 
     # The different plot bounds or types
@@ -90,22 +126,51 @@ module Autocad
     # @rbs return Array[Symbol]
     def paper_units_types: () -> Array[Symbol]
 
-    def paper_units: () -> untyped
+    # Get current paper units
+    # @rbs return Symbol -- :inches, :mm, or :pixels
+    def paper_units: () -> Symbol
 
-    def paper_units_scale_factor: () -> untyped
+    # Conversion factor to millimeters based on paper units
+    # @rbs return Float
+    # @example
+    #   inches: 25.4 (mm per inch)
+    #   pixels: 25.4/96 (mm per pixel at 96 DPI)
+    def paper_units_scale_factor: () -> Float
 
     private
 
-    def paper_units_to_ole: (untyped unit) -> untyped
+    # Convert paper units symbol to OLE constant
+    # @rbs unit: Symbol -- Valid values: :inches, :mm, :pixels
+    # @rbs return Integer -- OLE constant (ACAD::Ac*)
+    # @raise [ArgumentError] For invalid paper units
+    def paper_units_to_ole: (Symbol unit) -> Integer
 
-    def paper_units_from_ole: (untyped unit) -> untyped
+    # Convert OLE paper units constant to symbol
+    # @rbs unit: Integer -- OLE constant (ACAD::Ac*)
+    # @rbs return Symbol -- :inches, :mm, or :pixels
+    def paper_units_from_ole: (Integer unit) -> Symbol
 
-    def rotation_degree_to_ole: (untyped degree) -> untyped
+    # Convert rotation degrees to OLE constant
+    # @rbs degree: Integer -- Valid values: 0, 90, 180, 270
+    # @rbs return Integer -- OLE constant (ACAD::Ac*degrees)
+    # @raise [ArgumentError] For invalid rotation values
+    def rotation_degree_to_ole: (Integer degree) -> Integer
 
-    def rotation_ole_to_degree: (untyped rot) -> untyped
+    # Convert OLE rotation constant to degrees
+    # @rbs rot: Integer -- OLE constant (ACAD::Ac*degrees)
+    # @rbs return Integer -- 0, 90, 180, or 270
+    def rotation_ole_to_degree: (Integer rot) -> Integer
 
-    def plot_type_ole_to_sym: (untyped typ) -> untyped
+    # Convert OLE plot type constant to symbol
+    # @rbs typ: Integer -- OLE constant (ACAD::Ac*)
+    # @rbs return Symbol -- :display, :extents, :layout, :limits, :view, or :window
+    def plot_type_ole_to_sym: (Integer typ) -> Symbol
 
-    def plot_type_to_ole: (untyped typ) -> untyped
+    # Convert plot type symbol to OLE constant
+    # @rbs typ: Symbol -- Valid values: 
+    #   :display, :extents, :layout, :limits, :view, :window
+    # @rbs return Integer -- OLE constant (ACAD::Ac*)
+    # @raise [ArgumentError] For invalid plot types
+    def plot_type_to_ole: (Symbol typ) -> Integer
   end
 end
