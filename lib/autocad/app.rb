@@ -48,10 +48,23 @@ module Autocad
     @default_error_proc = ->(e, f) {
       if e.is_a?(DrawingClose)
         # For DrawingClose errors, try to close via the app
-        drawing = e.drawing
-        puts "Error closing drawing #{drawing&.name}: #{e.message}"
+        drawing_name = e.drawing_name
+        puts "Error with drawing #{drawing_name}: #{e.message}"
         begin
-          close_drawing(drawing, false) if drawing && drawing.name
+          # Try to find and close the drawing by name
+          if drawing_name && !drawing_name.empty?
+            ole_obj.Documents.each do |doc|
+              if doc.Name == drawing_name
+                begin
+                  doc.Close(false)
+                  puts "Successfully closed drawing #{drawing_name} via app"
+                rescue => close_err
+                  puts "Failed to close drawing #{drawing_name}: #{close_err.message}"
+                end
+                break
+              end
+            end
+          end
         rescue StandardError => close_err
           puts "Additional error during cleanup: #{close_err.message}"
         end
@@ -139,7 +152,7 @@ module Autocad
               the_app.ole_obj.ole_methods # check if server still open
             rescue DrawingClose => e
               # Handle DrawingClose errors specifically
-              error_proc.call(e, e.drawing)
+              error_proc.call(e, e.drawing_name)
               next # Continue to the next drawing
             rescue => e
               raise e unless error_proc
@@ -454,19 +467,24 @@ module Autocad
     end
 
     # Close a specific drawing
-    # @rbs drawing: Drawing -- the drawing to close
+    # @rbs drawing: Drawing | String -- the drawing or drawing name to close
     # @rbs save: bool -- whether to save the drawing
     def close_drawing(drawing, save = true)
       begin
+        # Get the drawing name
+        drawing_name = drawing.is_a?(String) ? drawing : (drawing.respond_to?(:name) ? drawing.name : nil)
+        return unless drawing_name
+        
         # Try to find the drawing in the Documents collection and close it
         ole_obj.Documents.each do |doc|
-          if doc.Name == drawing.name
+          if doc.Name == drawing_name
             doc.Close(save)
+            puts "Successfully closed drawing #{drawing_name}"
             break
           end
         end
       rescue StandardError => e
-        puts "Error in close_drawing #{drawing.name}: #{e.message}"
+        puts "Error in close_drawing #{drawing_name}: #{e.message}"
       end
     end
 
@@ -541,7 +559,7 @@ module Autocad
         yield drawing
       rescue DrawingClose => e
         # Handle DrawingClose errors specifically
-        err_fn.call(e, e.drawing)
+        err_fn.call(e, e.drawing_name)
         return nil
       rescue => e
         raise e unless err_fn
@@ -550,7 +568,7 @@ module Autocad
         begin
           drawing.close unless drawing.nil? || drawing.instance_variable_get(:@drawing_closed)
         rescue DrawingClose => e
-          err_fn.call(e, e.drawing)
+          err_fn.call(e, e.drawing_name)
         end
       end
     end

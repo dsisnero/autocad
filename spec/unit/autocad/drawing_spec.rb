@@ -37,7 +37,8 @@ describe Autocad::Drawing do
         puts "Error closing drawing: #{e.message}"
         # Try to close via the app instead
         begin
-          @app.close_drawing(drawing, false) if drawing
+          # Use the drawing name from the error
+          @app.close_drawing(e.drawing_name, false) if e.drawing_name
         rescue StandardError => app_err
           puts "Error in app.close_drawing: #{app_err.message}"
         end
