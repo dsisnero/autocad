@@ -13,7 +13,7 @@ describe Autocad::Drawing do
     after do
       path = drawing&.path
       drawing&.close(save: false)
-      File.delete(path) if File.exist? path
+      File.delete(path) if path && File.exist?(path)
     end
 
     let(:drawing) { @app.new_drawing("test.dwg") }
@@ -51,10 +51,18 @@ describe Autocad::Drawing do
         _(ss).must_be_kind_of Autocad::SelectionSetAdapter
         _(ss.name).must_equal "test"
       end
+
+      it "accepts a block to configure the selection set" do
+        ss = drawing.create_selection_set("test_with_block") do |s|
+          s.filter_types = ["TEXT"]
+        end
+        _(ss).must_be_kind_of Autocad::SelectionSetAdapter
+        _(ss.name).must_equal "test_with_block"
+      end
     end
 
     describe "#get_variables" do
-      it "returns an  array with the variable current values" do
+      it "returns an array with the variable current values" do
         vars = drawing.get_variables("nomutt", "clayer", "textstyle")
         _(vars).must_be_kind_of(Array)
         _(vars.size).must_equal 3
@@ -95,35 +103,222 @@ describe Autocad::Drawing do
         end
       end
     end
+
     describe "#layouts" do
       it "returns an enumerator when no block given" do
         _(drawing.layouts).must_be_kind_of(Enumerator)
       end
 
       it "yields layouts when block given" do
-        types = []
-        drawing.layouts { |lt| types << lt }
-        _(types).wont_be_empty
-        types.each do |lt|
+        layouts = []
+        drawing.layouts { |lt| layouts << lt }
+        _(layouts).wont_be_empty
+        layouts.each do |lt|
           _(lt).must_be_kind_of(Autocad::Layout)
         end
       end
     end
+
     describe "#plot_configurations" do
       it "returns an enumerator when no block given" do
         _(drawing.plot_configurations).must_be_kind_of(Enumerator)
       end
 
       it "yields PlotConfigurations when block given" do
-        types = []
-
-        drawing.plot_configurations { |lt| types << lt }
-
-        _(types).wont_be_empty
-
-        types.each do |lt|
+        configs = []
+        drawing.plot_configurations { |lt| configs << lt }
+        _(configs).wont_be_empty
+        configs.each do |lt|
           _(lt).must_be_kind_of(Autocad::PlotConfiguration)
         end
+      end
+    end
+
+    describe "#layers" do
+      it "returns an enumerator when no block given" do
+        _(drawing.layers).must_be_kind_of(Enumerator)
+      end
+
+      it "yields layers when block given" do
+        layers = []
+        drawing.layers { |layer| layers << layer }
+        _(layers).wont_be_empty
+        layers.each do |layer|
+          _(layer).must_be_kind_of(Autocad::Layer)
+        end
+      end
+    end
+
+    describe "#create_layer" do
+      it "creates a new layer" do
+        layer_name = "TestLayer"
+        layer = drawing.create_layer(layer_name)
+        _(layer).must_be_kind_of(Autocad::Layer)
+        _(layer.name).must_equal layer_name
+      end
+
+      it "returns existing layer if it already exists" do
+        layer_name = "TestLayer2"
+        layer1 = drawing.create_layer(layer_name)
+        layer2 = drawing.create_layer(layer_name)
+        _(layer2).must_be_kind_of(Autocad::Layer)
+        _(layer2.name).must_equal layer_name
+      end
+
+      it "sets color if provided" do
+        layer_name = "ColoredLayer"
+        color = 1 # Red
+        layer = drawing.create_layer(layer_name, color)
+        _(layer.color).must_equal color
+      end
+    end
+
+    describe "#active_layer" do
+      it "returns the active layer" do
+        layer = drawing.active_layer
+        _(layer).must_be_kind_of(Autocad::Layer)
+      end
+
+      it "can set the active layer by name" do
+        layer_name = "NewActiveLayer"
+        drawing.create_layer(layer_name)
+        drawing.active_layer = layer_name
+        _(drawing.active_layer_name).must_equal layer_name
+      end
+
+      it "can set the active layer by object" do
+        layer_name = "AnotherActiveLayer"
+        layer = drawing.create_layer(layer_name)
+        drawing.active_layer = layer
+        _(drawing.active_layer_name).must_equal layer_name
+      end
+    end
+
+    describe "#model_space and #paper_space" do
+      it "returns the model space" do
+        model = drawing.model_space
+        _(model).must_be_kind_of(Autocad::ModelSpace)
+      end
+
+      it "returns the paper space" do
+        paper = drawing.paper_space
+        _(paper).must_be_kind_of(Autocad::PaperSpace)
+      end
+
+      it "has aliases for model and paper" do
+        _(drawing.model).must_equal drawing.model_space
+        _(drawing.paper).must_equal drawing.paper_space
+      end
+    end
+
+    describe "#to_model_space and #to_paper_space" do
+      it "switches to model space" do
+        drawing.to_model_space
+        _(drawing.model_space?).must_equal true
+        _(drawing.paper_space?).must_equal false
+      end
+
+      it "switches to paper space" do
+        drawing.to_paper_space
+        _(drawing.paper_space?).must_equal true
+        _(drawing.model_space?).must_equal false
+      end
+    end
+
+    describe "#pdf_plot_config" do
+      it "creates a PDF plot configuration" do
+        config = drawing.pdf_plot_config
+        _(config).must_be_kind_of(Autocad::PlotConfiguration)
+        _(config.name).must_equal "faa_ansid_bw"
+      end
+    end
+
+    describe "#paper_space_layout" do
+      it "returns the first non-Model layout" do
+        layout = drawing.paper_space_layout
+        _(layout).must_be_kind_of(Autocad::Layout)
+        _(layout.name).wont_equal "Model"
+      end
+    end
+
+    describe "#blocks" do
+      it "returns an enumerator when no block given" do
+        _(drawing.blocks).must_be_kind_of(Enumerator)
+      end
+
+      it "yields blocks when block given" do
+        blocks = []
+        drawing.blocks { |block| blocks << block }
+        blocks.each do |block|
+          _(block).must_be_kind_of(Autocad::Block)
+        end
+      end
+    end
+
+    describe "#event_handler" do
+      it "returns an event handler" do
+        handler = drawing.event_handler
+        _(handler).must_be_kind_of(Autocad::EventHandler)
+      end
+    end
+
+    describe "#register_handler" do
+      it "adds a handler for an event" do
+        called = false
+        drawing.register_handler("BeginSave") { called = true }
+        # We can't easily test if it's called, but we can check it doesn't error
+        _(called).must_equal false
+      end
+    end
+
+    describe "#regen" do
+      it "regenerates the drawing" do
+        # This is mostly a smoke test to ensure it doesn't error
+        drawing.regen
+        drawing.regen(:active)
+        pass
+      end
+    end
+
+    describe "#name and #path" do
+      it "returns the drawing name" do
+        _(drawing.name).must_equal "test.dwg"
+      end
+
+      it "returns the drawing path" do
+        _(drawing.path.to_s).must_match(/test\.dwg$/)
+      end
+
+      it "returns the drawing basename" do
+        _(drawing.basename.to_s).must_equal "test.dwg"
+      end
+
+      it "returns the drawing dirname" do
+        _(drawing.dirname).must_be_kind_of(Pathname)
+      end
+    end
+
+    describe "#save" do
+      it "saves the drawing" do
+        # This is mostly a smoke test
+        drawing.save
+        pass
+      end
+
+      it "saves the drawing with a new name" do
+        new_name = "test_new_name.dwg"
+        drawing.save(name: new_name)
+        _(File.exist?(drawing.dirname + new_name)).must_equal true
+        File.delete(drawing.dirname + new_name)
+      end
+    end
+
+    describe "#close" do
+      it "closes the drawing" do
+        temp_drawing = @app.new_drawing("temp_test.dwg")
+        temp_drawing.close(false)
+        # Test it's closed by checking if we can access a property
+        assert_raises(StandardError) { temp_drawing.name }
       end
     end
   end
