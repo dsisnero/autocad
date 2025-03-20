@@ -1,9 +1,9 @@
 # rbs_inline: enabled
 
 require_relative "event_handler"
+require_relative "element"
 require_relative "drawing"
 require_relative "paths"
-require_relative "element"
 require_relative "line"
 require_relative "text"
 require_relative "mtext"
@@ -11,6 +11,15 @@ require_relative "pviewport"
 require_relative "block"
 require_relative "block_reference"
 require_relative "selection_set"
+require_relative "plot"
+require_relative "plot_configuration"
+require_relative "layout"
+require_relative "bounding_box"
+require_relative "viewport"
+require_relative "point"
+require_relative "dim_style"
+require_relative "spline"
+
 
 require "win32ole"
 module Windows
@@ -206,11 +215,18 @@ module Autocad
       drawing_from_ole(ole)
     end
 
+    # @rbs drawing: Drawing
+    # @rbs return void
+    def active_drawing=(drawing)
+      ole_obj.ActiveDocument = drawing.ole_obj
+    end
+
     def drawing_from_ole(ole) #: Drawing
       Drawing.new(self, ole)
     end
 
-    attr_reader :error_proc, :visible, :logger
+    attr_reader :visible, :logger
+    attr_accessor :error_proc
 
     # Constructor for app
     # @rbs visible: bool -- do you want the app to be visible
@@ -349,7 +365,7 @@ module Autocad
     end
 
     def zoom_pick_window
-      ole_obj.ZoomPickWindowo
+      ole_obj.ZoomPickWindow
     end
 
     def zoom_extents
@@ -360,7 +376,7 @@ module Autocad
       ole_obj.ZoomPrevious
     end
 
-    def zoom_scaled(magnify: 1.0, scale_type: :paper_space)
+    def zoom_scaled(magnify = 1.0, scale_type: :relative)
       scale_type = case scale_type
       when :paper_space
         ACAD::AcZoomScaledRelativePSpace
@@ -491,16 +507,6 @@ module Autocad
 
     alias_method :current_drawing, :active_drawing
 
-    def model_space
-      ModelSpace.new(doc_ole.ModelSpace)
-    end
-
-    def paper_space
-      PaperSpace.new(doc_ole.PaperSpace)
-    end
-
-    alias_method :model, :model_space
-
     # @rbs message: String -- the String to put in Autocad prompt
     def prompt(message)
       doc.prompt(message)
@@ -587,6 +593,16 @@ module Autocad
     # @rbs return [Array<Pathname>] all paths in Files.SupportPath
     def support_paths
       ole_preferences_files.SupportPath.split(";").map { |f| Pathname.new(f) }
+    end
+
+    def support_path_files
+      return enum_for(:support_path_files) unless block_given?
+
+      support_paths.each do |path|
+        path.children.each do |file|
+          yield file if file.file?
+        end
+      end
     end
 
     # @rbs return [Array<Pathname>] all paths in Files.PrinterConfigPath
