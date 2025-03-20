@@ -55,14 +55,14 @@ module Autocad
         other.right == right &&
         other.bottom == bottom
     end
-    
+
     def ==(other)
       return false unless other.is_a?(BoundingBox)
-      
+
       left.round(6) == other.left.round(6) &&
-      top.round(6) == other.top.round(6) &&
-      right.round(6) == other.right.round(6) &&
-      bottom.round(6) == other.bottom.round(6)
+        top.round(6) == other.top.round(6) &&
+        right.round(6) == other.right.round(6) &&
+        bottom.round(6) == other.bottom.round(6)
     end
 
     def upper_right

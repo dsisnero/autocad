@@ -23,7 +23,7 @@ module ACAD
     MAGENTA = 6
     WHITE = 7
     BLACK = 0
-    
+
     # Additional common colors
     GRAY = 8
     LIGHT_GRAY = 9
@@ -33,13 +33,13 @@ module ACAD
     ORANGE = 30
     PURPLE = 200
     BROWN = 35
-    
+
     # Convert a color symbol or name to its integer value
     # @param color [Symbol, String, Integer] color name or index
     # @return [Integer] AutoCAD color index
     def self.to_index(color)
       return color if color.is_a?(Integer)
-      
+
       color_name = color.to_s.upcase
       if const_defined?(color_name)
         const_get(color_name)
@@ -47,7 +47,7 @@ module ACAD
         raise ArgumentError, "Unknown color: #{color}. Use a valid color name or integer index."
       end
     end
-    
+
     # Convert an integer color index to a symbolic name if possible
     # @param index [Integer] AutoCAD color index
     # @return [Symbol, Integer] Color name as symbol or original index if no name exists

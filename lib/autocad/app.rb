@@ -474,7 +474,7 @@ module Autocad
         # Get the drawing name
         drawing_name = drawing.is_a?(String) ? drawing : (drawing.respond_to?(:name) ? drawing.name : nil)
         return unless drawing_name
-        
+
         # Try to find the drawing in the Documents collection and close it
         ole_obj.Documents.each do |doc|
           if doc.Name == drawing_name
@@ -543,7 +543,7 @@ module Autocad
       raise FileNotFound.new(file_path) unless file_path.file?
 
       err_fn = error_proc || @error_proc
-      
+
       begin
         ole = ole_open_drawing(windows_path(filename), read_only:, wait_time:, wait_interval:)
       rescue DrawingError => e
@@ -551,7 +551,7 @@ module Autocad
         err_fn.call(e, e.drawing)
         return nil
       end
-      
+
       drawing = drawing_from_ole(ole)
       return drawing unless block_given?
 

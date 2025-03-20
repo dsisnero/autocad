@@ -76,10 +76,10 @@ module Autocad
     # @rbs return void
     def save(name: nil, dir: nil) #: void
       return if read_only?
-      
+
       # Use requested_name if no name is provided and drawing hasn't been saved yet
       name ||= @requested_name if !previously_saved? && @requested_name
-      
+
       if previously_saved? && modified? && !name && !dir
         ole_obj.Save
         puts "saved #{path}"
@@ -127,7 +127,6 @@ module Autocad
     def pdf_plot_config #: PlotConfiguration
       @pdf_plot_config ||= create_pdf_plot_configutation
     end
-
 
     def plot #: Plot
       ole = ole_obj.Plot
@@ -277,7 +276,7 @@ module Autocad
       # Store the name before marking as closed
       drawing_name = @ole_obj.respond_to?(:Name) ? @ole_obj.Name : "unknown"
       @drawing_closed = true
-      
+
       begin
         if @ole_obj.respond_to?(:Close)
           @ole_obj.Close(save)
@@ -318,6 +317,7 @@ module Autocad
       return to_enum(__callee__) unless block_given?
       ole_obj.Layouts.each { |o| yield app.wrap(o) }
     end
+
     # Get all layers in the drawing
     # @rbs return Enumerator[Layer] -- an enumerator of layers
     # @rbs &: (Layer) -> void -- optional block to process each layer
@@ -615,7 +615,7 @@ module Autocad
         drawing_name = @ole_obj.respond_to?(:Name) ? @ole_obj.Name : "unknown"
         raise DrawingClose.new("Drawing is closed", drawing_name)
       end
-      
+
       # Check if the ole object is still valid
       begin
         @ole_obj.Name

@@ -4,20 +4,20 @@ module Autocad
     def name
       ole_obj.name
     end
-    
+
     # Get the color of the layer
     # @rbs return Integer -- the color index of the layer
     def color
       ole_obj.Color
     end
-    
+
     # Set the color of the layer
     # @rbs color: Integer|Symbol -- the color to set (can be ACAD::COLOR constant, symbol, or integer)
     # @rbs return void
     def color=(color)
       ole_obj.Color = Autocad.color_to_index(color)
     end
-    
+
     # Get the symbolic color name if available
     # @rbs return Symbol|Integer -- the symbolic color name or integer if no name exists
     def color_name

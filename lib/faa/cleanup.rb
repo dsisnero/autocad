@@ -83,10 +83,10 @@ module Faa
       ps.clear_pviewports
       layout = paper_space_layout
       layout.copy_plot_configuration pdf_plot_config
-      
+
       # Use layout.add_pviewport which calculates size based on paper size and margins
       pv = layout.add_pviewport(:scale_to_fit)
-      
+
       to_paper_space
       regen
       ole_obj.MSpace = true

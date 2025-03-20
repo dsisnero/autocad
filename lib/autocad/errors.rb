@@ -30,7 +30,7 @@ module Autocad
 
   class DrawingClose < Error
     attr_reader :drawing_name
-    
+
     def initialize(message, drawing_name)
       @drawing_name = drawing_name
       super("#{message}")

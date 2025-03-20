@@ -113,7 +113,7 @@ describe Autocad::Drawing do
       it 'sets system variables' do
         names = %w[nomutt clayer textstyle]
         values = drawing.get_variables(names)
-        
+
         # Use different values to ensure the test passes
         test_values = values[0] == 0 ? [1, '0', 'Standard'] : [0, '0', 'Standard']
         drawing.set_variables(names, test_values)
