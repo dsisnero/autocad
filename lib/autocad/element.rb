@@ -55,15 +55,20 @@ module Autocad
   end
 
   module ElementTrait
-    # @rbs return nil| Drawing
+    # Get the parent drawing of this element
+    # @rbs return Drawing?
     def drawing
       app.current_drawing
     end
 
+    # Check if this element is a paper space viewport
+    # @rbs return bool
     def pviewport?
       false
     end
 
+    # Check if this element is a block reference
+    # @rbs return bool
     def block_reference?
       false
     end
