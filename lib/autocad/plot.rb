@@ -1,33 +1,45 @@
 module Autocad
   class Plot < Element
+    # Configure which layouts to include in the plot
+    # @rbs *layouts: Array[String | Autocad::Layout] | String | Autocad::Layout
+    # @rbs return void
     def set_layouts_to_plot(*layouts)
-      # Convert argument array to flat array if first arg is array
       layouts = layouts.first if layouts.size == 1 && layouts.first.is_a?(Array)
-
-      # Convert each item to layout name string
-      ole_layouts = layouts.map do |layout|
-        layout.is_a?(Autocad::Layout) ? layout.name : layout.to_s
-      end
-
-      ole_layout_values = WIN32OLE::Variant.new(ole_layouts,
-        WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_BSTR)
+      ole_layouts = layouts.map { |l| l.is_a?(Autocad::Layout) ? l.name : l.to_s }
+      
+      ole_layout_values = WIN32OLE::Variant.new(
+        ole_layouts,
+        WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_BSTR
+      )
       ole_obj.SetLayoutsToPlot(ole_layout_values)
     end
 
+    # Display full plot preview window
+    # @rbs return void
     def plot_preview
-      ole_obj.DisplayPlotPreview 1
+      ole_obj.DisplayPlotPreview(1) # 1 = acFullPreview
     end
 
+    # Execute plot using configured device
+    # @rbs return void
+    # @raise [Autocad::Error] If device communication fails
     def plot_to_device
       ole_obj.PlotToDevice
+    rescue => e
+      raise Autocad::Error.new("Device plot failed: #{e.message}")
     end
 
+    # Plot to file with specified configuration
+    # @rbs filename: String | Pathname
+    # @rbs plot_config: String | Autocad::PlotConfiguration?
+    # @rbs return void
+    # @raise [Autocad::Error] If file creation fails
     def plot_to_file(filename, plot_config: nil)
       path = app.windows_path(filename)
-      ole_obj.PlotToFile(path, plot_config)
+      config_name = plot_config.respond_to?(:name) ? plot_config.name : plot_config
+      ole_obj.PlotToFile(path, config_name)
     rescue => e
-      puts e.message
-      binding.irb
+      raise Autocad::Error.new("File plot failed: #{e.message}\nPath: #{path}")
     end
   end
 end

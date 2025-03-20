@@ -2,6 +2,8 @@
 
 module Autocad
   module Common
+    # Handle uppercase method calls by forwarding to OLE object
+    # @rbs (Symbol, untyped) -> untyped
     def method_missing(method, ...)
       if /^[A-Z]/.match?(method.to_s)
         ole_obj.send(method, ...)
@@ -35,8 +37,8 @@ module Autocad
     Brown = 35
 
     # Convert a color symbol or name to its integer value
-    # @param color [Symbol, String, Integer] color name or index
-    # @return [Integer] AutoCAD color index
+    # @rbs color: Symbol | String | Integer
+    # @rbs return Integer
     def self.to_index(color)
       return color if color.is_a?(Integer)
       
@@ -58,8 +60,8 @@ module Autocad
     end
     
     # Convert an integer color index to a symbolic name if possible
-    # @param index [Integer] AutoCAD color index
-    # @return [Symbol, Integer] Color name as symbol or original index if no name exists
+    # @rbs index: Integer
+    # @rbs return Symbol | Integer
     def self.from_index(index)
       constants.each do |const_name|
         return underscore(const_name).to_sym if const_get(const_name) == index
@@ -68,6 +70,8 @@ module Autocad
     end
     
     # Helper method to convert to snake_case
+    # @rbs camel_case: String
+    # @rbs return String
     def self.underscore(camel_case)
       camel_case.to_s.gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
                 .gsub(/([a-z\d])([A-Z])/, '\1_\2')
@@ -98,26 +102,31 @@ module Autocad
   ROOT = Pathname.new(__dir__).parent
 
   # Convert a color value (symbol, string, or integer) to an AutoCAD color index
-  # @param color [Symbol, String, Integer] color name or index
-  # @return [Integer] AutoCAD color index
+  # @rbs color: Symbol | String | Integer
+  # @rbs return Integer
   def self.color_to_index(color)
     return color if color.is_a?(Integer)
     Color.to_index(color)
   end
 
   class << self
-    # @yield [Autocad::App]
-    def run(...) #: void
+    # @rbs &: (Autocad::App) -> void
+    # @rbs return void
+    def run(...)
       App.run(...)
     end
 
-    # @return [Pathname]
-    def root #:Pathname
+    # @rbs return Pathname
+    def root
       ROOT
     end
 
-    # @rbs dir: String -- the directory of drawing dgn|dwg -- to convert
-    # @rbs outdir: String -- the output dir for converted pdf files
+    # Convert DGN/DWG files to PDF
+    # @rbs dir_or_file: String | Pathname
+    # @rbs outdir: String | Pathname
+    # @rbs mode: :dir | :file
+    # @rbs return void
+    # @raise [RuntimeError] Invalid mode
     def dgn2pdf(dir_or_file, outdir: dir_or_file, mode: :dir)
       raise "Mode on of :dir or :file" unless [:dir, :file].include? mode
       if mode == :dir
@@ -132,10 +141,10 @@ module Autocad
       end
     end
 
-    # runs autocad app and yields each open drawing
+    # Process currently open drawings
     # @rbs &: (Drawing) -> void
     # @rbs return void
-    def with_open_drawings(...) #: void
+    def with_open_drawings(...)
       run do |app|
         return unless app.has_drawings?
         app.drawings.each do |drawing|
@@ -144,10 +153,10 @@ module Autocad
       end
     end
 
-    # save the current drawing
-    # @rbs dir: String|Pathname -- the dir to save drawing to
-    # @rbs exit: bool -- whether to exit afterwards or start irb
-    # @rbs model: bool -- prints model space instead of paperspace in pdf document
+    # Save all open drawings
+    # @rbs dir: String | Pathname
+    # @rbs exit: bool
+    # @rbs model: bool
     # @rbs return void
     def save_open_drawings(dir: Pathname.getwd, exit: true, model: false)
       if exit
@@ -173,10 +182,10 @@ module Autocad
       end
     end
 
-    # save the current drawing
-    # @rbs dir: String|Dir -- the dir to save drawing to
-    # @rbs exit: bool -- whether to exit afterwards or start irb
-    # @rbs model: bool -- prints model space in pdf document
+    # Save current drawing with options
+    # @rbs dir: String | Pathname
+    # @rbs exit: bool
+    # @rbs model: bool
     # @rbs return void
     def save_current_drawing(dir, exit: true, model: false)
       if exit
@@ -197,8 +206,8 @@ module Autocad
       end
     end
 
-    # save the current drawing as pdf
-    # @rbs dir: String|Dir -- the dir to save drawing to
+    # Save current drawing as PDF
+    # @rbs dir: String | Pathname
     # @rbs return void
     def save_current_drawing_as_pdf(dir)
       App.run do |app|
@@ -208,36 +217,38 @@ module Autocad
       end
     end
 
-    # gets all dwg and dgn dfiles in a directory
-    # @rbs dir: String|Pathname
+    # Find drawings in directory
+    # @rbs dir: String | Pathname
+    # @rbs return Array[Pathname]
     def drawings_in_dir(dir)
       dirpath = Pathname.new(dir).expand_path
       dirpath.glob("*.d{gn,wg,xf}").sort_by { _1.basename(".*").to_s.downcase }
     end
 
+    # Open single drawing
+    # @rbs drawing: String | Pathname
+    # @rbs return Drawing
     def open_drawing(drawing, ...)
       App.open_drawing(drawing, ...)
     end
 
-    # Runs the app, opening the filenames
-    # and yielding each open drawing to the
-    # supplied block
-    # it automatically closes the drawing and
-    # the app when done
-    #
-    # @rbs *files: Array[String|Pathname]
-    # @rbs visible: bool -- show the app window
+    # Process multiple drawings
+    # @rbs *files: Array[String | Pathname]
+    # @rbs visible: bool
     # @rbs error_proc: (Exception, Drawing) -> void
-    # @rbs wait_time: Integer -- the total amount of time to wait to open file (500)
-    # @rbs wait_interval: Float -- the amount of time to wait between attempts (0.5)
+    # @rbs wait_time: Integer
+    # @rbs wait_interval: Float
     # @rbs read_only: bool
     # @rbs &: (Drawing) -> void
+    # @rbs return void
     def with_drawings(...)
       App.with_drawings(...)
     end
 
-    # Finds the drawing in dir and calls with_drawing forwarding all params
-    # @rbs dir: String|Pathname -- directory to search for drawings
+    # Process drawings in directory
+    # @rbs dir: String | Pathname
+    # @rbs ...: untyped
+    # @rbs return void
     def with_drawings_in_dir(dir, ...)
       drawings = drawings_in_dir(dir)
       with_drawings(drawings, ...)

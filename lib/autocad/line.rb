@@ -3,41 +3,117 @@
 require_relative 'element'
 
 module Autocad
+  # Represents a line entity in AutoCAD, providing access to geometric properties and spatial relationships.
+  #
+  # Key Features:
+  # - Length calculation
+  # - Start/end point coordinates
+  # - 3D orientation properties
+  # - Thickness control
+  # - Geometric vector analysis
+  #
+  # Geometric Relationships:
+  #        Normal (Z-axis)
+  #           ↑
+  #           │
+  # Start ●───┼───● End
+  #           │
+  #           └─── Delta Vector
+  #
+  # @example Create and query a line
+  #   line = drawing.model.add_line([0,0,0], [5,5,0])
+  #   puts line.length  # => 7.0710678118654755
+  #   puts line.delta   # => (5.0, 5.0, 0.0)
   class Line < Element
+    # Calculates the linear length of the line segment.
+    #
+    # @example
+    #   line = drawing.model.add_line([0,0,0], [5,5,0])
+    #   puts line.length  # => 7.0710678118654755
+    #
+    # @return [Float] The length of the line
     # @rbs return float
     def length
       ole_obj.length
     end
 
+    # Type-check method confirming this is a line entity.
+    #
+    # @example
+    #   line.line?  # => true
+    #
+    # @return [Boolean] Always returns true for Line objects
     # @rbs return bool
     def line?
       true
     end
 
-    # the start point of the line
+    # 3D coordinates of the line's starting point in World Coordinate System (WCS).
+    #
+    # @example
+    #   start = line.start_point
+    #   puts start  # => (0.0, 0.0, 0.0)
+    #
+    # @return [Point3d] The start point coordinates
     # @rbs return Point3d
     def start_point
       Point3d.new(ole_obj.StartPoint)
     end
 
-    # the end point of the line
+    # 3D coordinates of the line's endpoint in World Coordinate System (WCS).
+    #
+    # @example
+    #   ending = line.end_point
+    #   puts ending  # => (5.0, 5.0, 0.0)
+    #
+    # @return [Point3d] The end point coordinates
     # @rbs return Point3d
     def end_point
       Point3d.new(ole_obj.EndPoint)
     end
 
+    # Unit vector perpendicular to the line's plane (Z-axis direction by default).
+    #
+    # Properties:
+    # - Always returns unit vector (magnitude = 1)
+    # - Affects shading and 3D operations
+    #
+    # @example
+    #   line.normal  # => (0.0, 0.0, 1.0)
+    #
+    # @return [Point3d] The normal vector
     # @rbs return Point3d
     def normal
       Point3d.new ole_obj.Normal
     end
 
-    # the thickness of the line
+    # Extrusion thickness along the normal vector (3D effect).
+    #
+    # Note:
+    # - Positive values extrude in normal direction
+    # - Negative values extrude opposite direction
+    # - 0 = 2D line
+    #
+    # @example
+    #   line.thickness = 2.5  # Creates 3D prism
+    #
+    # @return [Float] The current thickness value
     # @rbs return float
     def thickness
       ole_obj.Thickness
     end
 
-    # the difference between the start and end point
+    # Directional vector from start to end point (equivalent to `end_point - start_point`).
+    #
+    # Mathematical Properties:
+    # - X/Y/Z components = coordinate differences
+    # - Magnitude = line length
+    #
+    # @example
+    #   line.delta  # => (5.0, 5.0, 0.0)
+    #   line.delta.magnitude == line.length  # => true
+    #
+    # @return [Point3d] The vector from start to end point
     # @rbs return Point3d
     def delta
       Point3d.new ole_obj.Delta
@@ -45,14 +121,14 @@ module Autocad
   end
 
   class Circle < Element
-    # the center of the circle
+    # The center point of the circle in World Coordinate System (WCS)
     # @rbs return Point3d
     def center
       Point3d.new(ole_obj.Center)
     end
 
-    # the radius of the circle
-    # @rbs return Point3d
+    # The radius of the circle
+    # @rbs return float
     def radius
       ole_obj.Radius
     end
@@ -63,11 +139,13 @@ module Autocad
   end
 
   class Polyline < Element
-    # @rbs return Point3d
+    # The total length of all polyline segments
+    # @rbs return float
     def length
       Point3d.new @ole_obj.Length
     end
 
+    # Array of all vertex coordinates in the polyline
     # @rbs return Array[Point3d]
     def coordinates
       @ole_obj.coordinates.map { |pt| Point3d.new(pt) }
