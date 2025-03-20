@@ -313,10 +313,12 @@ module Autocad
     # Close the drawing
     # @rbs save: bool -- whether to save the drawing
     def close(save = true)
+      # Store the name before marking as closed
+      drawing_name = @ole_obj.respond_to?(:Name) ? @ole_obj.Name : "unknown"
       @drawing_closed = true
-      drawing_name = name # Store the name before closing
+      
       begin
-        ole_obj.Close(save)
+        @ole_obj.Close(save)
       rescue => ex
         # Instead of just calling error_proc, raise a specific DrawingClose error
         # Use drawing name instead of the drawing object
@@ -612,7 +614,9 @@ module Autocad
 
     def ole_obj
       if @drawing_closed || @ole_obj.nil?
-        raise DrawingClose.new("Drawing is closed", name || "unknown")
+        # Use a local variable to avoid recursive call to name method
+        drawing_name = @ole_obj.respond_to?(:Name) ? @ole_obj.Name : "unknown"
+        raise DrawingClose.new("Drawing is closed", drawing_name)
       end
       
       # Check if the ole object is still valid
@@ -622,7 +626,8 @@ module Autocad
       rescue => e
         @drawing_closed = true
         @ole_obj = nil
-        raise DrawingClose.new("Drawing is no longer valid: #{e.message}", name || "unknown")
+        # Use a string directly instead of calling name method
+        raise DrawingClose.new("Drawing is no longer valid: #{e.message}", "unknown")
       end
     end
 
