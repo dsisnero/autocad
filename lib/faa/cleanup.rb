@@ -1,18 +1,21 @@
 # frozen_string_literal: true
 
 module Faa
-  # returns the project_dir from Documents folder
-  def self.project_dir #: Pathname
+  # Get the project directory from Documents folder
+  # @rbs return Pathname
+  def self.project_dir
     Pathname.new("c:/Users/Dominic E Sisneros/OneDrive - Federal Aviation Administration/Documents/work/projects")
   end
 
-  # returns the rtir project dir
-  def self.rtr_dir #: Pathname
+  # Get the RTR project directory
+  # @rbs return Pathname
+  def self.rtr_dir
     project_dir / "rtir"
   end
 
-  # returns the nexcom_dir project folder
-  def self.nexcom_dir #: Pathname
+  # Get the NEXCOM project directory
+  # @rbs return Pathname
+  def self.nexcom_dir
     project_dir / "nexcom/dominic"
   end
 
@@ -20,6 +23,8 @@ module Faa
     # Removes the text "TRANSLATION" and removes the border in model space
     # and deletes the title block
 
+    # Get attributes from the title block
+    # @rbs return Hash[String, String]?
     def get_title_attributes
       block_refs = block_reference_selection_set
       title_block = block_refs.find do |br|
@@ -31,6 +36,8 @@ module Faa
       title_block.attributes_hash
     end
 
+    # Clean up the model space by removing translation text and title blocks
+    # @rbs return void
     def cleanup_model
       to_model_space
       remove_translation_text
@@ -50,9 +57,10 @@ module Faa
       app.zoom_extents
     end
 
-    # Adds the faaborder to layout
-    # @rbs return BlockReference -- add faaDborder
-    def add_title_block(scale: 1.0) #: BlockReference
+    # Adds the FAA border to layout
+    # @rbs scale: Float
+    # @rbs return BlockReference
+    def add_title_block(scale: 1.0)
       path = app.support_path_files.find { |f| f.basename.to_s == 'faaDborder.dwg' }
       return unless path
 
@@ -62,8 +70,9 @@ module Faa
       block
     end
 
-    # after deleting title block in model space, asks you to select a region to
+    # After deleting title block in model space, asks you to select a region to
     # cleanup the rest of title block (attributes)
+    # @rbs return void
     def cleanup_title_block
       to_model_space
       prompt('Select the region of title block to delete')
@@ -78,6 +87,8 @@ module Faa
       nil
     end
 
+    # Fix the layout by setting up proper viewports and plot configuration
+    # @rbs return nil
     def fix_layout
       ps = paper_space
       ps.clear_pviewports
@@ -97,10 +108,14 @@ module Faa
       nil
     end
 
+    # Get the FAA title block if it exists
+    # @rbs return BlockReference?
     def faa_title_block
       block_references.find { |b| b.name == 'faatitle' }
     end
 
+    # Remove any text containing "TRANSLATION"
+    # @rbs return void
     def remove_translation_text
       objs = select_text_containing('*TRANSLATION*')
       objs.each { |o| o.delete }

@@ -9,7 +9,7 @@ module Autocad
   module ModelTrait
     # Iterate through all elements in the model space
     # @rbs return Enumerator[Autocad::Element]
-    # @yieldparam element [Autocad::Element] Each element in the model
+    # @rbs &: (Autocad::Element) -> void
     def each
       return enum_for(:each) unless block_given?
 
@@ -27,16 +27,16 @@ module Autocad
     end
 
     # Attach an external reference to the model
-    # @rbs path [String] Path to DWG file
-    # @rbs name [String] Block name for the XRef
-    # @rbs pt [Array<Numeric>|Autocad::Point3d] Insertion point (default: [0,0,0])
-    # @rbs x_scale [Numeric] X scale factor (default: 1.0)
-    # @rbs y_scale [Numeric] Y scale factor (default: 1.0)
-    # @rbs z_scale [Numeric] Z scale factor (default: 1.0)
-    # @rbs rotation [Numeric] Rotation angle in degrees (default: 0.0)
-    # @rbs overlay [bool] True for overlay, false for attach (default: false)
-    # @rbs password [String?] Password for protected drawings
-    # @rbs return [Autocad::BlockReference?] The created reference or nil on error
+    # @rbs path: String
+    # @rbs name: String
+    # @rbs pt: Array[Numeric] | Autocad::Point3d
+    # @rbs x_scale: Numeric
+    # @rbs y_scale: Numeric
+    # @rbs z_scale: Numeric
+    # @rbs rotation: Numeric
+    # @rbs overlay: bool
+    # @rbs password: String?
+    # @rbs return Autocad::BlockReference?
     def attach_external_reference(path, name:, pt: [0, 0, 0], x_scale: 1.0, y_scale: 1.0, z_scale: 1.0, rotation: 0.0,
       overlay: false, password: nil)
       windows_path = app.windows_path(path)
@@ -49,10 +49,10 @@ module Autocad
     end
 
     # Add a line to the model
-    # @rbs pt1 [Array<Numeric>|Autocad::Point3d] Start point
-    # @rbs pt2 [Array<Numeric>|Autocad::Point3d] End point
-    # @rbs layer [String?] Layer name to create/use
-    # @rbs return [Autocad::Line?] Created line or nil on error
+    # @rbs pt1: Array[Numeric] | Autocad::Point3d
+    # @rbs pt2: Array[Numeric] | Autocad::Point3d
+    # @rbs layer: String?
+    # @rbs return Autocad::Line?
     def add_line(pt1, pt2, layer: nil)
       pt1 = Point3d.new(pt1)
       pt2 = Point3d.new(pt2)
@@ -68,18 +68,18 @@ module Autocad
     end
 
     # Get the layout associated with this model
-    # @rbs return [Autocad::Layout]
+    # @rbs return Autocad::Layout
     def layout
       ole_layout = ole_obj.Layout
       app.wrap(ole_layout)
     end
 
     # Add an arc to the model
-    # @rbs center [Array<Numeric>|Autocad::Point3d] Arc center point
-    # @rbs radius [Numeric] Arc radius
-    # @rbs start_angle [Numeric] Start angle in radians
-    # @rbs end_angle [Numeric] End angle in radians
-    # @rbs return [Autocad::Arc]
+    # @rbs center: Array[Numeric] | Autocad::Point3d
+    # @rbs radius: Numeric
+    # @rbs start_angle: Numeric
+    # @rbs end_angle: Numeric
+    # @rbs return Autocad::Arc
     # @raise [Autocad::Error] If arc creation fails
     def add_arc(center, radius, start_angle, end_angle)
       pt = Point3d(center)
@@ -90,9 +90,9 @@ module Autocad
     end
 
     # Add a circle to the model
-    # @rbs center [Array<Numeric>|Autocad::Point3d] Circle center
-    # @rbs radius [Numeric] Circle radius
-    # @rbs return [Autocad::Circle]
+    # @rbs center: Array[Numeric] | Autocad::Point3d
+    # @rbs radius: Numeric
+    # @rbs return Autocad::Circle
     # @raise [Autocad::Error] If circle creation fails
     def add_circle(center, radius)
       pt = Point3d(center)
@@ -103,9 +103,9 @@ module Autocad
     end
 
     # Add a rectangular polyline to the model
-    # @rbs lower_left [Array<Numeric>|Autocad::Point3d] Lower-left corner
-    # @rbs upper_right [Array<Numeric>|Autocad::Point3d] Upper-right corner
-    # @rbs return [Autocad::Element] Created polyline
+    # @rbs lower_left: Array[Numeric] | Autocad::Point3d
+    # @rbs upper_right: Array[Numeric] | Autocad::Point3d
+    # @rbs return Autocad::Element
     # @raise [Autocad::Error] If rectangle creation fails
     def add_rectangle(lower_left, upper_right)
       x1, y1 = Point3d(lower_left).to_xy
@@ -119,10 +119,10 @@ module Autocad
     end
 
     # Add an ellipse to the model
-    # @rbs center [Array<Numeric>|Autocad::Point3d] Ellipse center
-    # @rbs major_axis [Numeric] Major axis length
-    # @rbs radius_ratio [Numeric] Ratio of minor axis to major axis (0.0-1.0)
-    # @rbs return [Autocad::Ellipse]
+    # @rbs center: Array[Numeric] | Autocad::Point3d
+    # @rbs major_axis: Numeric
+    # @rbs radius_ratio: Numeric
+    # @rbs return Autocad::Ellipse
     # @raise [Autocad::Error] If ellipse creation fails
     def add_ellipse(center, major_axis, radius_ratio)
       pt = Point3d(center)
@@ -133,10 +133,10 @@ module Autocad
     end
 
     # Add a spline to the model
-    # @rbs points [Array<Array<Numeric>|Autocad::Point3d>] Control points
-    # @rbs start_tangent [Array<Numeric>|Autocad::Point3d] Start tangent vector
-    # @rbs end_tangent [Array<Numeric>|Autocad::Point3d] End tangent vector
-    # @rbs return [Autocad::Spline]
+    # @rbs points: Array[Array[Numeric] | Autocad::Point3d]
+    # @rbs start_tangent: Array[Numeric] | Autocad::Point3d
+    # @rbs end_tangent: Array[Numeric] | Autocad::Point3d
+    # @rbs return Autocad::Spline
     # @raise [Autocad::Error] If spline creation fails
     def add_spline(points, start_tangent, end_tangent)
       pts = Point3d.pts_to_array(points)
@@ -152,7 +152,7 @@ module Autocad
     end
 
     # Get the parent drawing document
-    # @rbs return [Autocad::Drawing]
+    # @rbs return Autocad::Drawing
     def drawing
       @drawing ||= ::Autocad::Drawing.from_ole_obj(app, ole_obj.Document)
     end
@@ -160,9 +160,9 @@ module Autocad
     private
 
     # Internal method to create/get a layer
-    # @rbs name [String] Layer name
-    # @rbs color [Numeric|Symbol|String?] Layer color
-    # @rbs return [Autocad::Layer]
+    # @rbs name: String
+    # @rbs color: Numeric | Symbol | String?
+    # @rbs return Autocad::Layer
     def create_layer(name, color = nil)
       drawing.create_layer(name, color)
     end
@@ -173,10 +173,10 @@ module Autocad
     include ModelTrait
 
     # Add a paper space viewport
-    # @rbs center [Array<Numeric>|Autocad::Point3d] Viewport center in paper units
-    # @rbs width [Numeric] Viewport width in millimeters
-    # @rbs height [Numeric] Viewport height in millimeters
-    # @rbs return [Autocad::PViewport]
+    # @rbs center: Array[Numeric] | Autocad::Point3d
+    # @rbs width: Numeric
+    # @rbs height: Numeric
+    # @rbs return Autocad::PViewport
     # @raise [StandardError] If viewport creation fails
     def add_pv_viewport(center, width:, height:)
       center = Point3d(center)
@@ -190,7 +190,7 @@ module Autocad
     end
 
     # Get all paper space viewports
-    # @rbs return [Array<Autocad::PViewport>]
+    # @rbs return Array[Autocad::PViewport]
     def pviewports
       each.select { it.pviewport? }
     end

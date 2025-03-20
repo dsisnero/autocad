@@ -7,7 +7,7 @@ module Autocad
     end
 
     # Set the plot device configuration file
-    # @rbs name: String -- PC3 configuration file name (e.g. "AutoCAD PDF.pc3")
+    # @rbs name: String
     # @rbs return void
     def device_name=(name)
       @ole_obj.ConfigName = name
@@ -20,13 +20,7 @@ module Autocad
     end
 
     # Read current configuration properties from OLE object
-    # @rbs return Hash{Symbol => Object} -- Contains keys:
-    #   - :device_name: String
-    #   - :media_name: String
-    #   - :style_sheet: String
-    #   - :plot_type: Symbol
-    #   - :rotation: Integer
-    #   - :paper_units: Symbol
+    # @rbs return Hash[Symbol, Object]
     def read_ole(ole = nil)
       {device_name: ole_obj.ConfigName,
        media_name: ole_obj.CanonicalMediaName,
@@ -37,14 +31,7 @@ module Autocad
     end
 
     # Write configuration settings to OLE object
-    # @rbs value: Hash{Symbol => Object} -- Configuration properties to set
-    #   Valid keys:
-    #   - :device_name: String (PC3 config file)
-    #   - :media_name: String (Canonical paper size name)
-    #   - :style_sheet: String (CTB/STB file name)
-    #   - :plot_type: Symbol (:display, :extents, :layout, :limits, :view, :window)
-    #   - :rotation: Integer (0, 90, 180, 270)
-    #   - :paper_units: Symbol (:inches, :mm, :pixels)
+    # @rbs value: Hash[Symbol, Object]
     # @rbs return void
     def write_ole(value)
       ole_obj.ConfigName = value[:device_name]
@@ -56,13 +43,13 @@ module Autocad
     end
 
     # Get plot origin point in millimeters
-    # @rbs return Point3d -- Origin coordinates in WCS
+    # @rbs return Point3d
     def plot_origin
       Point3d.new(ole_obj.PlotOrigin)
     end
 
     # Set plot origin point
-    # @rbs ...: Numeric | Array<Numeric> | Point3d -- Coordinate values
+    # @rbs ...: Numeric | Array[Numeric] | Point3d
     # @rbs return void
     # @raise [ArgumentError] For invalid coordinate values
     def plot_origin=(...)
@@ -73,7 +60,7 @@ module Autocad
     end
 
     # Get current plot style mode
-    # @rbs return Symbol -- :named_style_mode or :color_style_mode
+    # @rbs return Symbol
     def plot_style_mode
       style = drawing.get_variable('pstylemode')
       case style

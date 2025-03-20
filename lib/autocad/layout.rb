@@ -1,7 +1,9 @@
 module Autocad
   class Layout < PlotConfiguration
-    # Inserts a block into the layout (stub implementation)
-    # @rbs (Block, ?pt: Point3d) -> void
+    # Inserts a block into the layout
+    # @rbs block: Block
+    # @rbs pt: Point3d?
+    # @rbs return void
     def insert_block(block, pt: nil)
     end
 
@@ -12,7 +14,7 @@ module Autocad
     end
 
     # Set the layout name
-    # @rbs name: String
+    # @rbs str: String
     # @rbs return void
     def name=(str)
       @ole_obj.Name = str
@@ -85,7 +87,7 @@ module Autocad
     end
 
     # Add a paper space viewport
-    # @rbs scale: Symbol (:scale_to_fit | standard scale symbol)
+    # @rbs scale: Symbol
     # @rbs return PViewport
     def add_pviewport(scale = :scale_to_fit)
       psize_width, psize_h = paper_size
@@ -104,7 +106,6 @@ module Autocad
 
     # Get page margins
     # @rbs return [[Float, Float], [Float, Float]]
-    # @rbs return [[0.0, 0.0], [0.0, 0.0]] on error
     def paper_margins
       lower_left = nil
       upper_right = nil

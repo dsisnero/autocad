@@ -184,12 +184,15 @@ module Autocad
     #
     # @rbs return bool -- true if ole type is Text
     # def text?
+    # Check if this element is a text object
+    # @rbs return bool
     def text?
       ole_obj.ole_type == "IAcadText"
     end
 
-    # &: (Element) -> void
-    # @rbs return Enumerator[Element] -- explode element
+    # Explode this element into its component parts
+    # @rbs &: (Element) -> void
+    # @rbs return Enumerator[Element]
     def explode
       return enum_for(__callee__) unless block_given?
 
@@ -201,23 +204,27 @@ module Autocad
       binding.irb
     end
 
+    # Check if this element has any tags
+    # @rbs return bool
     def has_tags?
       ole_obj.HasAnyTags
     end
 
+    # Get the underlying OLE object
+    # @rbs return WIN32OLE
     def to_ole
       ole_obj
     end
 
-    # @rbs return bool -- true if object is of type cell
+    # Check if this element is a cell
+    # @rbs return bool
     def cell?
       ole_obj.Type == ::ACAD::MsdElementTypeCellHeader
     end
 
-    # def complex
-    #   ole_obj.IsComplexElement
-    # end
-
+    # Highlight this element in the drawing
+    # @rbs flag: bool
+    # @rbs return void
     def highlight(flag = true)
       ole_obj.Highlight(flag)
       ole_obj.Update
@@ -225,25 +232,34 @@ module Autocad
 
     def
 
+    # Get the AutoCAD object ID
+    # @rbs return Integer?
     def autocad_id
       @ole_obj.ObjectId
     rescue
       nil
     end
 
+    # Check if this element is visible
+    # @rbs return bool
     def visible?
       @ole_obj.Visible
     end
 
-    # @rbs return bool -- true if ole type is TypeLine
+    # Check if this element is a line
+    # @rbs return bool
     def line?
       ole_obj.ObjectName == "AcdbLine"
     end
 
+    # Check if this element is graphical
+    # @rbs return bool
     def graphical?
       ole_obj.IsGraphical
     end
 
+    # Get string representation of this element
+    # @rbs return String
     def inspect
       "<#{self.class} -name: #{begin
         name
@@ -252,6 +268,8 @@ module Autocad
       end}> #{acad_type}"
     end
 
+    # Get the parent element
+    # @rbs return Element?
     def parent
       parent_id = ole_obj.ParentID
       return nil unless parent_id
@@ -260,6 +278,9 @@ module Autocad
       app.active_design_file.find_by_id(id)
     end
 
+    # Convert record ID to element ID
+    # @rbs id: WIN32OLE_RECORD
+    # @rbs return Integer?
     def id_from_record(id)
       return unless id.instance_of?(WIN32OLE_RECORD)
       return id.Low if id.Low > id.High
@@ -267,18 +288,20 @@ module Autocad
       id.High
     end
 
+    # Select this element in the drawing
+    # @rbs return void
     def select
       app.active_model_reference.select_element(self)
     end
 
-    # def Type
-    #   ole_obj.Type
-    # end
-
+    # Get the AutoCAD object type name
+    # @rbs return String
     def autocad_type
       ole_obj.ObjectName
     end
 
+    # Get the model containing this element
+    # @rbs return Model
     def model
       Model.new(app, app.current_drawing, ole_obj.ModelReference)
     end

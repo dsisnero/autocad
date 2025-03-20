@@ -1,12 +1,8 @@
 module Autocad
   class Plot < Element
     # Configure which layouts to include in the plot
-    # @rbs *layouts: Array<String | Autocad::Layout> | String | Autocad::Layout -- Layout names or objects
+    # @rbs *layouts: Array[String | Autocad::Layout] | String | Autocad::Layout
     # @rbs return void
-    # @example Plot specific layouts
-    #   plot.set_layouts_to_plot('Layout1', 'Layout2')
-    #   plot.set_layouts_to_plot([drawing.paper_space_layout])
-    # @note Converts Layout objects to their names automatically
     def set_layouts_to_plot(*layouts)
       layouts = layouts.first if layouts.size == 1 && layouts.first.is_a?(Array)
       ole_layouts = layouts.map { |l| l.is_a?(Autocad::Layout) ? l.name : l.to_s }
@@ -20,7 +16,6 @@ module Autocad
 
     # Display full plot preview window
     # @rbs return void
-    # @note Uses AutoCAD's full preview mode (acFullPreview = 1)
     def plot_preview
       ole_obj.DisplayPlotPreview(1) # 1 = acFullPreview
     end
@@ -28,8 +23,6 @@ module Autocad
     # Execute plot using configured device
     # @rbs return void
     # @raise [Autocad::Error] If device communication fails
-    # @example
-    #   plot_to_device if plot_config.device_name == 'Default Printer'
     def plot_to_device
       ole_obj.PlotToDevice
     rescue => e
@@ -37,13 +30,9 @@ module Autocad
     end
 
     # Plot to file with specified configuration
-    # @rbs filename: String | Pathname -- Output path for plot file
-    # @rbs plot_config: String | Autocad::PlotConfiguration? -- Configuration name or object
+    # @rbs filename: String | Pathname
+    # @rbs plot_config: String | Autocad::PlotConfiguration?
     # @rbs return void
-    # @example PDF output
-    #   plot_to_file("output.pdf", plot_config: "High Quality PDF")
-    # @example DWG to PDF
-    #   plot_to_file(Pathname("drawing.pdf"), plot_config: drawing.pdf_plot_config)
     # @raise [Autocad::Error] If file creation fails
     def plot_to_file(filename, plot_config: nil)
       path = app.windows_path(filename)
