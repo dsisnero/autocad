@@ -13,6 +13,51 @@ module Autocad
 end
 
 module ACAD
+  module COLOR
+    # Standard AutoCAD color indices
+    RED = 1
+    YELLOW = 2
+    GREEN = 3
+    CYAN = 4
+    BLUE = 5
+    MAGENTA = 6
+    WHITE = 7
+    BLACK = 0
+    
+    # Additional common colors
+    GRAY = 8
+    LIGHT_GRAY = 9
+    DARK_RED = 10
+    DARK_GREEN = 96
+    DARK_BLUE = 174
+    ORANGE = 30
+    PURPLE = 200
+    BROWN = 35
+    
+    # Convert a color symbol or name to its integer value
+    # @param color [Symbol, String, Integer] color name or index
+    # @return [Integer] AutoCAD color index
+    def self.to_index(color)
+      return color if color.is_a?(Integer)
+      
+      color_name = color.to_s.upcase
+      if const_defined?(color_name)
+        const_get(color_name)
+      else
+        raise ArgumentError, "Unknown color: #{color}. Use a valid color name or integer index."
+      end
+    end
+    
+    # Convert an integer color index to a symbolic name if possible
+    # @param index [Integer] AutoCAD color index
+    # @return [Symbol, Integer] Color name as symbol or original index if no name exists
+    def self.from_index(index)
+      constants.each do |const_name|
+        return const_name.downcase.to_sym if const_get(const_name) == index
+      end
+      index # Return the original index if no matching constant
+    end
+  end
 end
 
 require "logger"
@@ -31,6 +76,14 @@ end
 
 module Autocad
   ROOT = Pathname.new(__dir__).parent
+
+  # Convert a color value (symbol, string, or integer) to an AutoCAD color index
+  # @param color [Symbol, String, Integer] color name or index
+  # @return [Integer] AutoCAD color index
+  def self.color_to_index(color)
+    return color if color.is_a?(Integer)
+    ACAD::COLOR.to_index(color)
+  end
 
   class << self
     # @yield [Autocad::App]
