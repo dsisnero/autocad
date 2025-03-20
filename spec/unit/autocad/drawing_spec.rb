@@ -2,7 +2,7 @@ require_relative '../../spec_helper'
 
 describe Autocad::Drawing do
   before(:all) do
-    @app = Autocad::App.new
+    @app = Autocad::App.new(visible: false)
     @temp_files = []
   end
 
