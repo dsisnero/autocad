@@ -25,11 +25,11 @@ module Autocad
     #
 
     def attach_external_reference(path, name:, pt: [0, 0, 0], x_scale: 1.0, y_scale: 1.0, z_scale: 1.0, rotation: 0.0,
-      overlay: false, password: nil)
+                                  overlay: false, password: nil)
       windows_path = app.windows_path(path)
       pt3d = Point3d.new(insertion_point)
       ole_reference = ole_obj.AttachExternalReference(windows_path, name, pt3d.to_ole, x_scale, y_scale, z_scale,
-        rotation, overlay, password)
+                                                      rotation, overlay, password)
       app.wrap(ole_reference)
     rescue StandardError => e
       app.error_proc.call(e, self)
@@ -143,12 +143,19 @@ module Autocad
     def add_pv_viewport(center, width:, height:)
       center = Point3d(center)
       ole = ole_obj.AddPViewport(center.to_ole, width.to_f, height.to_f)
-      ole.Display(true)
-      ole.ViewportOn = true
-      ole.StandardScale = ACAD::AcVpScaleToFit
-      app.wrap(ole)
+      if ole
+        ole.Display(true)
+        ole.ViewportOn = true
+        layer = drawing.create_layer('Vport', 9)
+        layer.Plottable = false
+        ole.Layer = layer.name
+        ole.StandardScale = ACAD::AcVpScaleToFit
+        app.wrap(ole)
+      else
+        nil
+      end
     rescue StandardError => e
-      binding.irb
+      nil
     end
 
     def pviewports
