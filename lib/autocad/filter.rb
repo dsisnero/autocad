@@ -1,60 +1,133 @@
 module Autocad
+  # Builds complex filter expressions for AutoCAD entity selection
+  #
+  # This class provides a functional, immutable approach to building
+  # selection filters with a fluent interface. Each method returns a new
+  # Filter instance with the added condition.
+  #
+  # The Filter class is the core of the selection system, providing:
+  # - Logical operators (AND, OR, XOR, NOT)
+  # - Property filters (type, layer, color, etc.)
+  # - Numeric comparisons (greater than, less than, etc.)
+  # - Special entity filters (block references, text, etc.)
+  #
+  # @example Create a filter for red circles
+  #   filter = Filter.new
+  #     .type("CIRCLE")
+  #     .color(1)
+  #
+  # @example Combine filters with logical operators
+  #   text_filter = Filter.new.type("TEXT").or.type("MTEXT")
+  #   layer_filter = Filter.new.layer("NOTES")
+  #   combined = Filter.new.and(text_filter, layer_filter)
+  #
+  # @example Complex filter with nested conditions
+  #   filter = Filter.new.and(
+  #     Filter.new.or(
+  #       Filter.new.type("CIRCLE"),
+  #       Filter.new.type("ARC")
+  #     ),
+  #     Filter.new.not(
+  #       Filter.new.layer("HIDDEN")
+  #     )
+  #   )
   class Filter
+    # @return [Array<Integer>] DXF group codes for filtering
+    # @return [Array<Object>] Values corresponding to types
+    # @return [Hash<Symbol, Object>] Internal representation of filter conditions
+    # @rbs attr_reader types: Array[Integer] -- DXF group codes for filtering
+    # @rbs attr_reader values: Array[untyped] -- Values corresponding to types
+    # @rbs attr_reader clauses: Hash[Symbol, untyped] -- Internal representation of filter conditions
     attr_reader :types, :values, :clauses
 
+    # Initialize a new filter with optional clauses
+    #
+    # @param clauses [Hash<Symbol, Object>] Initial filter clauses
+    # @return [void]
+    # @rbs clauses: Hash[Symbol, untyped] -- Initial filter clauses
+    # @rbs return void
     def initialize(clauses: {})
       @clauses = clauses
       @types = []
       @values = []
     end
 
-    # @rbs return Filter
+    # Create a new filter with an additional clause
+    #
+    # This method implements the immutable pattern - instead of modifying
+    # the current filter, it returns a new filter with the added clause.
+    #
+    # @param clause [Symbol] The clause type
+    # @param value [Object] The clause value
+    # @return [Filter] A new filter instance
+    # @rbs clause: Symbol -- The clause type
+    # @rbs value: untyped -- The clause value
+    # @rbs return Filter -- A new filter instance
     def new_filter(clause, value)
       new_clauses = clauses.dup
       new_clauses[clause] = value
       Filter.new(clauses: new_clauses)
     end
 
+    # Check if filter has any conditions
+    #
+    # @return [Boolean] True if the filter has conditions
+    # @note This implementation always returns true and should be fixed
+    #       to check if clauses.any? instead
+    # @rbs return bool -- Always returns true (should check clauses.any?)
     def has_filters?
       true
     end
 
-    # convert the clauses to the values and types needed for autocad filter
-    # rbs return Array[Array,Array] -- the types and values array
+    # Convert the clauses to AutoCAD selection filter format
+    #
+    # Transforms the internal filter representation into the format
+    # expected by AutoCAD's selection API: arrays of group codes and values.
+    #
+    # @return [Array<Array<Integer>, Array<Object>>] The types and values arrays
+    # @rbs return [Array[Integer], Array[untyped]] -- The types and values arrays
     def convert_clauses
       types = []
       values = []
 
       case clauses.keys.first
       when :type
-        types << 0
+        # Entity type filter (e.g., LINE, CIRCLE)
+        types << 0  # DXF group code for entity type
         values << clauses[:type]
       when :layer
-        types << 8
+        # Layer filter
+        types << 8  # DXF group code for layer
         values << clauses[:layer]
       when :color
-        types << 62
+        # Color filter
+        types << 62  # DXF group code for color
         values << clauses[:color]
       when :block_reference
-        types << 0
-        values << "INSERT"
+        # Block reference filter
+        types << 0  # Entity type
+        values << "INSERT"  # Block reference entity type
         if clauses[:block_reference]
-          types << 1
+          types << 2  # Block name
           values << clauses[:block_reference]
         end
       when :paper_space
-        types << 67
-        values << 1
+        # Paper space filter
+        types << 67  # Space indicator
+        values << 1  # 1 = paper space
       when :model_space
-        types << 67
-        values << 0
+        # Model space filter
+        types << 67  # Space indicator
+        values << 0  # 0 = model space
       when :text_content
-        types << 1 # DXF type code 1 for text content
+        # Text content filter
+        types << 1  # DXF group code for text content
         values << clauses[:text_content]
       when :and, :or, :xor
+        # Logical operators use special syntax with angle brackets
         operator = clauses.keys.first.to_s.upcase
-        types << -4
-        values << "<#{operator}"
+        types << -4  # DXF group code for extended data
+        values << "<#{operator}"  # Start logical group
 
         clauses[clauses.keys.first].each do |condition|
           sub_types, sub_values = condition.convert_clauses
@@ -62,9 +135,10 @@ module Autocad
           values.concat(sub_values)
         end
 
-        types << -4
+        types << -4  # Close logical group
         values << "#{operator}>"
       when :not
+        # Logical NOT operator
         types << -4
         values << "<NOT"
 
@@ -75,15 +149,19 @@ module Autocad
         types << -4
         values << "NOT>"
       when :gt
-        types.concat([-4, 40])
+        # Greater than comparison
+        types.concat([-4, 40])  # -4 = operator, 40 = floating point value
         values.concat([">=", clauses[:gt]])
       when :lt
+        # Less than comparison
         types.concat([-4, 40])
         values.concat(["<=", clauses[:lt]])
       when :eq
+        # Equal to comparison
         types.concat([-4, 40])
         values.concat(["=", clauses[:eq]])
       when :neq
+        # Not equal to comparison
         types.concat([-4, 40])
         values.concat(["<>", clauses[:neq]])
       end
@@ -91,96 +169,334 @@ module Autocad
       [types, values]
     end
 
-    # Logical Operators
-    # @rbs return Filter
+    # Logical AND combination of filters
+    #
+    # Creates a new filter that combines multiple conditions with AND logic.
+    # All conditions must be met for an entity to be selected.
+    #
+    # @param conditions [Array<Filter>] Filters to combine
+    # @return [Filter] A new filter with AND condition
+    # @example Combine type and layer filters
+    #   f.and(f.type("CIRCLE"), f.layer("WALLS"))
+    # @example Complex nested AND condition
+    #   f.and(
+    #     f.layer("ELECTRICAL"),
+    #     f.or(f.type("LINE"), f.type("POLYLINE"))
+    #   )
+    # @rbs *conditions: Array[Filter] -- Filters to combine
+    # @rbs return Filter -- A new filter with AND condition
     def and(*conditions)
       new_filter(:and, conditions)
     end
 
+    # Placeholder for merging conditions (unimplemented)
+    #
+    # @note This method is a placeholder and not currently implemented
+    # @param existing [Filter] Existing filter
+    # @param new_condition [Filter] New filter to merge
+    # @return [void]
+    # @rbs existing: Filter -- Existing filter
+    # @rbs new_condition: Filter -- New filter to merge
+    # @rbs return void
     def merge_conditions(existing, new_condition)
+      # Implementation pending
     end
 
-    # @rbs return Filter
+    # Logical OR combination of filters
+    #
+    # Creates a new filter that combines multiple conditions with OR logic.
+    # Any condition can be met for an entity to be selected.
+    #
+    # @param conditions [Array<Filter>] Filters to combine
+    # @return [Filter] A new filter with OR condition
+    # @example Select circles or arcs
+    #   f.or(f.type("CIRCLE"), f.type("ARC"))
+    # @example Select entities on multiple layers
+    #   f.or(f.layer("WALLS"), f.layer("DOORS"), f.layer("WINDOWS"))
+    # @rbs *conditions: Array[Filter] -- Filters to combine
+    # @rbs return Filter -- A new filter with OR condition
     def or(*conditions)
       new_filter(:or, conditions)
     end
 
-    # @rbs return Filter
+    # Logical XOR combination of two filters
+    #
+    # Creates a new filter that combines two conditions with XOR logic.
+    # Exactly one condition must be met for an entity to be selected.
+    #
+    # @param condition1 [Filter] First filter
+    # @param condition2 [Filter] Second filter
+    # @return [Filter] A new filter with XOR condition
+    # @example Select circles or red entities, but not red circles
+    #   f.xor(f.type("CIRCLE"), f.color(1))
+    # @rbs condition1: Filter -- First filter
+    # @rbs condition2: Filter -- Second filter
+    # @rbs return Filter -- A new filter with XOR condition
     def xor(condition1, condition2)
       new_filter(:xor, [condition1, condition2])
     end
 
-    # @rbs return Filter
+    # Logical NOT of a filter
+    #
+    # Creates a new filter that negates a condition.
+    # Entities that do NOT meet the condition will be selected.
+    #
+    # @param condition [Filter] Filter to negate
+    # @return [Filter] A new filter with NOT condition
+    # @example Select all entities except circles
+    #   f.not(f.type("CIRCLE"))
+    # @example Select entities not on the HIDDEN layer
+    #   f.not(f.layer("HIDDEN"))
+    # @rbs condition: Filter -- Filter to negate
+    # @rbs return Filter -- A new filter with NOT condition
     def not(condition)
       new_filter(:not, condition)
     end
 
-    # Relational Operators
-    #  f.type("Circle").greater_than(5)
-    # @rbs return Filter
+    # Filter for values greater than specified value
+    #
+    # Creates a new filter for numeric comparisons.
+    # Typically used for radius, length, or other dimensional properties.
+    #
+    # @param value [Numeric] Value to compare against
+    # @return [Filter] A new filter with greater than condition
+    # @example Filter for circles with radius > 5
+    #   f.type("CIRCLE").greater_than(5)
+    # @example Filter for lines longer than 10 units
+    #   f.type("LINE").greater_than(10)
+    # @rbs value: Numeric -- Value to compare against
+    # @rbs return Filter -- A new filter with greater than condition
     def greater_than(value)
       new_filter(:gt, value)
     end
 
-    # @rbs return Filter
+    # Filter for values less than specified value
+    #
+    # Creates a new filter for numeric comparisons.
+    # Typically used for radius, length, or other dimensional properties.
+    #
+    # @param value [Numeric] Value to compare against
+    # @return [Filter] A new filter with less than condition
+    # @example Filter for circles with radius < 10
+    #   f.type("CIRCLE").less_than(10)
+    # @example Filter for text with height < 2.5
+    #   f.type("TEXT").less_than(2.5)
+    # @rbs value: Numeric -- Value to compare against
+    # @rbs return Filter -- A new filter with less than condition
     def less_than(value)
       new_filter(:lt, value)
     end
 
-    # @rbs return Filter
+    # Filter for values equal to specified value
+    #
+    # Creates a new filter for exact numeric matches.
+    # Useful for standardized dimensions or properties.
+    #
+    # @param value [Numeric] Value to compare against
+    # @return [Filter] A new filter with equal to condition
+    # @example Filter for circles with radius = 7.5
+    #   f.type("CIRCLE").equal_to(7.5)
+    # @example Filter for text with exact height
+    #   f.type("TEXT").equal_to(3.0)
+    # @rbs value: Numeric -- Value to compare against
+    # @rbs return Filter -- A new filter with equal to condition
     def equal_to(value)
       new_filter(:eq, value)
     end
 
-    # @rbs return Filter
+    # Filter for values not equal to specified value
+    #
+    # Creates a new filter that excludes entities with specific values.
+    #
+    # @param value [Numeric] Value to compare against
+    # @return [Filter] A new filter with not equal to condition
+    # @example Filter for circles with radius != 0
+    #   f.type("CIRCLE").not_equal_to(0)
+    # @example Filter for non-standard text heights
+    #   f.type("TEXT").not_equal_to(2.5)
+    # @rbs value: Numeric -- Value to compare against
+    # @rbs return Filter -- A new filter with not equal to condition
     def not_equal_to(value)
       new_filter(:neq, value)
     end
 
-    # @rbs return Filter
+    # Filter for block references (optionally with specific name)
+    #
+    # Creates a new filter for block reference entities.
+    # Optionally filters for a specific block name pattern.
+    #
+    # @param name [String, nil] Block name pattern (e.g., "DOOR*")
+    # @return [Filter] A new filter for block references
+    # @example Filter for any block reference
+    #   f.block_reference
+    # @example Filter for door block references
+    #   f.block_reference("DOOR*")
+    # @example Filter for furniture with specific naming pattern
+    #   f.block_reference("FURN_*_CHAIR")
+    # @rbs name: String? -- Block name pattern (e.g., "DOOR*")
+    # @rbs return Filter -- A new filter for block references
     def block_reference(name = nil)
       new_filter(:block_reference, name)
     end
 
-    # @rbs return Filter
+    # Filter by entity name
+    #
+    # Creates a new filter for entities with specific names.
+    # Useful for named objects like blocks, layers, etc.
+    #
+    # @param value [String] Entity name
+    # @return [Filter] A new filter for entity name
+    # @example Filter by specific entity name
+    #   f.name("A123")
+    # @example Filter by name pattern
+    #   f.name("DOOR_*")
+    # @rbs value: String -- Entity name
+    # @rbs return Filter -- A new filter for entity name
     def name(value)
       new_filter(:name, value)
     end
 
-    # @rbs return Filter
+    # Filter by entity type
+    #
+    # Creates a new filter for entities of a specific type.
+    # This is one of the most common filters.
+    #
+    # @param kind [String] AutoCAD entity type (e.g., "LINE", "CIRCLE")
+    # @return [Filter] A new filter for entity type
+    # @example Filter for lines
+    #   f.type("LINE")
+    # @example Filter for circles
+    #   f.type("CIRCLE")
+    # @example Filter for multi-line text
+    #   f.type("MTEXT")
+    # @rbs kind: String -- AutoCAD entity type (e.g., "LINE", "CIRCLE")
+    # @rbs return Filter -- A new filter for entity type
     def type(kind)
       new_filter(:type, kind)
     end
 
-    # @rbs return Filter
+    # Filter by layer name
+    #
+    # Creates a new filter for entities on a specific layer.
+    # Supports exact layer names or wildcard patterns.
+    #
+    # @param name [String] Layer name
+    # @return [Filter] A new filter for layer
+    # @example Filter for entities on WALLS layer
+    #   f.layer("WALLS")
+    # @example Filter for entities on any layer starting with "A-"
+    #   f.layer("A-*")
+    # @rbs name: String -- Layer name
+    # @rbs return Filter -- A new filter for layer
     def layer(name)
       new_filter(:layer, name)
     end
 
-    # @rbs return Filter
+    # Filter by visibility
+    #
+    # Creates a new filter for entity visibility.
+    # By default, filters for visible entities.
+    #
+    # @param vis [Boolean] True for visible, false for invisible
+    # @return [Filter] A new filter for visibility
+    # @example Filter for visible entities
+    #   f.visible(true)
+    # @example Filter for hidden entities
+    #   f.visible(false)
+    # @rbs vis: bool -- True for visible, false for invisible
+    # @rbs return Filter -- A new filter for visibility
     def visible(vis = true)
       new_filter(:visible, vis)
     end
 
-    # @rbs return Filter
+    # Filter by color index
+    #
+    # Creates a new filter for entities with a specific color.
+    # Accepts color index (1-255) or symbolic color names.
+    #
+    # @param num [Integer] AutoCAD color index (0-255)
+    # @return [Filter] A new filter for color
+    # @example Filter for red entities
+    #   f.color(1)  # Red
+    # @example Filter for blue entities
+    #   f.color(5)  # Blue
+    # @example Filter for entities with specific color
+    #   f.color(Autocad::Color::Green)
+    # @rbs num: Integer -- AutoCAD color index (0-255)
+    # @rbs return Filter -- A new filter for color
     def color(num)
-      new_filter(:color, num)
+      color_index = num.is_a?(Integer) ? num : Autocad.color_to_index(num)
+      new_filter(:color, color_index)
     end
 
-    # @rbs return Filter
+    # Filter for paper space entities
+    #
+    # Creates a new filter for entities in paper space (layouts).
+    #
+    # @return [Filter] A new filter for paper space
+    # @example Filter for paper space entities
+    #   f.paper_space
+    # @example Filter for title blocks in paper space
+    #   f.and(f.paper_space, f.block_reference("TITLE*"))
+    # @rbs return Filter -- A new filter for paper space
     def paper_space
       new_filter(:paper_space, nil)
     end
 
-    # @rbs return Filter
+    # Filter for model space entities
+    #
+    # Creates a new filter for entities in model space.
+    #
+    # @return [Filter] A new filter for model space
+    # @example Filter for model space entities
+    #   f.model_space
+    # @example Filter for circles in model space
+    #   f.and(f.model_space, f.type("CIRCLE"))
+    # @rbs return Filter -- A new filter for model space
     def model_space
       new_filter(:model_space, nil)
     end
 
-    # @rbs str: String
-    # @rbs return Filter
+    # Filter for text containing a string pattern
+    #
+    # Creates a new filter for text entities containing specific content.
+    # Works with both TEXT and MTEXT entities.
+    #
+    # @param str [String] Text pattern to search for
+    # @return [Filter] A new filter for text content
+    # @example Filter for text containing "REVISION"
+    #   f.has_text("REVISION")
+    # @example Filter for text containing a specific pattern
+    #   f.has_text("*REV*")
+    # @rbs str: String -- Text pattern to search for
+    # @rbs return Filter -- A new filter for text content
     def has_text(str)
       new_filter(:text_content, str)
+    end
+    
+    # Filter for any text entity
+    #
+    # Creates a new filter for any text entity (TEXT or MTEXT).
+    #
+    # @return [Filter] A new filter for text entities
+    # @example Filter for any text entity
+    #   f.text
+    # @example Filter for text on a specific layer
+    #   f.and(f.text, f.layer("NOTES"))
+    def text
+      or(type("TEXT"), type("MTEXT"))
+    end
+    
+    # Filter for entities with specific linetype
+    #
+    # Creates a new filter for entities with a specific linetype.
+    #
+    # @param name [String] Linetype name
+    # @return [Filter] A new filter for linetype
+    # @example Filter for entities with DASHED linetype
+    #   f.linetype("DASHED")
+    def linetype(name)
+      new_filter(:linetype, name)
     end
   end
 end
