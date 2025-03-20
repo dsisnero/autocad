@@ -50,7 +50,7 @@ describe Autocad::Drawing do
       end
     end
 
-    let(:drawing) { @app.new_drawing("test_#{Time.now.to_i}.dwg") }
+    let(:drawing) { @app.new_drawing("test.dwg") }
 
     it '#path should return a pathname' do
       _(drawing.path).must_be_instance_of(Pathname)

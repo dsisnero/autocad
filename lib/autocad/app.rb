@@ -249,8 +249,8 @@ module Autocad
       ole_obj.ActiveDocument = drawing.ole_obj
     end
 
-    def drawing_from_ole(ole) #: Drawing
-      Drawing.new(self, ole)
+    def drawing_from_ole(ole, requested_name = nil) #: Drawing
+      Drawing.new(self, ole, requested_name)
     end
 
     attr_reader :visible, :logger
@@ -515,7 +515,7 @@ module Autocad
       # binding.break unless seedfile
       windows_name = windows_path(filename)
       ole = new_ole_drawing(windows_name, open: open, wait_time: opts[:wait_time], wait_interval: opts[:wait_interval])
-      drawing = drawing_from_ole(ole)
+      drawing = Drawing.new(self, ole, filename)
       return drawing unless block
 
       begin

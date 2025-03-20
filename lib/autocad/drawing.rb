@@ -15,10 +15,11 @@ module Autocad
       new(app, ole)
     end
 
-    def initialize(app, ole)
+    def initialize(app, ole, requested_name = nil)
       @app = app
       @ole_obj = ole
       @app_event = WIN32OLE_EVENT.new(ole)
+      @requested_name = requested_name
     end
 
     def event_handler #: EventHandler
@@ -57,14 +58,21 @@ module Autocad
 
     def save(name: nil, dir: nil) #: void
       return if read_only?
-      if previously_saved? && modified?
+      
+      # Use requested_name if no name is provided and drawing hasn't been saved yet
+      name ||= @requested_name if !previously_saved? && @requested_name
+      
+      if previously_saved? && modified? && !name && !dir
         ole_obj.Save
+        puts "saved #{path}"
       else
         out_name = dwg_path(name: name, dir: dir)
         windows_name = app.windows_path(out_name)
         ole_obj.SaveAs(windows_name)
+        puts "saved #{windows_name}"
+        # After saving, clear the requested name since it's now saved
+        @requested_name = nil
       end
-      puts "saved #{windows_name}"
     end
 
     # save the drawing as a pdf file
@@ -147,6 +155,11 @@ module Autocad
 
     # @rbs return String -- the name of the drawing
     def name
+      if @requested_name && !previously_saved?
+        # Make sure we return just the basename with .dwg extension
+        basename = File.basename(@requested_name)
+        return basename.end_with?('.dwg') ? basename : "#{basename}.dwg"
+      end
       ole_obj.Name
     end
 
