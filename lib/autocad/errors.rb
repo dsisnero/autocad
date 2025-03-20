@@ -28,6 +28,15 @@ module Autocad
     end
   end
 
+  class DrawingClose < Error
+    attr_reader :drawing
+    
+    def initialize(message, drawing)
+      @drawing = drawing
+      super("#{message}")
+    end
+  end
+
   class ExistingFile < Error
     def initialize(path)
       msg = "File at path #{path} already exists"

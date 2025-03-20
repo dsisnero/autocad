@@ -317,9 +317,11 @@ module Autocad
       begin
         ole_obj.Close(save)
       rescue => ex
-        app.error_proc.call(ex, self)
+        # Instead of just calling error_proc, raise a specific DrawingClose error
+        raise DrawingClose.new("Failed to close drawing: #{ex.message}", self)
+      ensure
+        @ole_obj = nil
       end
-      @ole_obj = nil
     end
 
     # @rbs name: String -- selection set name to return

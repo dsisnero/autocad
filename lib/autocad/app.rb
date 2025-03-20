@@ -46,9 +46,20 @@ module Autocad
   class App
     include Common
     @default_error_proc = ->(e, f) {
-      puts "Couldn't open drawing #{f}" if f
-      debug_error if $DEBUG
-      raise e
+      if e.is_a?(DrawingClose)
+        # For DrawingClose errors, try to close via the app
+        drawing = e.drawing
+        puts "Error closing drawing #{drawing&.name}: #{e.message}"
+        begin
+          close_drawing(drawing, false) if drawing && drawing.name
+        rescue StandardError => close_err
+          puts "Additional error during cleanup: #{close_err.message}"
+        end
+      else
+        puts "Couldn't open drawing #{f}" if f
+        debug_error if $DEBUG
+        raise e
+      end
     }
 
     class << self
@@ -126,11 +137,15 @@ module Autocad
             begin
               the_app.open_drawing(file, read_only:, wait_time:, wait_interval:, error_proc:, &block)
               the_app.ole_obj.ole_methods # check if server still open
+            rescue DrawingClose => e
+              # Handle DrawingClose errors specifically
+              error_proc.call(e, e.drawing)
+              next # Continue to the next drawing
             rescue => e
               raise e unless error_proc
 
               error_proc.call(e, file)
-              the_app = new(visible: opt_visible)
+              the_app = new(visible: visible)
             end
           end
         ensure
@@ -509,23 +524,34 @@ module Autocad
       file_path = Pathname.new(filename).expand_path
       raise FileNotFound.new(file_path) unless file_path.file?
 
+      err_fn = error_proc || @error_proc
+      
       begin
         ole = ole_open_drawing(windows_path(filename), read_only:, wait_time:, wait_interval:)
       rescue DrawingError => e
         raise e unless err_fn
-
         err_fn.call(e, e.drawing)
+        return nil
       end
+      
       drawing = drawing_from_ole(ole)
       return drawing unless block_given?
 
       begin
         yield drawing
+      rescue DrawingClose => e
+        # Handle DrawingClose errors specifically
+        err_fn.call(e, e.drawing)
+        return nil
       rescue => e
         raise e unless err_fn
         err_fn.call(e, filename)
       ensure
-        drawing.close
+        begin
+          drawing.close unless drawing.nil? || drawing.instance_variable_get(:@drawing_closed)
+        rescue DrawingClose => e
+          err_fn.call(e, e.drawing)
+        end
       end
     end
 
