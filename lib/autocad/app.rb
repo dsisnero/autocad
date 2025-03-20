@@ -420,12 +420,38 @@ module Autocad
 
     def close_all_drawings(save: false)
       return unless @ole_obj
-      until @ole_obj.Documents.Count == 0
-        begin
-          @ole_obj.ActiveDocument.Close(save)
-        rescue
-          break
+      begin
+        # Get a count first since the collection will change as we close drawings
+        count = @ole_obj.Documents.Count
+        count.times do |i|
+          # Always close the first one since the collection shifts
+          begin
+            doc = @ole_obj.Documents.Item(0)
+            doc.Close(save) if doc
+          rescue StandardError => e
+            puts "Error closing document: #{e.message}"
+            break
+          end
         end
+      rescue StandardError => e
+        puts "Error in close_all_drawings: #{e.message}"
+      end
+    end
+
+    # Close a specific drawing
+    # @rbs drawing: Drawing -- the drawing to close
+    # @rbs save: bool -- whether to save the drawing
+    def close_drawing(drawing, save = true)
+      begin
+        # Try to find the drawing in the Documents collection and close it
+        ole_obj.Documents.each do |doc|
+          if doc.Name == drawing.name
+            doc.Close(save)
+            break
+          end
+        end
+      rescue StandardError => e
+        puts "Error in close_drawing: #{e.message}"
       end
     end
 
