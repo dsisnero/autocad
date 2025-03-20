@@ -485,7 +485,7 @@ module Autocad
     def set_variables(names, values)
       atts = names.zip(values).to_h
       atts.each do |k, v|
-        set_variable(name, value)
+        set_variable(k, v)
       end
     end
 
