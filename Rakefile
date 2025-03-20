@@ -14,6 +14,11 @@ end
 namespace :test do
   desc "Run unit tests"
   task :unit => :unit
+  
+  desc "Run specific drawing test"
+  task :drawing_set_variables do
+    sh "ruby -Ilib:spec spec/unit/autocad/drawing_spec.rb --line 117"
+  end
 end
 
 require 'standard/rake'
