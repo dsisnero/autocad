@@ -21,7 +21,6 @@ module Faa
     # and deletes the title block
 
     def get_title_attributes
-
       block_refs = block_reference_selection_set
       title_block = block_refs.find do |br|
         br.name.casecmp?('faatitle')
@@ -30,9 +29,8 @@ module Faa
       return unless title_block
 
       title_block.attributes_hash
-
     end
-    
+
     def cleanup_model
       to_model_space
       remove_translation_text

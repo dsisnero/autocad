@@ -44,6 +44,38 @@ module Autocad
       @bottom = bottom
     end
 
+    def hash
+      [self.class, left, top,right,bottom].hash
+    end
+
+    def eql(other)
+      other.class == self.class &&
+        other.left == left &&
+        other.top == top &&
+        other.right == right &&
+        other.bottom == bottom
+    end
+
+    def upper_right
+      Point3d.new(right, top, 0)
+    end
+
+    alias_method :top_right, :upper_right
+
+    def lower_left
+      Point3d.new(left, bottom, 0)
+    end
+
+    alias_method :bottom_left, :lower_left
+
+    def center
+      Point3d.new((left + right) / 2.0, (top + bottom) / 2.0, 0)
+    end
+
+    def contains?(pt)
+      pt.x >= left && pt.x <= right && pt.y >= bottom && pt.y <= top
+    end
+
     def width
       right - left
     end
@@ -132,6 +164,12 @@ module Autocad
         [right, point.x].max,
         [bottom, point.y].min
       )
+    end
+
+    def scale_to_fit(bb)
+      return 1 if bb.width == 0 || bb.height == 0
+
+      [width / bb.width, height / bb.height].min
     end
 
     # Add expansion to all sides of this bounding box
