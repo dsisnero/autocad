@@ -429,7 +429,7 @@ module Autocad
             doc = @ole_obj.Documents.Item(0)
             doc.Close(save) if doc
           rescue StandardError => e
-            puts "Error closing document: #{e.message}"
+            puts "Error closing document: #{document.name} #{e.message}"
             break
           end
         end
@@ -451,7 +451,7 @@ module Autocad
           end
         end
       rescue StandardError => e
-        puts "Error in close_drawing: #{e.message}"
+        puts "Error in close_drawing #{drawing.name}: #{e.message}"
       end
     end
 

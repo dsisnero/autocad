@@ -15,58 +15,6 @@ module Autocad
       new(app, ole)
     end
 
-    def set_system_variables(names, values)
-      atts = names.zip(values).to_h
-      atts.each do |k, v|
-        ole_obj.SetVariable(k, v)
-      end
-    end
-
-    def faa_title_block
-      block_reference_enum.find { |b| b.name == "faatitle" }
-    end
-
-    def block_reference_enum
-      ss = block_reference_selection_set
-      ss.clear
-      ss.select
-      ss.each
-    end
-
-    def block_reference_selection_set
-      @block_reference_selection_set ||= get_block_reference_selection_set
-    end
-
-    def get_block_reference_selection_set
-      ss = get_selection_set("block_reference")
-      ss ||= create_selection_set("block_reference") do |ss|
-        ss.filter do |f|
-          f.block_reference
-        end
-      end
-      ss
-    end
-
-    def with_system_variables(names, values, &block)
-      atts
-      current_values = get_system_variables(names)
-      set_system_variables(names, values)
-      yield
-    ensure
-      set_system_variables(names, current_values)
-    end
-
-    def get_system_variables(*atts)
-      return [] if atts.empty?
-      if atts.first.class == Array
-        atts = atts.first
-      end
-      atts.each_with_object([]) do |k, a|
-        a << ole_obj.GetVariable(k)
-        a
-      end
-    end
-
     def initialize(app, ole)
       @app = app
       @ole_obj = ole
@@ -102,14 +50,17 @@ module Autocad
       @event_handler.add_handler(event, &) unless event == "OnQuit"
     end
 
+    # @rbs return bool -- true if drawing is read only
     def read_only?
       ole_obj.ReadOnly
     end
 
+    # @rbs return bool -- true if drawing is previously saved
     def previously_saved?
-      ole_obj.FullFileName != ""
+      ole_obj.FullName != ""
     end
 
+    # @rbs return bool -- true if drawing is modified
     def modified?
       ole_obj.Saved == false
     end
@@ -145,12 +96,8 @@ module Autocad
     # @rbs dir: String? - the directory to save the drawing
     def save_as_pdf(name: nil, dir: nil, model: false) #: void
       out_name = pdf_path(name: name, dir: dir)
-      windows_name = app.windows_path(out_name)
-      loop do
-        print_pdf(windows_name, model:)
-        break if out_name.file?
-      end
-      puts "saved #{windows_name}"
+      print_pdf(out_name, model:)
+      puts "saved #{out_name}"
     end
 
     def pdf_path(name: nil, dir: nil)
@@ -158,6 +105,52 @@ module Autocad
       dir = Pathname.new(dir || dirname).expand_path
       dir.mkpath unless dir.directory?
       dir + pdf_name(name)
+    end
+
+    def get_current_view_size
+      h = get_variable("VIEWSIZE")
+      screen_size = Point3d(get_variable("SCREENSIZE"))
+      w = h * screen_size.x / screen_size.y
+      [w, h]
+    end
+
+    # Todo
+    # @rbs return Point3d -- the center of the view in world coordinates
+    def view_center
+      center = get_variable("VIEWCTR")
+      Point3d(center)
+    end
+
+    # @rbs name: String
+    # @rbs return PlotConfiguration
+    def add_plot_configuration(name, model: false)
+      plot_config = plot_configurations.find { |p| p.name == name }
+      return plot_config if plot_config
+      ole = @ole_obj.PlotConfigurations.Add(name, model)
+      app.wrap(ole)
+    rescue => ex
+      app.error_proc.call(ex, self)
+    end
+
+    # returns the defined plot configuration "faa_ansid_bw".
+    def pdf_plot_config #: PlotConfiguration
+      @pdf_plot_config ||= create_pdf_plot_configutation
+    end
+
+    def default_plot_setup
+      {device_name: "AutoCAD PDF (High Quality Print).pc3",
+       media_name: "ANSI_D_(34.00_x_22.00_Inches)",
+       style_sheet: "FAA_Black&Gray.ctb",
+       plot_type: :layout,
+       rotation: 0,
+       paper_units: :inches}
+    end
+
+    # creates the "faa_ansid_bw" plot configuration
+    def create_pdf_plot_configutation #: PlotConfiguration
+      pc = add_plot_configuration("faa_ansid_bw")
+      pc.update(default_plot_setup)
+      pc
     end
 
     # Return the pdf name for the drawing.
@@ -169,6 +162,34 @@ module Autocad
     def pdf_name(name = nil) #: Pathname
       name ||= self.name
       Pathname.new(name).sub_ext(".pdf")
+    end
+
+    def plot #: Plot
+      ole = ole_obj.Plot
+      ole.QuietErrorMode = true
+      app.wrap(ole_obj.Plot)
+    end
+
+    def print_pdf(print_path, model: false)
+      if model
+        "puts print model"
+      else
+        print_paper_space_pdf(print_path)
+      end
+    end
+
+    # @rbs return Layout -- The first layout that is not "Model"
+    def paper_space_layout
+      layouts.reject { it.name == "Model" }.first
+    end
+
+    def print_paper_space_pdf(print_path)
+      plotter = plot
+      plotter.set_layouts_to_plot paper_space_layout
+      if print_path.file?
+        print_path.delete if print_path.file?
+      end
+      plotter.plot_to_file(print_path)
     end
 
     # copy the drawing
@@ -230,30 +251,62 @@ module Autocad
       dirname + basename
     end
 
-    def print_pdf(print_path, model: false)
-      if model
-        to_model_space
-      else
-        to_paper_space
-      end
-      raise "no plot config" unless pdf_plot_config
-      ole_obj.Plot.PlotToFile print_path, pdf_plot_config
-    end
-
-    def pdf_plot_config
-      app.plot_configs.find { |p| p =~ /faa.+high/i }
-    end
-
+    # @rbs return Layer -- the active layer
     def active_layer
-      ole_obj.ActiveLayer
+      ole = ole_obj.ActiveLayer
+      app.wrap(ole)
+    end
+
+    # @rbs return String -- the name of the active layer
+    def active_layer_name
+      ole_obj.ActiveLayer.Name
+    end
+
+    # @rbs layer: Layer | String -- make the given layer active
+    def active_layer=(layer)
+      if layer.is_a?(String)
+        layer = ole_obj.Layers.Item(layer)
+      elsif layer.is_a?(Autocad::Layer)
+        layer = layer.to_ole
+      end
+      raise "layer not found" unless layer
+      ole_obj.ActiveLayer = layer.to_ole
+    end
+
+    # @rbs vport: Autocad::PViewport -- viewport to make active
+    # @rbs return void
+    def active_pviewport=(vport)
+      ole_obj.ActivePViewport = vport.to_ole
+    end
+
+    # return the active PViewport
+    # @rbs return PViewport
+    def active_pviewport
+      ole = ole_obj.ActivePViewport
+      app.wrap(ole)
+    rescue => ex
+      app.error_proc.call(ex, self)
+    end
+
+    # @rbs return Layout
+    def active_layout
+      ole = ole_obj.ActiveLayout
+      app.wrap(ole)
+    end
+
+    # @rbs layout: Layout -- layout to make active
+    def active_layout=(layout)
+      ole_obj.ActiveLayout = layout.to_ole
     end
 
     def active_space
       ole = ole_obj.ActiveSpace
+
       if ole == ACAD::AcPaperSpace
-        PaperSpace.new(ole_obj, app)
+        paper_space
+
       else
-        ModelSpace.new(ole_obj, app)
+        model_space
       end
     end
 
@@ -263,8 +316,8 @@ module Autocad
       @drawing_closed = true
       begin
         ole_obj.Close(save)
-      rescue
-        nil
+      rescue => ex
+        app.error_proc.call(ex, self)
       end
       @ole_obj = nil
     end
@@ -276,26 +329,18 @@ module Autocad
       app.wrap(ole) if ole
     end
 
-    # @rbs name: String -- selection set name to return
-    # @rbs return SelectionSet | nil
-    def get_ole_selection_set(name)
-      return nil if ole_selection_sets.Count == 0
-      begin
-        ole_selection_sets.Item(name)
-      rescue
-        nil
-      end
-    end
-
-    def ole_selection_sets
-      ole_obj.SelectionSets
-    end
-
     # @rbs return Enumerator[Block]
     # @rbs &: (Block) -> void
     def blocks
       return to_enum(__callee__) unless block_given?
       ole_obj.Blocks.each { |o| yield app.wrap(o) }
+    end
+
+    # @rbs return Enumerator[Layout]
+    # @rbs &: (Layout) -> void
+    def layouts
+      return to_enum(__callee__) unless block_given?
+      ole_obj.Layouts.each { |o| yield app.wrap(o) }
     end
     # return the layers for the drawing
 
@@ -314,9 +359,9 @@ module Autocad
 
     # @rbs name: String | Layer -- layer name to create
     # @rbs return Acad::Layer
-    def create_layer(name, color: nil)
-      if name.class == Acad::Layer
-        name.Color = color if color
+    def create_layer(name, color =  nil)
+      if name.class == Autocad::Layer
+          name.Color = color if color
         return name
       end
       ole_layer = begin
@@ -329,6 +374,136 @@ module Autocad
       app.wrap(ole_layer)
     end
 
+    # regen the current drawing
+    #  view_ports is fr AcRegenType enum from autocad
+    #  [:all, :active]
+    #  @rbs view_ports: Symbol -- :all or :active
+    #  @rbs return void
+    def regen(view_ports = :all)
+      vp_type = case view_ports
+      when :all then 1
+      when :active then 0
+      end
+      ole_obj.Regen vp_type
+    end
+
+    # @rbs return Enumerator[BlockReference] -- all block references in model space
+    def model_block_references
+      ss = selection_sets.find { it.name == "model_block_references" }
+      ss ||= create_selection_set("model_block_references")
+      ss.filter do |f|
+        f.and(f.model_space, f.block_reference)
+      end
+      ss.clear
+      ss.select
+      ss.each
+    end
+
+    # @rbs return Enumerator[BlockReference] -- all block references in paper space
+    def paper_block_references
+      ss = selection_sets.find { it.name == "paper_block_references" }
+      ss ||= create_selection_set("paper_block_references")
+      ss.filter do |f|
+        f.and(f.paper_space, f.block_reference)
+      end
+      ss.clear
+      ss.select
+      ss.each
+    end
+
+    def select_text_containing(str)
+      varname = "@text_containg_#{str}".tr("*", "_")
+      ss = if instance_variable_defined?(varname)
+        instance_variable_get(varname)
+      else
+        get_select_text_containing(str)
+      end
+      ss.clear
+      ss.select
+      ss.each
+    end
+
+    def has_pviewport?
+      paper_space.pviewports.count > 0
+    end
+
+    def get_select_text_containing(str)
+      name = "text_containing_#{str}"
+      varname = "@#{name}".tr("*", "_")
+      ss = get_selection_set(name)
+      ss.delete if ss
+      ss = create_selection_set(name) do |ss|
+        ss.filter_text_containing(str)
+      end
+      instance_variable_set(varname, ss)
+      ss
+    end
+
+    # &: (BlockReference) -> void
+    # @rbs return Enumerator[BlockReference]
+    def block_references
+      return to_enum(__callee__) unless block_given?
+      ss = block_reference_selection_set
+      ss.clear
+      ss.select
+      ss.each do |o|
+        yield o
+      end
+    end
+
+    # &: (DimStyle) -> void
+    # @rbs return Enumerator[DimStyle] -- enumerator of dimension styles in document
+    def dim_styles
+      return to_enum(__callee__) unless block_given?
+      ole_obj.DimStyles.each { |o| yield app.wrap(o) }
+    end
+
+    # &: (TextStyle) -> void
+    # @rbs return Enumerator[TextStyle] -- enumerator of text styles in document
+    def text_styles
+      return to_enum(__callee__) unless block_given?
+      ole_obj.TextStyles.each { |o| yield app.wrap(o) }
+    end
+
+    # @rbs return SelectionSetAdapter
+    def block_reference_selection_set
+      @block_reference_selection_set ||= get_block_reference_selection_set
+    end
+
+    def get_variable(name)
+      ole_obj.GetVariable(name)
+    end
+
+    def set_variable(name, value)
+      ole_obj.SetVariable(name, value)
+    end
+
+    def set_variables(names, values)
+      atts = names.zip(values).to_h
+      atts.each do |k, v|
+        set_variable(name, value)
+      end
+    end
+
+    def with_system_variables(names, values, &block)
+      atts
+      current_values = get_variables(names)
+      set_variables(names, values)
+      yield
+    ensure
+      set_variables(names, current_values)
+    end
+
+    def get_variables(*atts)
+      return [] if atts.empty?
+      if atts.first.class == Array
+        atts = atts.first
+      end
+      atts.each_with_object([]) do |k, a|
+        a << ole_obj.GetVariable(k)
+        a
+      end
+    end
     # @rbs name: String -- the name to call new selection set
     # @rbs return Autocad::SelectionSet | nil
     # def create_selection_set(name, filter: nil)
@@ -390,8 +565,9 @@ module Autocad
     def get_region
       pt = get_point(prompt: "Specify first corner")
       prompt("X: #{pt.x}, Y: #{pt.y}, Z: #{pt.z}\n")
-      pt2 = utility.ole_obj.GetCorner(pt.to_ole, "Specify opposite corner: ")
-      [pt, pt2].map { |p| Point3d.new(p[0], p[1], p[2]) }
+      point2 = utility.GetCorner(pt.to_ole, "Specify opposite corner: ")
+      pt2 = Point3d(point2)
+      [pt, pt2]
     end
 
     # @rbs return Enumerator[SelectionSet] | void
@@ -402,7 +578,7 @@ module Autocad
     end
 
     def model_space
-      ModelSpace.new(ole_obj.ModelSpace, app)
+      app.wrap ole_obj.ModelSpace
     end
 
     # @rbs return Enumerator[PlotConfiguration] | void
@@ -420,7 +596,7 @@ module Autocad
     end
 
     def paper_space
-      PaperSpace.new(ole_obj.PaperSpace, app)
+      app.wrap ole_obj.PaperSpace
     end
 
     alias_method :model, :model_space
@@ -440,5 +616,146 @@ module Autocad
       binding.break unless is_ok
       @ole_obj
     end
+
+    private
+
+    def get_block_reference_selection_set
+      ss = get_selection_set("block_reference") || create_selection_set("block_reference")
+      ss.filter do |f|
+        f.block_reference
+      end
+      ss
+    end
+
+    # @rbs name: String -- selection set name to return
+    # @rbs return SelectionSet | nil
+    def get_ole_selection_set(name)
+      return nil if ole_selection_sets.Count == 0
+      begin
+        ole_selection_sets.Item(name)
+      rescue
+        nil
+      end
+    end
+
+    def ole_selection_sets
+      ole_obj.SelectionSets
+    end
+
+    # # @rbs objects: nil | Enumerator[Element] | SelectionSetAdapter | Element
+    # # @rbs return Enumerator[Element]
+    # def get_objects(objects = nil, prompt: "Select objects")
+    #   case objects
+    #   in nil
+    #   # Create a temporary selection set for user selection
+    #   ss = create_selection_set("temp_selection_#{Time.now.to_i}")
+    #   self.prompt("#{prompt}\n")
+    #   ss.select_on_screen
+    #   result = ss.each
+    #   ss.delete
+    #   result
+    #   in Autocad::SelectionSetAdapter
+    #   objects.each
+    #   in Enumerator
+    #   objects
+    #   in Array
+    #   objects.to_enum
+    # else
+    #   # Handle single object case by wrapping in an enumerator
+    #   [objects].to_enum
+    # end
+    # rescue => ex
+    #   app.error_proc.call(ex, self)
+    # end
+
+    # @rbs objects: nil | Enumerator[Element] | SelectionSetAdapter | Element
+    # @rbs alignment: Symbol -- :left, :right, :center, :top, :mid, :bottom
+    # @rbs return void
+    #   def align_objects(objects = nil, alignment: :left)
+    #     objects = get_objects(objects, prompt: "Select objects to align")
+    #
+    #     # Get bounding boxes for all objects
+    #     boxes = objects.map do |obj|
+    #       begin
+    #         obj.bounds
+    #       rescue => ex
+    #         app.error_proc.call(ex, self)
+    #         nil
+    #       end
+    #     end.compact
+    #
+    #     return if boxes.empty?
+    #
+    #     # Calculate reference point based on alignment type
+    #     reference = case alignment
+    #     when :left
+    #       boxes.map { |box| box.left }.min
+    #     when :right
+    #       boxes.map { |box| box.right }.max
+    #     when :center
+    #       boxes.map { |box| box.center.x }.sum / boxes.length
+    #     when :top
+    #       boxes.map { |box| box.top }.max
+    #     when :bottom
+    #       boxes.map { |box| box.bottom }.min
+    #     when :mid
+    #       boxes.map { |box| box.center.y }.sum / boxes.length
+    #     else
+    #       raise ArgumentError, "Invalid alignment type: #{alignment}. Must be :left, :right, :center, :top, :mid, or :bottom"
+    #     end
+    #
+    #     # Move each object to align with reference point
+    #     objects.zip(boxes).each do |obj, box|
+    #       next unless box
+    #
+    #       delta = case alignment
+    #       when :left
+    #         [reference - box.left, 0, 0]
+    #       when :right
+    #         [reference - box.right, 0, 0]
+    #       when :center
+    #         [reference - box.center.x, 0, 0]
+    #       when :top
+    #         [0, reference - box.top, 0]
+    #       when :bottom
+    #         [0, reference - box.bottom, 0]
+    #       when :mid
+    #         [0, reference - box.center.y, 0]
+    #       end
+    #
+    #       begin
+    #         # Create points for move_ole
+    #         pt1 = Point3d(0, 0, 0)
+    #         pt2 = Point3d(*delta)
+    #         obj.move_ole(pt1.to_ole, pt2.to_ole)
+    #       rescue => ex
+    #         app.error_proc.call(ex, self)
+    #       end
+    #     end
+    #
+    #     regen
+    #   end
+    #   case objects
+    #   in nil
+    #   # Create a temporary selection set for user selection
+    #   ss = create_selection_set("temp_selection_#{Time.now.to_i}")
+    #   self.prompt("#{prompt}\n")
+    #   ss.select_on_screen
+    #   result = ss.each
+    #   ss.delete
+    #   result
+    #   in Autocad::SelectionSetAdapter
+    #   objects.each
+    #   in Enumerator
+    #   objects
+    #   in Array
+    #   objects.to_enum
+    # else
+    #   # Handle single object case by wrapping in an enumerator
+    #   [objects].to_enum
+    # end
+    # rescue => ex
+    #   app.error_proc.call(ex, self)
+    # end
   end
 end
