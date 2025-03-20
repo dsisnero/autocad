@@ -3,20 +3,44 @@ require_relative "../../spec_helper"
 describe Autocad::Drawing do
   before(:all) do
     @app = Autocad::App.new
+    @temp_files = []
   end
 
   after(:all) do
+    # Close any remaining drawings
+    begin
+      @app.close_all_drawings(save: false)
+    rescue StandardError => e
+      puts "Error closing drawings: #{e.message}"
+    end
+    
+    # Force quit the app to ensure all files are released
     @app.quit
+    
+    # Clean up any temp files
+    @temp_files.each do |path|
+      begin
+        File.delete(path) if path && File.exist?(path)
+      rescue StandardError => e
+        puts "Error deleting file #{path}: #{e.message}"
+      end
+    end
   end
 
   describe "when using a new drawing" do
     after do
-      path = drawing&.path
-      drawing&.close(save: false)
-      File.delete(path) if path && File.exist?(path)
+      # Track the path for cleanup in after(:all)
+      @temp_files << drawing&.path if drawing&.path
+      
+      # Try to close the drawing
+      begin
+        drawing&.close(save: false)
+      rescue StandardError => e
+        puts "Error closing drawing: #{e.message}"
+      end
     end
 
-    let(:drawing) { @app.new_drawing("test.dwg") }
+    let(:drawing) { @app.new_drawing("test_#{Time.now.to_i}.dwg") }
 
     it "#path should return a pathname" do
       _(drawing.path).must_be_instance_of(Pathname)
@@ -306,16 +330,19 @@ describe Autocad::Drawing do
       end
 
       it "saves the drawing with a new name" do
-        new_name = "test_new_name.dwg"
+        new_name = "test_new_name_#{Time.now.to_i}.dwg"
         drawing.save(name: new_name)
-        _(File.exist?(drawing.dirname + new_name)).must_equal true
-        File.delete(drawing.dirname + new_name)
+        new_path = drawing.dirname + new_name
+        _(File.exist?(new_path)).must_equal true
+        @temp_files << new_path # Track for cleanup
       end
     end
 
     describe "#close" do
       it "closes the drawing" do
-        temp_drawing = @app.new_drawing("temp_test.dwg")
+        temp_name = "temp_test_#{Time.now.to_i}.dwg"
+        temp_drawing = @app.new_drawing(temp_name)
+        @temp_files << temp_drawing.path # Track for cleanup
         temp_drawing.close(false)
         # Test it's closed by checking if we can access a property
         assert_raises(StandardError) { temp_drawing.name }
