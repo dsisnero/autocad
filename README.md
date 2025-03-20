@@ -1,24 +1,119 @@
 # Autocad
 
-TODO: Delete this and the text below, and describe your gem
+A Ruby library for automating AutoCAD operations through the COM interface (version 0.5).
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/autocad`. To experiment with that code, run `bin/console` for an interactive prompt.
+## Features
+
+- Create, open, and manipulate AutoCAD drawings
+- Work with layers, blocks, text, and other drawing elements
+- Support for symbolic color names through ACAD::COLOR constants
+- Selection sets for filtering and manipulating objects
+- PDF export capabilities
+- Event handling for AutoCAD events
 
 ## Installation
 
-TODO: Replace `UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG` with your gem name right after releasing it to RubyGems.org. Please do not do it earlier due to security reasons. Alternatively, replace this section with instructions to install your gem from git if you don't plan to release to RubyGems.org.
+Add this line to your application's Gemfile:
 
-Install the gem and add to the application's Gemfile by executing:
+```ruby
+gem 'autocad', '~> 0.5'
+```
 
-    $ bundle add UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+And then execute:
 
-If bundler is not being used to manage dependencies, install the gem by executing:
+```bash
+$ bundle install
+```
 
-    $ gem install UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+Or install it yourself as:
+
+```bash
+$ gem install autocad
+```
 
 ## Usage
 
-TODO: Write usage instructions here
+### Basic Operations
+
+```ruby
+# Start AutoCAD and create a new drawing
+Autocad.run do |app|
+  drawing = app.new_drawing("test.dwg")
+  
+  # Create a new layer with a color
+  layer = drawing.create_layer("MyLayer", ACAD::COLOR::RED)
+  
+  # Switch to model space
+  drawing.to_model_space
+  
+  # Add a line to the drawing
+  model = drawing.model_space
+  pt1 = Point3d(0, 0, 0)
+  pt2 = Point3d(10, 10, 0)
+  line = model.add_line(pt1, pt2)
+  
+  # Save and close the drawing
+  drawing.save
+  drawing.close
+end
+```
+
+### Working with Colors
+
+```ruby
+# Colors can be specified in multiple ways:
+layer.color = ACAD::COLOR::BLUE       # Using constants
+layer.color = :green                  # Using symbols
+layer.color = "RED"                   # Using strings
+layer.color = 1                       # Using AutoCAD color indices
+```
+
+### Working with Layers
+
+```ruby
+# Create a layer
+layer = drawing.create_layer("NewLayer", :blue)
+
+# Set the active layer
+drawing.active_layer = layer
+
+# Iterate through all layers
+drawing.layers.each do |layer|
+  puts "Layer: #{layer.name}, Color: #{layer.color_name}"
+end
+```
+
+### Working with Selection Sets
+
+```ruby
+# Create a selection set
+ss = drawing.create_selection_set("MySelection")
+
+# Filter for specific objects
+ss.filter do |f|
+  f.and(f.model_space, f.block_reference)
+end
+
+# Select objects
+ss.select
+
+# Process selected objects
+ss.each do |obj|
+  puts obj.inspect
+end
+```
+
+### Exporting to PDF
+
+```ruby
+# Export the current drawing to PDF
+drawing.save_as_pdf(dir: "output")
+
+# Batch convert multiple drawings
+Autocad.with_drawings(["drawing1.dwg", "drawing2.dwg"], read_only: true) do |drawing|
+  drawing.save_as_pdf(dir: "output")
+end
+```
 
 ## Development
 
