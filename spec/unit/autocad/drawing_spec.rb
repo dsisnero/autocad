@@ -53,31 +53,31 @@ describe Autocad::Drawing do
       end
     end
 
-    describe "#get_system_variables" do
+    describe "#get_variables" do
       it "returns an  array with the variable current values" do
-        vars = drawing.get_system_variables("nomutt", "clayer", "textstyle")
+        vars = drawing.get_variables("nomutt", "clayer", "textstyle")
         _(vars).must_be_kind_of(Array)
         _(vars.size).must_equal 3
       end
 
       it "can accept an array of variable names" do
-        vars = drawing.get_system_variables(%w[nomutt clayer textstyle])
+        vars = drawing.get_variables(%w[nomutt clayer textstyle])
         _(vars).must_be_kind_of(Array)
         _(vars.size).must_equal 3
       end
     end
 
-    describe "#set_system_variables" do
+    describe "#set_variables" do
       it "sets system variables" do
         names = %w[nomutt clayer textstyle]
-        values = drawing.get_system_variables(names)
+        values = drawing.get_variables(names)
 
-        drawing.set_system_variables(names, [0, "0", "STANDARD"])
-        values2 = drawing.get_system_variables(names)
+        drawing.set_variables(names, [0, "0", "STANDARD"])
+        values2 = drawing.get_variables(names)
 
         _(values).wont_equal(values2)
         _(values2).must_equal([0, "0", "STANDARD"])
-        drawing.set_system_variables(names, values)
+        drawing.set_variables(names, values)
       end
     end
 
