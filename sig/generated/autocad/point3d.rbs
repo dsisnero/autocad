@@ -2,6 +2,9 @@
 
 module Autocad
   class Point3d
+    # @rbs return Point3d -- return a Point3d at [0,0,0]
+    def self.zero: () -> Point3d
+
     def self.cartesian_to_polar: (untyped x, untyped y) -> untyped
 
     def self.from_polar_degrees: (untyped r, untyped a) -> untyped
@@ -41,13 +44,17 @@ module Autocad
     # @rbs return { x: Float, y: Float, z: Float}
     def deconstruct_keys: () -> { x: Float, y: Float, z: Float }
 
-    # @rbs return [Float,Float, Float]
-    def to_ary: () -> [ Float, Float, Float ]
+    # @rbs return [
+    def to_ary: () -> untyped
 
     # @rbs other: Point3d | [Float,Float,Float]
     def -: (Point3d | [ Float, Float, Float ] other) -> untyped
 
     def to_xy: () -> untyped
+
+    # @rbs model_space: bool
+    # @return Autocad::Point
+    def to_acad_point: (?bool model_space) -> untyped
 
     def xy_bounds: (untyped other) -> untyped
 
@@ -55,9 +62,6 @@ module Autocad
 
     # @rbs return [Float,Float, Float]
     def to_a: () -> [ Float, Float, Float ]
-
-    # @rbs return Point3d -- return a Point3d at [0,0,0]
-    def zero: () -> Point3d
 
     def to_cartesian: () -> untyped
 

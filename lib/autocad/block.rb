@@ -12,23 +12,28 @@ module Autocad
       end
     end
 
-    def attributes? # : bool
+    # @rbs return bool
+    def block? # : bool
+      true
+    end
+
+    def attributes? #:bool
       @ole_obj.HasAttributes
     end
 
-    def name # : String
+    def name #:String
       @ole_obj.Name
     end
 
-    def layout? # : bool
+    def layout? #:bool
       @ole_obj.IsLayout
     end
 
-    def xref? # : bool
+    def xref? #:bool
       @ole_obj.IsXRef
     end
 
-    def dynamic? # : bool
+    def dynamic? #:bool
       @ole_obj.IsDynamicBlock
     end
 
@@ -49,7 +54,7 @@ module Autocad
     end
 
     def inspect
-      "<Block #{block_type}: '#{name}#' #{autocad_id}>"
+      "<Block #{block_type}: '#{name}#'"
     end
 
     def attributes

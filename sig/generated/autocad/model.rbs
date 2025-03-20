@@ -4,43 +4,61 @@ module Autocad
   module ModelTrait
     def each: () -> untyped
 
+    def xref?: () -> untyped
+
+    def attach_external_reference: (untyped path, name: untyped, ?pt: untyped, ?x_scale: untyped, ?y_scale: untyped, ?z_scale: untyped, ?rotation: untyped, ?overlay: untyped, ?password: untyped) -> untyped
+
     # @rbs pt1: Autocad::Point3d
     # @rbs return Autocad::Line
     def add_line: (Autocad::Point3d pt1, untyped pt2, ?layer: untyped) -> Autocad::Line
+
+    def layout: () -> untyped
+
+    # add an arc to the model
+    # @rbs center: [] | Point3d -- center of arc
+    # @rbs radius: Float -- radius of arc
+    # @rbs start_angle: Float -- start angle of arc
+    # @rbs end_angle: Float -- end angle of arc
+    # @rbs return Autocad::Arc
+    def add_arc: ([ ] | Point3d center, Float radius, Float start_angle, Float end_angle) -> Autocad::Arc
 
     # @rbs center: [] | Point3d -- center of circle
     # @rbs radius: Numeric -- radius of the circle
     # @rbs return Autocad::Element -- the created circle
     def add_circle: ([ ] | Point3d center, Numeric radius) -> Autocad::Element
 
-    def add_rectangle: (untyped upper_left, untyped lower_right) -> untyped
+    def add_rectangle: (untyped lower_left, untyped upper_right) -> untyped
 
-    # @rbs points: Array[Point3d] | Array[Array[Numeric]] -- array of points for the spline
-    # @rbs start_tangent: Point3d | Array[Numeric] -- start tangent vector
-    # @rbs end_tangent: Point3d | Array[Numeric] -- end tangent vector
-    # @rbs return Autocad::Element -- the created spline
-    def add_spline: (Array[Point3d] | Array[Array[Numeric]] points, Point3d | Array[Numeric] start_tangent, Point3d | Array[Numeric] end_tangent) -> Autocad::Element
+    # add an ellilpse to the model
+    # @rbs center: [] | Point3d -- center of ellipse
+    # @rbs major_axis: Float -- major axis of ellipse
+    # @rbs radius_ratio: Float -- ratio of major axis to minor axis , a value of 1 is a circle
+    # @return Autocad::Ellipse
+    def add_ellipse: ([ ] | Point3d center, Float major_axis, Float radius_ratio) -> untyped
+
+    def add_spline: (untyped points) -> untyped
 
     def drawing: () -> untyped
+
+    # @rbs return Autocad::Layout -- the layout for the model
+    def layout: () -> Autocad::Layout
+
+    private
+
+    def create_layer: (untyped name) -> untyped
   end
 
-  class PaperSpace
+  class PaperSpace < Element
     include ModelTrait
 
-    attr_reader app: untyped
+    def add_pv_viewport: (untyped center, width: untyped, height: untyped) -> untyped
 
-    attr_reader ole_obj: untyped
+    def pviewports: () -> untyped
 
-    def initialize: (untyped ole, untyped app) -> untyped
+    def clear_pviewports: () -> untyped
   end
 
-  class ModelSpace
+  class ModelSpace < Element
     include ModelTrait
-
-    attr_reader app: untyped
-
-    attr_reader ole_obj: untyped
-
-    def initialize: (untyped ole, untyped app) -> untyped
   end
 end

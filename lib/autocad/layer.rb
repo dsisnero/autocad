@@ -1,5 +1,6 @@
 module Autocad
   class Layer < Element
+    # @rbs return String -- the name of the layer
     def name
       ole_obj.name
     end

@@ -64,9 +64,9 @@ describe "Autocad::Model" do
         radius = 25.0
         circle = @model_space.add_circle(center, radius)
         bounds = circle.bounds
-        binding.irb
 
         _(circle).must_be_kind_of Autocad::Circle
+
         _(bounds).must_equal [Autocad::Point3d.new(25, 25, 0), Autocad::Point3d.new(75, 75, 0)]
       end
     end
@@ -110,6 +110,16 @@ describe "Autocad::Model" do
 
         _(viewport).must_be_kind_of Autocad::Element
       end
+    end
+  end
+
+  describe "ModelSpace" do
+    it "includes ModelTrait" do
+      _(Autocad::ModelSpace.included_modules).must_include Autocad::ModelTrait
+    end
+
+    it "is an Element" do
+      _(@model_space).must_be_kind_of Autocad::Element
     end
   end
 end

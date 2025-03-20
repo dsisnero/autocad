@@ -2,10 +2,27 @@
 
 module Autocad
   class Viewport < Element
-    def width: () -> untyped
+    # Returns the name of the viewport
+    # @rbs return String
+    def name: () -> String
+
+    # Returns the center of the viewport
+    # @rbs return Point3d
+    def center: () -> Point3d
+
+    # Returns the width of the viewport
+    # @rbs return Float
+    def width: () -> Float
+
+    # Splits the viewport
+    #  the split_type is from the AcViewportSplitType enum
+    #  can take the integer or symbol corressponding to the enum
+    def split: (untyped split_type) -> untyped
 
     def height: () -> untyped
 
-    def each: () -> untyped
+    def lower_left: () -> untyped
+
+    def upper_right: () -> untyped
   end
 end

@@ -2,15 +2,59 @@
 
 module Autocad
   class Layer < Element
-    def name: () -> untyped
+    # @rbs return String -- the name of the layer
+    def name: () -> String
+
+    # set the name of the layer
+    # @rbs name: String
+    # @rbs return void
+    def name=: (String name) -> void
 
     def description: () -> untyped
 
-    def lock: (?untyped lk) -> untyped
+    # is the layer the active layer
+    # @rbs return bool
+    def active?: () -> bool
+
+    # Activates the current layer by setting it as the active layer in the drawing.
+    # This method assigns the current layer's OLE object to the ActiveLayer property of the drawing's OLE object.
+    #
+    # @rbs return void
+    def activate: () -> void
+
+    # @rbs return bool
+    def frozen?: () -> bool
+
+    # freeze the layer - entities on layer are invisible and wont be
+    # regenerated
+    def freeze: () -> untyped
+
+    # unfreeze the layer
+    def unfreeze: () -> untyped
+
+    # @rbs return bool
+    def thawed?: () -> bool
+
+    # lock the layer - entities on layer can't be changed
+    def lock: () -> untyped
+
+    # unlock the layer
+    def unlock: () -> untyped
+
+    # @rbs return bool -- true if layer is locked
+    def locked?: () -> bool
 
     def visible?: () -> untyped
 
     def visible=: (untyped vis) -> untyped
+
+    # turn on the layer.
+    def turn_on: () -> untyped
+
+    def turn_off: () -> untyped
+
+    # @rbs return bool
+    def on?: () -> bool
 
     def delete: () -> untyped
 

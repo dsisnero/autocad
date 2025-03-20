@@ -6,8 +6,14 @@ module Autocad
 
     @event_handler: untyped
 
+    @pdf_plot_config: untyped
+
     @drawing_closed: untyped
 
+    @block_reference_selection_set: untyped
+
     alias model model_space
+
+    alias paper paper_space
   end
 end

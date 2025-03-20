@@ -21,6 +21,8 @@ module Autocad
     # end
     def filter: () -> untyped
 
+    def clear_filter: () -> untyped
+
     # Helper methods for common operations
     def filter_by_type: (*untyped types) -> untyped
 

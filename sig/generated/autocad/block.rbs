@@ -4,15 +4,18 @@ module Autocad
   class Block < Element
     def each: () -> untyped
 
-    def attributes?: () -> untyped
+    # @rbs return bool
+    def block?: () -> bool
 
-    def name: () -> untyped
+    def attributes?: () -> bool
 
-    def layout?: () -> untyped
+    def name: () -> String
 
-    def xref?: () -> untyped
+    def layout?: () -> bool
 
-    def dynamic?: () -> untyped
+    def xref?: () -> bool
+
+    def dynamic?: () -> bool
 
     def attribute_hash: () -> untyped
 

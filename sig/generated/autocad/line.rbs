@@ -36,6 +36,8 @@ module Autocad
     # the radius of the circle
     # @rbs return Point3d
     def radius: () -> Point3d
+
+    def inspect: () -> untyped
   end
 
   class Polyline < Element

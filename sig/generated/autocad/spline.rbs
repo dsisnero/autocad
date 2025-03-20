@@ -1,0 +1,22 @@
+# Generated from lib/autocad/spline.rb with RBS::Inline
+
+module Autocad
+  class Spline < Element
+    # @rbs return float -- The area of the arc
+    def area: () -> float
+
+    # whether the spline is closed
+    def closed?: () -> untyped
+
+    # ole obj Variant (array of doubles)
+    # 3D WCS Control Points for the spline
+    # @rbs return Array(Point3d)
+    def control_points: () -> Array
+
+    # set the control points for the spline
+    # @rbs pts Array(Point3d) | Array(Array[Double,Double,Double?])
+    def control_points=: (Array pts) -> untyped
+
+    def degree: () -> untyped
+  end
+end

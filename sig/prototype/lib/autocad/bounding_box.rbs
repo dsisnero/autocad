@@ -1,0 +1,15 @@
+module Autocad
+  # A BoundingBox represents a bounding box around a picture.
+  #
+  # A bounding box also defines a local coordinate system for a picture. The
+  # bounding box must contain the origin of the coordinate system. However the
+  # origin need not be centered within the box.
+  #
+  # No particular guarantees are made about the tightness of the bounding box,
+  # though it can assumed to be reasonably tight.
+  class BoundingBox
+    alias top_right upper_right
+
+    alias bottom_left lower_left
+  end
+end

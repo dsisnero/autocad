@@ -4,6 +4,10 @@ module Autocad
   class Plot < Element
     def set_layouts_to_plot: (*untyped layouts) -> untyped
 
+    def plot_preview: () -> untyped
+
+    def plot_to_device: () -> untyped
+
     def plot_to_file: (untyped filename, ?plot_config: untyped) -> untyped
   end
 end

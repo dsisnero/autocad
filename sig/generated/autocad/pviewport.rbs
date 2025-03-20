@@ -2,9 +2,64 @@
 
 module Autocad
   class PViewport < Element
-    def width: () -> untyped
+    # the viewport width
+    # @rbs return Float
+    def width: () -> Float
 
-    def height: () -> untyped
+    def width_inches: () -> untyped
+
+    def height_inches: () -> untyped
+
+    def pviewport?: () -> untyped
+
+    # change the viewport to front_view direction
+    def front_view: () -> untyped
+
+    def top_view: () -> untyped
+
+    def right_view: () -> untyped
+
+    def isometric_view: () -> untyped
+
+    # the viewport height
+    # @rbs return Float
+    def height: () -> Float
+
+    # @rbs return bool
+    def on?: () -> bool
+
+    # turn on the view
+    # @rbs return void
+    def on: () -> void
+
+    # turn of the display of viewport
+    # @rbs return void
+    def off: () -> void
+
+    def standard_scale=: (untyped scale) -> untyped
+
+    # the standard scale from Autocad AcViewportScale enum converted to symbol
+    # @rbs return Symbol
+    def standard_scale: () -> Symbol
+
+    def standard_scale=: (untyped scale) -> untyped
+
+    def standard_scale_ole_to_symbol: (untyped scale) -> untyped
+
+    def standard_scale_symbol_to_ole: (untyped scale) -> untyped
+
+    # set a custom scale for model objects
+    # @rbs scale: Float
+    def custom_scale=: (Float scale) -> untyped
+
+    def lock_display: () -> untyped
+
+    # specifies the lock stat fo the viewports display. When locked, cant
+    # change view
+    # @rbs return bool
+    def display_locked?: () -> bool
+
+    def unlock_display: () -> untyped
 
     def each: () -> untyped
   end

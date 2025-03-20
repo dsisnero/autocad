@@ -1,6 +1,8 @@
 # Generated from lib/autocad/element.rb with RBS::Inline
 
 class WIN32OLE
+  def ole_respond_to?: (untyped name) -> untyped
+
   def to_ole: () -> untyped
 end
 
@@ -34,11 +36,11 @@ module Autocad
     # @rbs return nil| Drawing
     def drawing: () -> (nil | Drawing)
 
+    def pviewport?: () -> untyped
+
     def block_reference?: () -> untyped
 
     def bounds: () -> untyped
-
-    def bounds_with_min: () -> untyped
 
     #
     #
@@ -48,8 +50,9 @@ module Autocad
     # def text?
     def text?: () -> bool
 
-    # @rbs return bool -- true if ole type is TextNode
-    def mtext?: () -> bool
+    # &: (Element) -> void
+    # @rbs return Enumerator[Element] -- explode element
+    def explode: () -> Enumerator[Element]
 
     def has_tags?: () -> untyped
 
@@ -58,10 +61,9 @@ module Autocad
     # @rbs return bool -- true if object is of type cell
     def cell?: () -> bool
 
-    # @rbs return bool -- true if Text or TextNode
-    def textual?: () -> bool
+    def highlight: (?untyped flag) -> untyped
 
-    def autocad_id: () -> untyped
+    def def: (untyped autocad_id) -> untyped
 
     def visible?: () -> untyped
 
@@ -124,7 +126,7 @@ module Autocad
 
     def app_ole_obj: () -> untyped
 
-    def delete: () -> untyped
+    def delete: (?regen: untyped) -> untyped
 
     def clone: (untyped new_insertion_point) -> untyped
 

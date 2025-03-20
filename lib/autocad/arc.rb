@@ -2,14 +2,17 @@ require_relative "element"
 
 module Autocad
   class Arc < Element
+    # @rbs return Float
     def length
       @ole_obj.ArcLength
     end
 
+    # @rbs return Point3d
     def start_point
       Point3d(ole_obj.StartPoint)
     end
 
+    # @rbs return Point3d
     def end_point
       Point3d(ole_obj.EndPoint)
     end

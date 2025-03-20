@@ -87,13 +87,17 @@ module Autocad
     # @rbs return Drawing | nil -- returns drawing if active_drawing
     def active_drawing: () -> (Drawing | nil)
 
-    def drawing_from_ole: (untyped ole) -> Drawing
+    # @rbs drawing: Drawing
+    # @rbs return void
+    def active_drawing=: (Drawing drawing) -> void
 
-    attr_reader error_proc: untyped
+    def drawing_from_ole: (untyped ole) -> Drawing
 
     attr_reader visible: untyped
 
     attr_reader logger: untyped
+
+    attr_accessor error_proc: untyped
 
     # Constructor for app
     # @rbs visible: bool -- do you want the app to be visible
@@ -157,7 +161,7 @@ module Autocad
 
     def zoom_previous: () -> untyped
 
-    def zoom_scaled: (?magnify: untyped, ?scale_type: untyped) -> untyped
+    def zoom_scaled: (?untyped magnify, ?scale_type: untyped) -> untyped
 
     # Zooms the current viewport to a specific center point and magnify factor
     # @rbs center: Point3d | [Float, Float, Float| nil] -- center of zoom
@@ -194,10 +198,6 @@ module Autocad
     # @rbs &: (Drawing) -> (void)
     # @rbs return Drawing | void
     def open_drawing: (String filename, ?read_only: untyped, ?wait_time: Integer, ?wait_interval: Float, ?error_proc: Proc) { (Drawing) -> void } -> (Drawing | void)
-
-    def model_space: () -> untyped
-
-    def paper_space: () -> untyped
 
     # @rbs message: String -- the String to put in Autocad prompt
     def prompt: (String message) -> untyped
@@ -244,6 +244,8 @@ module Autocad
 
     # @rbs return [Array<Pathname>] all paths in Files.SupportPath
     def support_paths: () -> untyped
+
+    def support_path_files: () -> untyped
 
     # @rbs return [Array<Pathname>] all paths in Files.PrinterConfigPath
     def printer_config_paths: () -> untyped

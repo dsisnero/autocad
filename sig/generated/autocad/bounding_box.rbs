@@ -10,6 +10,15 @@ module Autocad
   # No particular guarantees are made about the tightness of the bounding box,
   # though it can assumed to be reasonably tight.
   class BoundingBox
+    def self.empty: () -> untyped
+
+    # Create a BoundingBox with the given width and height and
+    # the origin centered within the box.
+    def self.centered: (untyped width, untyped height) -> untyped
+
+    # Create a BoundingBox from minimum and maximum points
+    def self.from_min_max: (untyped min_pt, untyped max_pt) -> untyped
+
     attr_reader left: untyped
 
     attr_reader top: untyped
@@ -19,6 +28,14 @@ module Autocad
     attr_reader bottom: untyped
 
     def initialize: (untyped left, untyped top, untyped right, untyped bottom) -> untyped
+
+    def upper_right: () -> untyped
+
+    def lower_left: () -> untyped
+
+    def center: () -> untyped
+
+    def contains?: (untyped pt) -> untyped
 
     def width: () -> untyped
 
@@ -45,18 +62,11 @@ module Autocad
     # Expand bounding box to enclose the given Point
     def enclose: (untyped point) -> untyped
 
+    def scale_to_fit: (untyped bb) -> untyped
+
     # Add expansion to all sides of this bounding box
     def expand: (untyped expansion) -> untyped
 
     def transform: (untyped transform) -> untyped
-
-    def self.empty: () -> untyped
-
-    # Create a BoundingBox with the given width and height and
-    # the origin centered within the box.
-    def self.centered: (untyped width, untyped height) -> untyped
-
-    # Create a BoundingBox from minimum and maximum points
-    def self.from_min_max: (untyped min_pt, untyped max_pt) -> untyped
   end
 end

@@ -1,0 +1,5 @@
+module Autocad
+  class Layer < Element
+    alias thaw unfreeze
+  end
+end

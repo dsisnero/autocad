@@ -2,11 +2,14 @@
 
 module Autocad
   class Arc < Element
-    def length: () -> untyped
+    # @rbs return Float
+    def length: () -> Float
 
-    def start_point: () -> untyped
+    # @rbs return Point3d
+    def start_point: () -> Point3d
 
-    def end_point: () -> untyped
+    # @rbs return Point3d
+    def end_point: () -> Point3d
 
     def start_angle: () -> untyped
 

@@ -11,8 +11,8 @@ module Faa
   def self.nexcom_dir: () -> Pathname
 
   module Cleanup
-    # Removes the text "TRANSLATION" and removes the border in model space
-    # and deletes the title block
+    def get_title_attributes: () -> untyped
+
     def cleanup_model: () -> untyped
 
     # Adds the faaborder to layout

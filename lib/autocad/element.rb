@@ -4,11 +4,10 @@ require "win32ole_helper"
 # require "autocad/property_handler"
 
 class WIN32OLE
-
   def ole_respond_to?(name)
-    ole_methods.any?{|m| m.name.casecmp?(name.to_s )}
+    ole_methods.any? { |m| m.name.casecmp?(name.to_s) }
   end
-  
+
   def to_ole
     self
   end

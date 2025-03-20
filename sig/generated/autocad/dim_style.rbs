@@ -1,0 +1,6 @@
+# Generated from lib/autocad/dim_style.rb with RBS::Inline
+
+module Autocad
+  class DimStyle < Element
+  end
+end

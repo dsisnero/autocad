@@ -1,0 +1,7 @@
+module Autocad
+  class Viewport < Element
+    alias bottom_left lower_left
+
+    alias top_right upper_right
+  end
+end

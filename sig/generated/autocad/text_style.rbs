@@ -1,0 +1,6 @@
+# Generated from lib/autocad/text_style.rb with RBS::Inline
+
+module Autocad
+  class TextStyle < Element
+  end
+end

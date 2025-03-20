@@ -4,9 +4,13 @@ module Autocad
   class BlockReference < Element
     def block_reference?: () -> untyped
 
+    def explode: () -> untyped
+
     def each: () -> untyped
 
     def external?: () -> untyped
+
+    def get_block_extents: () -> untyped
 
     def insertion_point: () -> untyped
 
@@ -15,6 +19,8 @@ module Autocad
     def has_attributes?: () -> untyped
 
     def name: () -> untyped
+
+    def scale_by: (untyped amt) -> untyped
 
     def x_scale_factor: () -> untyped
 
@@ -39,6 +45,9 @@ module Autocad
 
   class ExternalReference < BlockReference
     def external?: () -> untyped
+
+    # @rbs return Pathname -- the path of the external reference
+    def path: () -> Pathname
 
     def ins_units: () -> untyped
 

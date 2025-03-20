@@ -29,6 +29,8 @@ module Autocad
 
     alias current_drawing active_drawing
 
-    alias model model_space
+    alias has_drawings? has_documents?
+
+    alias drawings documents
   end
 end

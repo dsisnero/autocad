@@ -4,9 +4,13 @@ module Autocad
   class Text < Element
     def read_ole: (untyped _ole) -> untyped
 
+    def text?: () -> untyped
+
     def write_ole: (untyped text) -> untyped
 
     def to_regexp: () -> untyped
+
+    def highlight: (?untyped flag) -> untyped
 
     def =~: (untyped reg) -> untyped
 

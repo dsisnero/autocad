@@ -1,0 +1,48 @@
+# Generated from lib/autocad/layout.rb with RBS::Inline
+
+module Autocad
+  class Layout < PlotConfiguration
+    def insert_block: (untyped block, ?pt: untyped) -> untyped
+
+    # The name of the layout
+    # @rbs return String
+    def name: () -> String
+
+    # @rbs name: String -- the name of the layout
+    # @rbs return void
+    def name=: (untyped str) -> void
+
+    # @rbs param pc: PlotConfiguration
+    # @rbs return void
+    def copy_plot_configuration: (untyped pc) -> void
+
+    # @rbs name: String -- the name of the block to add
+    # @rbs pt: Point3d -- the point to insert the block
+    # @rbs rotation: Float -- the rotation of the block
+    # @rbs scale: Float -- the scale of the block
+    # @rbs return BlockReference
+    def add_block_reference: (String name, pt: Point3d, ?rotation: Float, ?scale: Float) -> BlockReference
+
+    # @rbs return Integer -- the TabOrder of layout
+    def tab_order: () -> Integer
+
+    # set the TabOrder of a named layout
+    # @rbs n: Integer
+    # @rbs return void
+    def tab_order=: (Integer n) -> void
+
+    # in inches -note paper units is for display and doesnt affect the return
+    # value of GetPaperSize returns mm paper size
+    # @rbs return Array[Float, Float] -- return the width and height of the paper
+    def paper_size: () -> Array[Float, Float]
+
+    # make a Autocad::BoundingBox from the usable_area
+    def bounds: () -> untyped
+
+    def paper_size_inches: () -> untyped
+
+    def add_pviewport: (?untyped scale) -> untyped
+
+    def paper_margins: () -> untyped
+  end
+end

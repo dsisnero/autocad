@@ -22,6 +22,8 @@ module Autocad
 
     def clear: () -> untyped
 
+    def clear_filter: () -> untyped
+
     def filter_text: (untyped str) -> untyped
 
     def filter_text_containing: (untyped str) -> untyped

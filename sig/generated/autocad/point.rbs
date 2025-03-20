@@ -1,0 +1,7 @@
+# Generated from lib/autocad/point.rb with RBS::Inline
+
+module Autocad
+  class Point < Element
+    def coordinates: () -> untyped
+  end
+end

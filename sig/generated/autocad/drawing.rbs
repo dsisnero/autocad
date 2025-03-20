@@ -8,20 +8,6 @@ module Autocad
 
     def self.from_ole_obj: (untyped app, untyped ole) -> Drawing
 
-    def set_system_variables: (untyped names, untyped values) -> untyped
-
-    def faa_title_block: () -> untyped
-
-    def block_reference_enum: () -> untyped
-
-    def block_reference_selection_set: () -> untyped
-
-    def get_block_reference_selection_set: () -> untyped
-
-    def with_system_variables: (untyped names, untyped values) ?{ (?) -> untyped } -> untyped
-
-    def get_system_variables: (*untyped atts) -> untyped
-
     def initialize: (untyped app, untyped ole) -> untyped
 
     def event_handler: () -> EventHandler
@@ -39,11 +25,14 @@ module Autocad
     # @rbs &: {() -> void} - handler Proc
     def register_handler: (String event) ?{ (?) -> untyped } -> void
 
-    def read_only?: () -> untyped
+    # @rbs return bool -- true if drawing is read only
+    def read_only?: () -> bool
 
-    def previously_saved?: () -> untyped
+    # @rbs return bool -- true if drawing is previously saved
+    def previously_saved?: () -> bool
 
-    def modified?: () -> untyped
+    # @rbs return bool -- true if drawing is modified
+    def modified?: () -> bool
 
     def save: (?name: untyped, ?dir: untyped) -> void
 
@@ -61,6 +50,24 @@ module Autocad
 
     def pdf_path: (?name: untyped, ?dir: untyped) -> untyped
 
+    def get_current_view_size: () -> untyped
+
+    # Todo
+    # @rbs return Point3d -- the center of the view in world coordinates
+    def view_center: () -> Point3d
+
+    # @rbs name: String
+    # @rbs return PlotConfiguration
+    def add_plot_configuration: (String name, ?model: untyped) -> PlotConfiguration
+
+    # returns the defined plot configuration "faa_ansid_bw".
+    def pdf_plot_config: () -> PlotConfiguration
+
+    def default_plot_setup: () -> untyped
+
+    # creates the "faa_ansid_bw" plot configuration
+    def create_pdf_plot_configutation: () -> PlotConfiguration
+
     # Return the pdf name for the drawing.
     #
     # If a name is provided use the name provided otherwise use the drawing name
@@ -68,6 +75,15 @@ module Autocad
     # @rbs name: String | nil -- change ext to pdf and return Pathname from
     # the name or drawing name
     def pdf_name: (?String | nil name) -> Pathname
+
+    def plot: () -> Plot
+
+    def print_pdf: (untyped print_path, ?model: untyped) -> untyped
+
+    # @rbs return Layout -- The first layout that is not "Model"
+    def paper_space_layout: () -> Layout
+
+    def print_paper_space_pdf: (untyped print_path) -> untyped
 
     # copy the drawing
     # @rbs name: String | Pathname --name of the file
@@ -98,11 +114,28 @@ module Autocad
     # @rbs return Pathname -- the complete path of file
     def path: () -> Pathname
 
-    def print_pdf: (untyped print_path, ?model: untyped) -> untyped
+    # @rbs return Layer -- the active layer
+    def active_layer: () -> Layer
 
-    def pdf_plot_config: () -> untyped
+    # @rbs return String -- the name of the active layer
+    def active_layer_name: () -> String
 
-    def active_layer: () -> untyped
+    # @rbs layer: Layer | String -- make the given layer active
+    def active_layer=: (Layer | String layer) -> untyped
+
+    # @rbs vport: Autocad::PViewport -- viewport to make active
+    # @rbs return void
+    def active_pviewport=: (Autocad::PViewport vport) -> void
+
+    # return the active PViewport
+    # @rbs return PViewport
+    def active_pviewport: () -> PViewport
+
+    # @rbs return Layout
+    def active_layout: () -> Layout
+
+    # @rbs layout: Layout -- layout to make active
+    def active_layout=: (Layout layout) -> untyped
 
     def active_space: () -> untyped
 
@@ -114,15 +147,13 @@ module Autocad
     # @rbs return SelectionSet | nil
     def get_selection_set: (String name) -> (SelectionSet | nil)
 
-    # @rbs name: String -- selection set name to return
-    # @rbs return SelectionSet | nil
-    def get_ole_selection_set: (String name) -> (SelectionSet | nil)
-
-    def ole_selection_sets: () -> untyped
-
     # @rbs return Enumerator[Block]
     # @rbs &: (Block) -> void
     def blocks: () { (Block) -> void } -> Enumerator[Block]
+
+    # @rbs return Enumerator[Layout]
+    # @rbs &: (Layout) -> void
+    def layouts: () { (Layout) -> void } -> Enumerator[Layout]
 
     # @rbs return Enumerator[Layer]
     # @rbs &: (Layer) -> void
@@ -133,6 +164,50 @@ module Autocad
     # @rbs name: String | Layer -- layer name to create
     # @rbs return Acad::Layer
     def create_layer: (String | Layer name, ?color: untyped) -> Acad::Layer
+
+    # regen the current drawing
+    #  view_ports is fr AcRegenType enum from autocad
+    #  [:all, :active]
+    #  @rbs view_ports: Symbol -- :all or :active
+    #  @rbs return void
+    def regen: (?Symbol view_ports) -> void
+
+    # @rbs return Enumerator[BlockReference] -- all block references in model space
+    def model_block_references: () -> Enumerator[BlockReference]
+
+    # @rbs return Enumerator[BlockReference] -- all block references in paper space
+    def paper_block_references: () -> Enumerator[BlockReference]
+
+    def select_text_containing: (untyped str) -> untyped
+
+    def has_pviewport?: () -> untyped
+
+    def get_select_text_containing: (untyped str) -> untyped
+
+    # &: (BlockReference) -> void
+    # @rbs return Enumerator[BlockReference]
+    def block_references: () -> Enumerator[BlockReference]
+
+    # &: (DimStyle) -> void
+    # @rbs return Enumerator[DimStyle] -- enumerator of dimension styles in document
+    def dim_styles: () -> Enumerator[DimStyle]
+
+    # &: (TextStyle) -> void
+    # @rbs return Enumerator[TextStyle] -- enumerator of text styles in document
+    def text_styles: () -> Enumerator[TextStyle]
+
+    # @rbs return SelectionSetAdapter
+    def block_reference_selection_set: () -> SelectionSetAdapter
+
+    def get_variable: (untyped name) -> untyped
+
+    def set_variable: (untyped name, untyped value) -> untyped
+
+    def set_variables: (untyped names, untyped values) -> untyped
+
+    def with_system_variables: (untyped names, untyped values) ?{ (?) -> untyped } -> untyped
+
+    def get_variables: (*untyped atts) -> untyped
 
     # @rbs message: String -- the String to put in Autocad prompt
     def prompt: (String message) -> untyped
@@ -176,5 +251,15 @@ module Autocad
     def utility: () -> untyped
 
     def ole_obj: () -> untyped
+
+    private
+
+    def get_block_reference_selection_set: () -> untyped
+
+    # @rbs name: String -- selection set name to return
+    # @rbs return SelectionSet | nil
+    def get_ole_selection_set: (String name) -> (SelectionSet | nil)
+
+    def ole_selection_sets: () -> untyped
   end
 end
