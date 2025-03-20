@@ -33,8 +33,19 @@ describe Autocad::Drawing do
       # Try to close the drawing
       begin
         drawing&.close(save: false)
+      rescue Autocad::DrawingClose => e
+        puts "Error closing drawing: #{e.message}"
+        # Try to close via the app instead
+        begin
+          @app.close_drawing(drawing, false) if drawing
+        rescue StandardError => app_err
+          puts "Error in app.close_drawing: #{app_err.message}"
+        end
       rescue StandardError => e
         puts "Error closing drawing #{drawing.name}: #{e.message}"
+      ensure
+        # Make sure drawing is nil to prevent further use
+        drawing = nil
       end
     end
 
