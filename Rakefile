@@ -10,6 +10,12 @@ Minitest::TestTask.create :unit do |t|
   t.warning = false
 end
 
+# Create a namespace for test tasks
+namespace :test do
+  desc "Run unit tests"
+  task :unit => :unit
+end
+
 require 'standard/rake'
 
 task default: %i[test standard]

@@ -99,8 +99,9 @@ module Autocad
       @ole_obj.GetPaperMargins lower_left, upper_right
       lower_left, upper_right = WIN32OLE::ARGV
       [lower_left, upper_right]
-    rescue StandardError
-      binding.irb
+    rescue StandardError => e
+      puts "Error getting paper margins: #{e.message}"
+      [[0, 0], [0, 0]]  # Return default values instead of breaking
     end
   end
 end

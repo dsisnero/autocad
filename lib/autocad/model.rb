@@ -42,12 +42,13 @@ module Autocad
       pt2 = Point3d.new(pt2)
       ole_line = ole_obj.AddLine(pt1.to_ole, pt2.to_ole)
       if layer
-        layer = create_layer(layer)
-        ole_line.layer = layer.ole_obj
+        layer_obj = create_layer(layer)
+        ole_line.Layer = layer_obj.name
       end
       app.wrap(ole_line)
     rescue StandardError => e
       puts e.message
+      nil
     end
 
     def layout

@@ -64,10 +64,6 @@ module Autocad
       @ole_obj.Display(false)
     end
 
-    def standard_scale=(scale)
-      @ole_obj.StandardScale = scale
-    end
-
     # the standard scale from Autocad AcViewportScale enum converted to symbol
     # @rbs return Symbol
     def standard_scale
@@ -76,8 +72,12 @@ module Autocad
     end
 
     def standard_scale=(scale)
-      ole = standard_scale_symbol_to_ole(scale)
-      @ole_obj.StandardScale = ole
+      if scale.is_a?(Symbol)
+        ole = standard_scale_symbol_to_ole(scale)
+        @ole_obj.StandardScale = ole
+      else
+        @ole_obj.StandardScale = scale
+      end
     end
 
     def standard_scale_ole_to_symbol(scale)

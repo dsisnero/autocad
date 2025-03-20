@@ -83,9 +83,10 @@ module Faa
       ps.clear_pviewports
       layout = paper_space_layout
       layout.copy_plot_configuration pdf_plot_config
-      pv = ps.add_pv_viewport([17.5, 11.0], width: 32.0, height: 21.0) # center of title block
-      pv.on
-      # layout.add_pviewport
+      
+      # Use layout.add_pviewport which calculates size based on paper size and margins
+      pv = layout.add_pviewport(:scale_to_fit)
+      
       to_paper_space
       regen
       ole_obj.MSpace = true
@@ -94,13 +95,6 @@ module Faa
       app.zoom_extents
       layout.update(plot_type: :layout)
       nil
-      # to_paper_space
-      # ole_obj.MSpace = true
-      # app.zoom_extents
-      # ole_obj.MSpace = false
-      # app.zoom_extents
-      # ole_obj.MSpace = false
-      # ole_obj.MSpace = false
     end
 
     def faa_title_block
