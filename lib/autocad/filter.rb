@@ -474,6 +474,24 @@ module Autocad
       new_filter(:text_content, str)
     end
     
+    # Filter for text containing a string pattern (alias for has_text)
+    #
+    # Creates a new filter for text entities containing specific content.
+    # This method creates an OR filter for both TEXT and MTEXT entities.
+    #
+    # @param str [String] Text pattern to search for
+    # @return [Filter] A new filter for text content
+    # @example Filter for text containing "REVISION"
+    #   f.contains("REVISION")
+    # @rbs str: String -- Text pattern to search for
+    # @rbs return Filter -- A new filter for text content
+    def contains(str)
+      self.or(
+        new_filter(:text_content, "*#{str}*"),
+        new_filter(:text_content, "*#{str}*")
+      )
+    end
+    
     # Filter for any text entity
     #
     # Creates a new filter for any text entity (TEXT or MTEXT).
@@ -484,7 +502,7 @@ module Autocad
     # @example Filter for text on a specific layer
     #   f.and(f.text, f.layer("NOTES"))
     def text
-      or(type("TEXT"), type("MTEXT"))
+      self.or(type("TEXT"), type("MTEXT"))
     end
     
     # Filter for entities with specific linetype
