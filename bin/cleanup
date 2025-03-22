@@ -6,11 +6,17 @@ require "autocad"
 require "faa/cleanup"
 require "debug"
 
-# You can add fixtures and/or initialization code here to make experimenting
-# with your gem easier. You can also use a different console, if you like.
+# Connect to an existing AutoCAD application instead of creating a new one
+app = Autocad::App.new(create: false)
+drawing = app.current_drawing
 
+puts "Connected to existing AutoCAD application"
+puts "Current drawing: #{drawing.name}" if drawing
+
+# Start IRB session with the app and drawing variables available
 require "irb"
 IRB.start(__FILE__)
-app = Autocad::App.new
-app.current_drawing
-debugger(pre: "info locals")
+
+# No need to explicitly close anything when exiting
+# The OLE connection will be released when the Ruby process ends
+puts "Disconnected from AutoCAD. The application remains running."
