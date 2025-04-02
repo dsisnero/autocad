@@ -710,7 +710,7 @@ module Autocad
       end
 
       sleep(sleep_duration)
-      # ole.Visible = visible
+      ole.Visible = visible
       # ole.IsProcessLocked = true
       load_constants(ole)
       app_event = WIN32OLE_EVENT.new(ole)
