@@ -87,6 +87,7 @@ describe Autocad::Drawing do
         media_name: "ANSI_B_(17.00_x_11.00_Inches)",
         style_sheet: "monochrome.ctb",
         plot_type: :layout
+        # Removed rotation parameter which was causing issues
       )
 
       # Print to PDF using custom configuration

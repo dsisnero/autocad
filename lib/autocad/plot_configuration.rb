@@ -34,12 +34,12 @@ module Autocad
     # @rbs value: Hash[Symbol, Object]
     # @rbs return void
     def write_ole(value)
-      ole_obj.ConfigName = value[:device_name]
-      ole_obj.CanonicalMediaName = value[:media_name]
-      ole_obj.StyleSheet = value[:style_sheet]
-      ole_obj.PlotType = plot_type_to_ole(value[:plot_type])
-      ole_obj.PlotRotation = rotation_degree_to_ole(value[:rotation])
-      ole_obj.PaperUnits = paper_units_to_ole(value[:paper_units])
+      ole_obj.ConfigName = value[:device_name] if value[:device_name]
+      ole_obj.CanonicalMediaName = value[:media_name] if value[:media_name]
+      ole_obj.StyleSheet = value[:style_sheet] if value[:style_sheet]
+      ole_obj.PlotType = plot_type_to_ole(value[:plot_type]) if value[:plot_type]
+      ole_obj.PlotRotation = rotation_degree_to_ole(value[:rotation]) if value[:rotation]
+      ole_obj.PaperUnits = paper_units_to_ole(value[:paper_units]) if value[:paper_units]
     end
 
     # Get plot origin point in millimeters

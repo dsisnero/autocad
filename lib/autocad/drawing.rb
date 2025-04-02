@@ -956,6 +956,19 @@ module Autocad
       Pathname.new(name).sub_ext(".pdf")
     end
 
+    # Print the drawing to a PDF file
+    # @param print_path [String, Pathname] Path to save the PDF
+    # @param model [Boolean] Whether to print model space (true) or paper space (false)
+    # @param plot_config [PlotConfiguration] Plot configuration to use (defaults to pdf_plot_config)
+    # @return [void]
+    # @example Print current layout to PDF
+    #   drawing.print_pdf("C:/output.pdf")
+    # @example Print model space to PDF with custom configuration
+    #   drawing.print_pdf("C:/model.pdf", model: true, plot_config: custom_config)
+    # @rbs print_path: String | Pathname
+    # @rbs model: bool
+    # @rbs plot_config: PlotConfiguration
+    # @rbs return void
     def print_pdf(print_path, model: false, plot_config: pdf_plot_config)
       if model
         puts "print model"
