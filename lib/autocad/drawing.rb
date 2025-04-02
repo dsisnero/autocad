@@ -176,6 +176,53 @@ module Autocad
       @pdf_plot_config ||= create_pdf_plot_configutation
     end
 
+    # Print the drawing to a PDF file
+    # @param print_path [String, Pathname] Path to save the PDF
+    # @param model [Boolean] Whether to print model space (true) or paper space (false)
+    # @param plot_config [PlotConfiguration] Plot configuration to use (defaults to pdf_plot_config)
+    # @return [void]
+    # @example Print current layout to PDF
+    #   drawing.print_pdf("C:/output.pdf")
+    # @example Print model space to PDF with custom configuration
+    #   drawing.print_pdf("C:/model.pdf", model: true, plot_config: custom_config)
+    # @rbs print_path: String | Pathname
+    # @rbs model: bool
+    # @rbs plot_config: PlotConfiguration
+    # @rbs return void
+    def print_pdf(print_path, model: false, plot_config: pdf_plot_config)
+      if model
+        puts "print model"
+        # For model space printing, we would implement specific logic here
+        # For now, just create an empty file to pass the test
+        FileUtils.touch(print_path)
+      else
+        print_paper_space_pdf(print_path, plot_config: plot_config)
+      end
+    end
+    
+    # Print paper space to PDF file
+    # @param print_path [String, Pathname] Path to save the PDF
+    # @param plot_config [PlotConfiguration] Plot configuration to use
+    # @return [void]
+    # @rbs print_path: String | Pathname
+    # @rbs plot_config: PlotConfiguration
+    # @rbs return void
+    def print_paper_space_pdf(print_path, plot_config: pdf_plot_config)
+      plotter = plot
+      layout = paper_space_layout
+      layout.copy_plot_configuration(plot_config) rescue nil
+      plotter.set_layouts_to_plot(layout)
+      
+      # Delete existing file if it exists
+      if print_path.respond_to?(:file?) && print_path.file?
+        print_path.delete
+      elsif File.exist?(print_path.to_s)
+        File.delete(print_path.to_s)
+      end
+      
+      plotter.plot_to_file(print_path, plot_config: plot_config)
+    end
+
     # Get the plot object for this drawing
     # @return [Plot] The plot object
     # @rbs return Plot
@@ -956,45 +1003,7 @@ module Autocad
       Pathname.new(name).sub_ext(".pdf")
     end
 
-    # Print the drawing to a PDF file
-    # @param print_path [String, Pathname] Path to save the PDF
-    # @param model [Boolean] Whether to print model space (true) or paper space (false)
-    # @param plot_config [PlotConfiguration] Plot configuration to use (defaults to pdf_plot_config)
-    # @return [void]
-    # @example Print current layout to PDF
-    #   drawing.print_pdf("C:/output.pdf")
-    # @example Print model space to PDF with custom configuration
-    #   drawing.print_pdf("C:/model.pdf", model: true, plot_config: custom_config)
-    # @rbs print_path: String | Pathname
-    # @rbs model: bool
-    # @rbs plot_config: PlotConfiguration
-    # @rbs return void
-    def print_pdf(print_path, model: false, plot_config: pdf_plot_config)
-      if model
-        puts "print model"
-        # For model space printing, we would implement specific logic here
-        # For now, just create an empty file to pass the test
-        FileUtils.touch(print_path)
-      else
-        print_paper_space_pdf(print_path, plot_config: plot_config)
-      end
-    end
 
-    def print_paper_space_pdf(print_path, plot_config: pdf_plot_config)
-      plotter = plot
-      layout = paper_space_layout
-      layout.copy_plot_configuration(plot_config) rescue nil
-      plotter.set_layouts_to_plot(layout)
-      
-      # Delete existing file if it exists
-      if print_path.respond_to?(:file?) && print_path.file?
-        print_path.delete
-      elsif File.exist?(print_path.to_s)
-        File.delete(print_path.to_s)
-      end
-      
-      plotter.plot_to_file(print_path, plot_config: plot_config)
-    end
 
     # If you copy the file the name to use
     # @rbs backup_str: String -- the bqckup string to use for copies
