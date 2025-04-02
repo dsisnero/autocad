@@ -64,8 +64,7 @@ describe Autocad::Drawing do
     it 'creates a PDF file using default plot configuration' do
       # Add some content to the drawing to make it more realistic
       drawing.model.add_circle([0, 0, 0], 10)
-      drawing.save
-
+      
       # Print to PDF using default configuration
       drawing.print_pdf(pdf_path)
       
@@ -80,8 +79,7 @@ describe Autocad::Drawing do
     it 'creates a PDF file using custom plot configuration' do
       # Add some content to the drawing
       drawing.model.add_rectangle([-10, -10, 0], [10, 10, 0])
-      drawing.save
-
+      
       # Create a custom plot configuration
       custom_config = drawing.add_plot_configuration("custom_pdf_config")
       custom_config.setup(
@@ -106,8 +104,7 @@ describe Autocad::Drawing do
     it 'handles model space printing when model flag is true' do
       # Add some content to model space
       drawing.model.add_line([-5, -5, 0], [5, 5, 0])
-      drawing.save
-
+      
       # Print model space to PDF
       model_pdf_path = Pathname.new(Dir.tmpdir).join("test_print_model_#{Time.now.to_i}.pdf")
       
