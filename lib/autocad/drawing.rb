@@ -956,21 +956,23 @@ module Autocad
       Pathname.new(name).sub_ext(".pdf")
     end
 
-    def print_pdf(print_path, model: false)
+    def print_pdf(print_path, model: false, plot_config: pdf_plot_config)
       if model
         "puts print model"
       else
-        print_paper_space_pdf(print_path)
+        print_paper_space_pdf(print_path, plot_config: pdf_plot_config)
       end
     end
 
-    def print_paper_space_pdf(print_path)
+    def print_paper_space_pdf(print_path, plot_config: pdf_plot_config)
       plotter = plot
-      plotter.set_layouts_to_plot paper_space_layout
-      if print_path.file?
+      layout = paper_space_layout
+      layout.copy_plot_configuration pdf_plot_config rescue nil
+      plotter.set_layouts_to_plot layout
+            if print_path.file?
         print_path.delete if print_path.file?
       end
-      plotter.plot_to_file(print_path)
+      plotter.plot_to_file(print_path, plot_config: pdf_plot_config)
     end
 
     # If you copy the file the name to use
