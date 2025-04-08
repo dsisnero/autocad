@@ -473,7 +473,7 @@ module Autocad
     def has_text(str)
       new_filter(:text_content, str)
     end
-    
+
     # Filter for text containing a string pattern (alias for has_text)
     #
     # Creates a new filter for text entities containing specific content.
@@ -491,7 +491,7 @@ module Autocad
         new_filter(:text_content, "*#{str}*")
       )
     end
-    
+
     # Filter for any text entity
     #
     # Creates a new filter for any text entity (TEXT or MTEXT).
@@ -504,7 +504,7 @@ module Autocad
     def text
       self.or(type("TEXT"), type("MTEXT"))
     end
-    
+
     # Filter for entities with specific linetype
     #
     # Creates a new filter for entities with a specific linetype.

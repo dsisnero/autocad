@@ -37,7 +37,7 @@ module Autocad
     def add_block_reference(name, pt:, rotation: 0.0, scale: 1.0)
       name = name.to_s
       name = app.windows_path(name) if File.file?(name)
-      
+
       pt3d = Point3d.new(pt)
       ole_reference = ole_obj.Block.InsertBlock(pt3d.to_ole, name.to_s,
         scale.to_f, scale.to_f, scale.to_f, rotation.to_f)

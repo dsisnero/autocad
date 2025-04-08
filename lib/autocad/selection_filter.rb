@@ -152,7 +152,7 @@ module Autocad
     end
 
     # Relational Operators
-    
+
     # Greater than comparison
     # @param value [Numeric] Comparison value
     # @return [self] The filter for chaining
@@ -343,7 +343,7 @@ module Autocad
 
       self
     end
-    
+
     # Helper method for text content matching
     # @param str [String] Text to search for
     # @return [self] The filter for chaining

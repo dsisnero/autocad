@@ -1,0 +1,24 @@
+# Generated from lib/autocad/win_api.rb with RBS::Inline
+
+module Autocad
+  module WinAPI
+    extend Fiddle::Importer
+
+    # Find a window by class and title
+    # @param window_class [String, nil] window class name
+    # @param window_title [String, nil] window title
+    # @return [Integer] window handle or 0 if not found
+    def self.find_window: (untyped window_class, untyped window_title) -> untyped
+
+    # Get window text
+    # @param hwnd [Integer] window handle
+    # @return [String] window text
+    def self.get_window_text: (untyped hwnd) -> untyped
+
+    # Send a key to a window
+    # @param hwnd [Integer] window handle
+    # @param key [Integer] virtual key code
+    # @return [Integer] result
+    def self.send_key_to_window: (untyped hwnd, untyped key) -> untyped
+  end
+end

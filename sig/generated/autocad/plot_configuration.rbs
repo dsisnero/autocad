@@ -82,6 +82,8 @@ module Autocad
 
     def ansi_d_landscape: () -> untyped
 
+    def ansi_d_landscape_full_bleed: () -> untyped
+
     # Refresh plot device information
     # @rbs return void
     # @note Required after changing device configurations
@@ -167,7 +169,7 @@ module Autocad
     def plot_type_ole_to_sym: (Integer typ) -> Symbol
 
     # Convert plot type symbol to OLE constant
-    # @rbs typ: Symbol -- Valid values: 
+    # @rbs typ: Symbol -- Valid values:
     #   :display, :extents, :layout, :limits, :view, :window
     # @rbs return Integer -- OLE constant (ACAD::Ac*)
     # @raise [ArgumentError] For invalid plot types

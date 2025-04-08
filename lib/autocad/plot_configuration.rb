@@ -55,14 +55,14 @@ module Autocad
     def plot_origin=(...)
       origin = Point3d.new(...)
       ole_obj.PlotOrigin = origin.to_ole
-    rescue StandardError => e
+    rescue => e
       app.error_proc.call(e, self)
     end
 
     # Get current plot style mode
     # @rbs return Symbol
     def plot_style_mode
-      style = drawing.get_variable('pstylemode')
+      style = drawing.get_variable("pstylemode")
       case style
       when 0
         :named_style_mode
@@ -72,7 +72,7 @@ module Autocad
     end
 
     def plot_style_mode_variable
-      drawing.get_variable('pstylemode')
+      drawing.get_variable("pstylemode")
     end
 
     # Check if using color-dependent plot styles
@@ -107,7 +107,7 @@ module Autocad
     def update(value)
       merged_value = original.merge(value)
       super(merged_value)
-    rescue StandardError => e
+    rescue => e
       binding.irb
     end
 
@@ -132,19 +132,23 @@ module Autocad
       when :color, :color_style, :color_style_mode
         1
       else
-        raise 'need either :named or :color'
+        raise "need either :named or :color"
       end
-      drawing.set_variable('pstylemode', style)
+      drawing.set_variable("pstylemode", style)
     end
 
     # ANSI B landscape paper size name
     # @rbs return String -- Canonical name "ANSI_B_(17.00_x_11.00_Inches)"
     def ansi_b_landscape
-      'ANSI_B_(17.00_x_11.00_Inches)'
+      "ANSI_B_(17.00_x_11.00_Inches)"
     end
 
     def ansi_d_landscape
-      'ANSI_D_(34.00_x_22.00_Inches)'
+      "ANSI_D_(34.00_x_22.00_Inches)"
+    end
+
+    def ansi_d_landscape_full_bleed
+      "ANSI_full_bleed_D_(34.00_x_22.00_Inches)"
     end
 
     # Refresh plot device information
@@ -348,7 +352,7 @@ module Autocad
     end
 
     # Convert plot type symbol to OLE constant
-    # @rbs typ: Symbol -- Valid values: 
+    # @rbs typ: Symbol -- Valid values:
     #   :display, :extents, :layout, :limits, :view, :window
     # @rbs return Integer -- OLE constant (ACAD::Ac*)
     # @raise [ArgumentError] For invalid plot types

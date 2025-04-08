@@ -127,11 +127,11 @@ module Autocad
     def register_handler: (String event) ?{ (?) -> untyped } -> untyped
 
     #
-    # return a Handler
+    #  return a Handler
     #
-    # @rbs : String,Symbol] event the event key
+    #  @rbs : String,Symbol] event the event key
     #
-    # @rbs return Proc returns the Proc given by event name
+    #  @rbs return Proc returns the Proc given by event name
     def get_handler: (untyped event) -> Proc
 
     def load_constants: (untyped ole) -> untyped

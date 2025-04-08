@@ -41,24 +41,24 @@ module Autocad
     # @rbs return Integer
     def self.to_index(color)
       return color if color.is_a?(Integer)
-      
+
       # Handle both camelCase and snake_case in symbols and strings
       color_str = color.to_s
-      
+
       # Try direct match first (for exact constant names)
       constants.each do |const_name|
         return const_get(const_name) if const_name.to_s.downcase == color_str.downcase
       end
-      
+
       # Try normalized version (convert snake_case to CamelCase)
       normalized = color_str.split('_').map(&:capitalize).join
       constants.each do |const_name|
         return const_get(const_name) if const_name.to_s.downcase == normalized.downcase
       end
-      
+
       raise ArgumentError, "Unknown color: #{color}. Use a valid color name or integer index."
     end
-    
+
     # Convert an integer color index to a symbolic name if possible
     # @rbs index: Integer
     # @rbs return Symbol | Integer
@@ -68,14 +68,14 @@ module Autocad
       end
       index # Return the original index if no matching constant
     end
-    
+
     # Helper method to convert to snake_case
     # @rbs camel_case: String
     # @rbs return String
     def self.underscore(camel_case)
       camel_case.to_s.gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
-                .gsub(/([a-z\d])([A-Z])/, '\1_\2')
-                .downcase
+        .gsub(/([a-z\d])([A-Z])/, '\1_\2')
+        .downcase
     end
   end
 end

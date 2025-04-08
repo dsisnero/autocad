@@ -88,7 +88,7 @@ module Autocad
     end
 
     # Helper methods for common operations
-    
+
     # Filter by entity types
     # @param types [Array<String>] Entity type names (e.g., "LINE", "CIRCLE")
     # @return [self] The selection set for chaining

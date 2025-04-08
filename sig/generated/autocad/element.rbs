@@ -51,10 +51,10 @@ module Autocad
     #
     #
     #
-    # @rbs return bool -- true if ole type is Text
-    # def text?
-    # Check if this element is a text object
-    # @rbs return bool
+    #  @rbs return bool -- true if ole type is Text
+    #  def text?
+    #  Check if this element is a text object
+    #  @rbs return bool
     def text?: () -> bool
 
     # Explode this element into its component parts
