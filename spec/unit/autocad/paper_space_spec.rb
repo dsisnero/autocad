@@ -9,7 +9,7 @@ describe Autocad::PaperSpace do
   after(:all) do
     begin
       @drawing.close(save: false) if @drawing
-    rescue StandardError => e
+    rescue => e
       puts "Error closing drawing: #{e.message}"
     end
     @app.quit
@@ -29,7 +29,7 @@ describe Autocad::PaperSpace do
       paper_space.clear_pviewports
 
       # Add a viewport
-      viewport = paper_space.add_pv_viewport([5, 5, 0], width: 10, height: 8)
+      paper_space.add_pv_viewport([5, 5, 0], width: 10, height: 8)
 
       viewports = paper_space.pviewports
       _(viewports).wont_be_empty

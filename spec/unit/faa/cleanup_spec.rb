@@ -10,7 +10,7 @@ describe Faa::Cleanup do
   after(:all) do
     begin
       @drawing.close(save: false) if @drawing
-    rescue StandardError => e
+    rescue => e
       puts "Error closing drawing: #{e.message}"
     end
     @app.quit
@@ -78,7 +78,7 @@ describe Faa::Cleanup do
   describe '#remove_translation_text' do
     it 'removes text containing TRANSLATION' do
       # Setup: Add some text with TRANSLATION in it
-      model_space = @drawing.model_space
+      @drawing.model_space
 
       # Mock the select_text_containing method
       original_method = @drawing.method(:select_text_containing)

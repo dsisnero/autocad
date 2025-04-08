@@ -22,7 +22,7 @@ module Autocad
     # @rbs return bool
     def xref?
       @ole_obj.IsXRef
-    rescue StandardError
+    rescue
       false
     end
 
@@ -44,7 +44,7 @@ module Autocad
       ole_reference = ole_obj.AttachExternalReference(windows_path, name, pt3d.to_ole, x_scale, y_scale, z_scale,
         rotation, overlay, password)
       app.wrap(ole_reference)
-    rescue StandardError => e
+    rescue => e
       app.error_proc.call(e, self)
     end
 
@@ -62,7 +62,7 @@ module Autocad
         ole_line.Layer = layer_obj.name
       end
       app.wrap(ole_line)
-    rescue StandardError => e
+    rescue => e
       puts e.message
       nil
     end
@@ -85,7 +85,7 @@ module Autocad
       pt = Point3d(center)
       ole_arc = ole_obj.AddArc(pt.to_ole, radius, start_angle, end_angle)
       app.wrap(ole_arc)
-    rescue StandardError => e
+    rescue => e
       raise Autocad::Error.new("Error adding arc #{e}")
     end
 
@@ -98,7 +98,7 @@ module Autocad
       pt = Point3d(center)
       ole_circle = ole_obj.AddCircle(pt.to_ole, radius)
       app.wrap(ole_circle)
-    rescue StandardError => e
+    rescue => e
       raise Autocad::Error.new("Error adding circle #{e.message}")
     end
 
@@ -114,7 +114,7 @@ module Autocad
       pts_variant = WIN32OLE::Variant.new(pts, WIN32OLE::VARIANT::VT_ARRAY | WIN32OLE::VARIANT::VT_R8)
       ole = ole_obj.AddLightweightPolyline(pts_variant)
       app.wrap(ole)
-    rescue StandardError => e
+    rescue => e
       raise Autocad::Error.new("Error adding rectangle #{e}")
     end
 
@@ -128,7 +128,7 @@ module Autocad
       pt = Point3d(center)
       ole_ellipse = ole_obj.AddEllipse(pt.to_ole, major_axis, radius_ratio)
       app.wrap(ole_ellipse)
-    rescue StandardError => e
+    rescue => e
       raise Autocad::Error.new("Error adding ellipse #{e}")
     end
 
@@ -147,7 +147,7 @@ module Autocad
 
       ole = ole_obj.AddSpline(pts_variant, start_tangent_ole, end_tangent_ole)
       app.wrap(ole)
-    rescue StandardError => e
+    rescue => e
       raise Autocad::Error.new("Error adding spline #{e.message}")
     end
 
@@ -189,10 +189,8 @@ module Autocad
         ole.Layer = layer.name
         ole.StandardScale = ACAD::AcVpScaleToFit
         app.wrap(ole)
-      else
-        nil
       end
-    rescue StandardError => e
+    rescue
       nil
     end
 

@@ -106,7 +106,7 @@ module Autocad
       when :block_reference
         # Block reference filter
         types << 0  # Entity type
-        values << "INSERT"  # Block reference entity type
+        values << 'INSERT'  # Block reference entity type
         if clauses[:block_reference]
           types << 2  # Block name
           values << clauses[:block_reference]
@@ -140,30 +140,30 @@ module Autocad
       when :not
         # Logical NOT operator
         types << -4
-        values << "<NOT"
+        values << '<NOT'
 
         sub_types, sub_values = clauses[:not].convert_clauses
         types.concat(sub_types)
         values.concat(sub_values)
 
         types << -4
-        values << "NOT>"
+        values << 'NOT>'
       when :gt
         # Greater than comparison
         types.concat([-4, 40])  # -4 = operator, 40 = floating point value
-        values.concat([">=", clauses[:gt]])
+        values.concat(['>=', clauses[:gt]])
       when :lt
         # Less than comparison
         types.concat([-4, 40])
-        values.concat(["<=", clauses[:lt]])
+        values.concat(['<=', clauses[:lt]])
       when :eq
         # Equal to comparison
         types.concat([-4, 40])
-        values.concat(["=", clauses[:eq]])
+        values.concat(['=', clauses[:eq]])
       when :neq
         # Not equal to comparison
         types.concat([-4, 40])
-        values.concat(["<>", clauses[:neq]])
+        values.concat(['<>', clauses[:neq]])
       end
 
       [types, values]
@@ -502,7 +502,7 @@ module Autocad
     # @example Filter for text on a specific layer
     #   f.and(f.text, f.layer("NOTES"))
     def text
-      self.or(type("TEXT"), type("MTEXT"))
+      self.or(type('TEXT'), type('MTEXT'))
     end
 
     # Filter for entities with specific linetype

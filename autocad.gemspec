@@ -1,24 +1,24 @@
 # frozen_string_literal: true
 
-require_relative "lib/autocad/version"
+require_relative 'lib/autocad/version'
 
 Gem::Specification.new do |spec|
-  spec.name = "autocad"
+  spec.name = 'autocad'
   spec.version = Autocad::VERSION
-  spec.authors = ["Dominic Sisneros"]
-  spec.email = ["dsisnero@gmail.com"]
+  spec.authors = ['Dominic Sisneros']
+  spec.email = ['dsisnero@gmail.com']
 
-  spec.summary = "control Autocad from Ruby"
-  spec.description = "Use Autocad from Ruby"
-  spec.homepage = "https://github.com/dsisnero/autocad"
-  spec.license = "MIT"
-  spec.required_ruby_version = ">= 3.0.0"
+  spec.summary = 'control Autocad from Ruby'
+  spec.description = 'Use Autocad from Ruby'
+  spec.homepage = 'https://github.com/dsisnero/autocad'
+  spec.license = 'MIT'
+  spec.required_ruby_version = '>= 3.0.0'
 
   # spec.metadata["allowed_push_host"] = "TODO: Set to your gem server 'https://example.com'"
 
-  spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "https://github.com/dsisnero/autocad"
-  spec.metadata["changelog_uri"] = "https://github.com/dsisnero/autocad/blob/main/CHANGELOG.md"
+  spec.metadata['homepage_uri'] = spec.homepage
+  spec.metadata['source_code_uri'] = 'https://github.com/dsisnero/autocad'
+  spec.metadata['changelog_uri'] = 'https://github.com/dsisnero/autocad/blob/main/CHANGELOG.md'
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
@@ -29,10 +29,10 @@ Gem::Specification.new do |spec|
         f.start_with?(*%w[bin/ test/ spec/ features/ .git .github appveyor Gemfile])
     end
   end
-  spec.bindir = "exe"
+  spec.bindir = 'exe'
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
-  spec.require_paths = ["lib"]
-  spec.add_dependency "optparse-plus", "~> 3.0"
+  spec.require_paths = ['lib']
+  spec.add_dependency 'optparse-plus', '~> 3.0'
 
   # Uncomment to register a new dependency of your gem
   # spec.add_dependency "example-gem", "~> 1.0"

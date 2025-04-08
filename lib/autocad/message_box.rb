@@ -1,20 +1,20 @@
-require "fiddle/import"
-require "fiddle/types"
+require 'fiddle/import'
+require 'fiddle/types'
 
 module WinAPI
   extend Fiddle::Importer
-  dlload "user32.dll"
+  dlload 'user32.dll'
   include Fiddle::BasicTypes
   include Fiddle::Win32Types
 
-  typealias "LPCWSTR", "wchar_t*"
+  typealias 'LPCWSTR', 'wchar_t*'
 
-  extern "int MessageBoxA(HWND, LPCSTR, LPCSTR, DWORD)"
-  extern "int MessageBoxW(HWND, LPCWSTR, LPCWSTR, DWORD)"
+  extern 'int MessageBoxA(HWND, LPCSTR, LPCSTR, DWORD)'
+  extern 'int MessageBoxW(HWND, LPCWSTR, LPCWSTR, DWORD)'
   # window handling
-  extern "HWND GetForegroundWindow()"
-  extern "int GetWindowText(HWND, char*, int)"
-  extern "int GetWindowTextLength(HWND)"
+  extern 'HWND GetForegroundWindow()'
+  extern 'int GetWindowText(HWND, char*, int)'
+  extern 'int GetWindowTextLength(HWND)'
 
   def get_foreground_window
     GetForegroundWindow()
@@ -23,7 +23,7 @@ module WinAPI
   def self.get_text_of_active_window
     hwnd = GetForegroundWindow()
     buf_size = GetWindowTextLength(hwnd)
-    str = " " * (buf_size + 1)
+    str = ' ' * (buf_size + 1)
     GetWindowText(hwnd, str, str.length)
     str.encode(Encoding.default_external)
   end
@@ -73,7 +73,7 @@ module Kernel
   # @rbs str: String
   # @rbs return String
   def L(str)
-    str.encode("UTF-16LE")
+    str.encode('UTF-16LE')
   end
 
   # @example
@@ -84,12 +84,12 @@ module Kernel
   #   puts "cancelled"
   # end
   # end
-  def msgbox_yesno(content, title: "Alert")
+  def msgbox_yesno(content, title: 'Alert')
     result = WinAPI::MessageBoxW(0, L(content), L(title), WinAPI::MB::BTN::YESNO) == WinAPI::MB::YES
     yield(result)
   end
 
-  def msgbox(content, title: "Alert")
+  def msgbox(content, title: 'Alert')
     WinAPI::MessageBoxW(0, L(content), L(title), WinAPI::MB::BTN::OK)
   end
 end

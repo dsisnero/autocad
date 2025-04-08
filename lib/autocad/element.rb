@@ -1,6 +1,6 @@
 # rbs_inline: enabled
-require_relative "bounding_box"
-require "win32ole_helper"
+require_relative 'bounding_box'
+require 'win32ole_helper'
 # require "autocad/property_handler"
 
 class WIN32OLE
@@ -192,7 +192,7 @@ module Autocad
     # Check if this element is a text object
     # @rbs return bool
     def text?
-      ole_obj.ole_type == "IAcadText"
+      ole_obj.ole_type == 'IAcadText'
     end
 
     # Explode this element into its component parts
@@ -254,7 +254,7 @@ module Autocad
     # Check if this element is a line
     # @rbs return bool
     def line?
-      ole_obj.ObjectName == "AcdbLine"
+      ole_obj.ObjectName == 'AcdbLine'
     end
 
     # Check if this element is graphical
@@ -316,30 +316,30 @@ module Autocad
     include ElementTrait
 
     def self.convert_item(ole, app, cell = nil)
-      return Point3d.from_ole(ole) if ole.instance_of?(WIN32OLE_RECORD) && ole.typename == "Point3d"
+      return Point3d.from_ole(ole) if ole.instance_of?(WIN32OLE_RECORD) && ole.typename == 'Point3d'
       return ole unless ole.instance_of?(WIN32OLE)
 
       if ole.respond_to? :ObjectName
         typ = case ole.ObjectName
-        when "AcDbModelSpace"
+        when 'AcDbModelSpace'
           ::Autocad::ModelSpace.new(ole, app, typ)
-        when "AcDbPaperSpace"
+        when 'AcDbPaperSpace'
           ::Autocad::PaperSpace.new(ole, app, typ)
-        when "AcDbBlockTableRecord"
+        when 'AcDbBlockTableRecord'
           ::Autocad::Block.new(ole, app, typ, cell)
-        when "AcDbPolyline"
+        when 'AcDbPolyline'
           ::Autocad::Polyline.new(ole, app, typ, cell)
-        when "AcDbText"
+        when 'AcDbText'
           ::Autocad::Text.new(ole, app, typ, cell)
-        when "AcDbMText"
+        when 'AcDbMText'
           ::Autocad::TextNode.new(ole, app, typ, cell)
-        when "AcDbArc"
+        when 'AcDbArc'
           ::Autocad::Arc.new(ole, app, typ, cell)
-        when "AcDbViewport"
+        when 'AcDbViewport'
           ::Autocad::Viewport.new(ole, app, typ)
-        when "AcDbBlock"
+        when 'AcDbBlock'
           ::Autocad::Block.new(ole, app, typ)
-        when "AcDbLayerTableRecord"
+        when 'AcDbLayerTableRecord'
           ::Autocad::Layer.new(ole, app, typ)
         when AcDbLayerTableRecord
         end
@@ -350,54 +350,54 @@ module Autocad
       else
         typ = ole.ole_type
         result = case typ.name
-        when "IAcadSelectionSet"
+        when 'IAcadSelectionSet'
           drawing = app.current_drawing
           ::Autocad::SelectionSetAdapter.from_ole_obj(drawing, ole)
-        when "IAcadLayer"
+        when 'IAcadLayer'
           ::Autocad::Layer.new(ole, app, typ)
-        when "IAcadLine"
+        when 'IAcadLine'
           ::Autocad::Line.new(ole, app, typ)
-        when "IAcadCircle"
+        when 'IAcadCircle'
           ::Autocad::Circle.new(ole, app, typ)
-        when "IAcadLWPolyline"
+        when 'IAcadLWPolyline'
           ::Autocad::Polyline.new(ole, app, typ)
-        when "IAcadLineType"
+        when 'IAcadLineType'
           ::Autocad::Linetype.new(ole, app, typ)
-        when "IAcadText"
+        when 'IAcadText'
           ::Autocad::Text.new(ole, app, typ)
-        when "IAcadModelSpace"
+        when 'IAcadModelSpace'
           ::Autocad::ModelSpace.new(ole, app, typ)
-        when "IAcadPaperSpace"
+        when 'IAcadPaperSpace'
           ::Autocad::PaperSpace.new(ole, app, typ)
-        when "IAcadMText"
+        when 'IAcadMText'
           ::Autocad::MText.new(ole, app, typ)
-        when "IAcadPViewport"
+        when 'IAcadPViewport'
           ::Autocad::PViewport.new(ole, app, typ)
-        when "IAcadBlockReference"
+        when 'IAcadBlockReference'
           ::Autocad::BlockReference.new(ole, app, typ)
-        when "IAcadBlock"
+        when 'IAcadBlock'
           ::Autocad::Block.new(ole, app, typ)
-        when "IAcadExternalReference"
+        when 'IAcadExternalReference'
           ::Autocad::ExternalReference.new(ole, app, typ)
-        when "IAcadAttributeReference"
+        when 'IAcadAttributeReference'
           ::Autocad::AttributeReference.new(ole, app, typ)
-        when "IAcadLayout"
+        when 'IAcadLayout'
           ::Autocad::Layout.new(ole, app, typ)
-        when "IAcadPlotConfiguration"
+        when 'IAcadPlotConfiguration'
           ::Autocad::PlotConfiguration.new(ole, app, typ)
-        when "IAcadDimStyle"
+        when 'IAcadDimStyle'
           ::Autocad::DimStyle.new(ole, app, typ)
-        when "IAcadTextStyle"
+        when 'IAcadTextStyle'
           ::Autocad::TextStyle.new(ole, app, typ)
-        when "IAcadArc"
+        when 'IAcadArc'
           ::Autocad::Arc.new(ole, app, typ)
-        when "IAcadPlot"
+        when 'IAcadPlot'
           ::Autocad::Plot.new(ole, app, typ)
-        when "IAcadSpline"
+        when 'IAcadSpline'
           ::Autocad::Spline.new(ole, app, typ)
-        when "IAcadViewport"
+        when 'IAcadViewport'
           ::Autocad::Viewport.new(ole, app, typ)
-        when "IAcadPoint"
+        when 'IAcadPoint'
           ::Autocad::Point.new(ole, app, typ)
 
         else
@@ -621,18 +621,18 @@ end
 
 module Autocad
   class Linetype < Element
-    CONTINUOUS = "Continuous"
-    DASHED = "Dashed"
-    CENTER = "Center"
-    HIDDEN = "Hidden"
-    PHANTOM = "Phantom"
-    BREAK = "Break"
-    BORDER = "Border"
-    DOT2 = "Dot2"
-    DOTX2 = "DotX2"
-    DIVIDE = "Divide"
-    TRACKING = "Tracking"
-    DASHDOT = "Daskdot"
+    CONTINUOUS = 'Continuous'
+    DASHED = 'Dashed'
+    CENTER = 'Center'
+    HIDDEN = 'Hidden'
+    PHANTOM = 'Phantom'
+    BREAK = 'Break'
+    BORDER = 'Border'
+    DOT2 = 'Dot2'
+    DOTX2 = 'DotX2'
+    DIVIDE = 'Divide'
+    TRACKING = 'Tracking'
+    DASHDOT = 'Daskdot'
 
     def name
       ole_obj.Name

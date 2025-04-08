@@ -42,7 +42,7 @@ module Autocad
       ole_reference = ole_obj.Block.InsertBlock(pt3d.to_ole, name.to_s,
         scale.to_f, scale.to_f, scale.to_f, rotation.to_f)
       app.wrap(ole_reference)
-    rescue StandardError => e
+    rescue => e
       app.error_proc.call(e, self)
       nil
     end
@@ -112,7 +112,7 @@ module Autocad
       @ole_obj.GetPaperMargins lower_left, upper_right
       lower_left, upper_right = WIN32OLE::ARGV
       [lower_left, upper_right]
-    rescue StandardError => e
+    rescue => e
       puts "Error getting paper margins: #{e.message}"
       [[0.0, 0.0], [0.0, 0.0]]  # Return default values instead of breaking
     end

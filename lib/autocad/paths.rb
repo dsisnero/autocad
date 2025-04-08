@@ -3,7 +3,7 @@ module Autocad
     include Enumerable
 
     def initialize(path)
-      @paths = path.split(";").map { |p| Pathname(p) }
+      @paths = path.split(';').map { |p| Pathname(p) }
     end
 
     def <<(path)
@@ -23,7 +23,7 @@ module Autocad
     end
 
     def to_s
-      parhs.join(";")
+      parhs.join(';')
     end
   end
 end

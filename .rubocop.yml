@@ -4,6 +4,7 @@ inherit_mode:
     - Exclude
 
 plugins:
+  - rubocop-rake
   - rubocop-performance
   - standard-custom
   - standard-performance
@@ -34,3 +35,6 @@ Layout/LeadingCommentSpace:
 
 Layout/EndOfLine:
   EnforcedStyle: lf
+  
+Style/StringLiterals:
+  EnforcedStyle: single_quotes

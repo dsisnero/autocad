@@ -84,11 +84,11 @@ module Autocad
       case scale
       when ACAD::AcVpScaleToFit then :scale_to_fit
       when ACAD::AcVpCustomScale then :custom
-      when ACAD::AcVp1_128in_1ft then :"128_to_1"
-      when ACAD::AcVp1_64in_1ft then :"64_to_1"
-      when ACAD::AcVp1_32in_1ft then :"32_to_1"
-      when ACAD::AcVp1_16in_1ft then :"16_to_1"
-      when ACAD::AcVp1_8in_1ft then :"8_to_1"
+      when ACAD::AcVp1_128in_1ft then :'128_to_1'
+      when ACAD::AcVp1_64in_1ft then :'64_to_1'
+      when ACAD::AcVp1_32in_1ft then :'32_to_1'
+      when ACAD::AcVp1_16in_1ft then :'16_to_1'
+      when ACAD::AcVp1_8in_1ft then :'8_to_1'
       end
     end
 
@@ -96,11 +96,11 @@ module Autocad
       case scale
       when :scale_to_fit then ACAD::AcVpScaleToFit
       when :custom then ACAD::AcVpCustomScale
-      when :"128_to_1" then ACAD::AcVp1_128in_1ft
-      when :"64_to_1" then ACAD::AcVp1_64in_1ft
-      when :"32_to_1" then ACAD::AcVp1_32in_1ft
-      when :"16_to_1" then ACAD::AcVp1_16in_1ft
-      when :"8_to_1" then ACAD::AcVp1_8in_1ft
+      when :'128_to_1' then ACAD::AcVp1_128in_1ft
+      when :'64_to_1' then ACAD::AcVp1_64in_1ft
+      when :'32_to_1' then ACAD::AcVp1_32in_1ft
+      when :'16_to_1' then ACAD::AcVp1_16in_1ft
+      when :'8_to_1' then ACAD::AcVp1_8in_1ft
       end
     end
 

@@ -1,6 +1,6 @@
 # rbs_inline: enabled
 
-require_relative "element"
+require_relative 'element'
 
 module Autocad
   # Single-line text annotation element in AutoCAD

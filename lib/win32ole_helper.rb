@@ -7,15 +7,15 @@ module WIN32OLE::Helper
       [
         "Parameter #{i}: #{param.name}",
         "Type: #{param.ole_type}",
-        "Direction: #{param.input? ? 'Input' : ''}#{param.output? ? 'Output' : ''}",
-        "Optional: #{param.optional? ? 'Yes' : 'No'}",
+        "Direction: #{param.input? ? "Input" : ""}#{param.output? ? "Output" : ""}",
+        "Optional: #{param.optional? ? "Yes" : "No"}",
         "Default: #{param.default if param.optional?}"
       ].compact.join("\n  ")
     end.join("\n\n")
 
     tips = []
-    tips << "Contains VARIANT parameters - use WIN32OLE_VARIANT.new(value)" if method.params.any? { |p| p.ole_type == 'VARIANT' }
-    tips << "Has output parameters - returns [return_value, *outputs]" if method.params.any?(&:output?)
+    tips << 'Contains VARIANT parameters - use WIN32OLE_VARIANT.new(value)' if method.params.any? { |p| p.ole_type == 'VARIANT' }
+    tips << 'Has output parameters - returns [return_value, *outputs]' if method.params.any?(&:output?)
 
     <<~HELP
       Method: #{method.name}
@@ -41,7 +41,7 @@ module WIN32OLE::Helper
           super
         rescue WIN32OLERuntimeError => e
           if e.message.include?('Unknown name')
-            similar = help_methods.grep(/#{method.to_s}/i)
+            similar = help_methods.grep(/#{method}/i)
             raise NoMethodError, "#{method}. Did you mean?\n#{similar.join("\n")}"
           end
           raise

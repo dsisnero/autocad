@@ -21,10 +21,10 @@
 # end
 
 target :lib do
-  signature "sig"
-  check "lib"
-  check "Gemfile"
-  library "pathname"
+  signature 'sig'
+  check 'lib'
+  check 'Gemfile'
+  library 'pathname'
 end
 # target :test do
 #   signature "sig", "sig-private"

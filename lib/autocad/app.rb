@@ -1,27 +1,26 @@
 # rbs_inline: enabled
 
-require_relative "event_handler"
-require_relative "element"
-require_relative "drawing"
-require_relative "paths"
-require_relative "line"
-require_relative "text"
-require_relative "mtext"
-require_relative "pviewport"
-require_relative "block"
-require_relative "block_reference"
-require_relative "selection_set"
-require_relative "plot"
-require_relative "plot_configuration"
-require_relative "layout"
-require_relative "bounding_box"
-require_relative "viewport"
-require_relative "point"
-require_relative "dim_style"
-require_relative "spline"
+require_relative 'event_handler'
+require_relative 'element'
+require_relative 'drawing'
+require_relative 'paths'
+require_relative 'line'
+require_relative 'text'
+require_relative 'mtext'
+require_relative 'pviewport'
+require_relative 'block'
+require_relative 'block_reference'
+require_relative 'selection_set'
+require_relative 'plot'
+require_relative 'plot_configuration'
+require_relative 'layout'
+require_relative 'bounding_box'
+require_relative 'viewport'
+require_relative 'point'
+require_relative 'dim_style'
+require_relative 'spline'
 
-
-require "win32ole"
+require 'win32ole'
 module Windows
   class FileSystem
     def self.windows_path(path)
@@ -37,7 +36,7 @@ module Windows
     end
 
     def fs_object
-      @fs_object ||= WIN32OLE.new("Scripting.FileSystemObject")
+      @fs_object ||= WIN32OLE.new('Scripting.FileSystemObject')
     end
   end
 end
@@ -65,7 +64,7 @@ module Autocad
               end
             end
           end
-        rescue StandardError => close_err
+        rescue => close_err
           puts "Additional error during cleanup: #{close_err.message}"
         end
       else
@@ -83,7 +82,7 @@ module Autocad
       end
 
       def debug_error
-        require "debug"
+        require 'debug'
         binding.break
       end
 
@@ -174,7 +173,7 @@ module Autocad
       # @rbs outdir: String the output dir for converted pdf files
       # @rbs return void
       def dwg2pdf(dir_or_file, outdir: dir_or_file, mode: :dir)
-        raise "Mode on of :dir or :file" unless [:dir, :file].include? mode
+        raise 'Mode on of :dir or :file' unless [:dir, :file].include? mode
         if mode == :dir
           drawings = drawings_in_dir(dir_or_file)
           with_drawings(drawings, read_only: true) do |drawing|
@@ -261,7 +260,7 @@ module Autocad
     # @rbs event_handler: EventHandler
     def initialize(visible: true, error_proc: self.class.default_error_proc, event_handler: default_event_handler, wait_interval: nil, wait_time: nil)
       @visible = visible
-      @logger = Logger.new("autocad.log")
+      @logger = Logger.new('autocad.log')
       @event_handler = event_handler
       @error_proc = error_proc
       @ole_obj, @app_event = init_ole_and_app_event(visible: @visible, event_handler: @event_handler, tries: 5,
@@ -303,16 +302,16 @@ module Autocad
       # event_handler.add_handler("BeginOpen") do |*args|
       #   puts "begining opening drawing #{args}"
       # end
-      event_handler.add_handler("EndOpen") do |*args|
+      event_handler.add_handler('EndOpen') do |*args|
         puts "drawing #{args} opened"
         @drawing_opened = true
       end
-      event_handler.add_handler("BeginDocClose") do |*args|
+      event_handler.add_handler('BeginDocClose') do |*args|
         @drawing_opened = false
         puts "drawing #{args} closed"
       end
 
-      event_handler.add_handler("NewDrawing") do |*args|
+      event_handler.add_handler('NewDrawing') do |*args|
         @drawing_opened = true
         puts "drawing #{args} created"
       end
@@ -327,7 +326,7 @@ module Autocad
     #
     # @rbs event: String -- event to registor for
     def register_handler(event, &)
-      @event_handler.add_handler(event, &) unless event == "OnQuit"
+      @event_handler.add_handler(event, &) unless event == 'OnQuit'
     end
 
     #
@@ -354,7 +353,7 @@ module Autocad
     end
 
     def exit_message_loop
-      puts "Autocad exiting..."
+      puts 'Autocad exiting...'
       @run_loop = false
     end
 
@@ -453,15 +452,14 @@ module Autocad
         count = @ole_obj.Documents.Count
         count.times do |i|
           # Always close the first one since the collection shifts
-          begin
-            doc = @ole_obj.Documents.Item(0)
-            doc.Close(save) if doc
-          rescue StandardError => e
-            puts "Error closing document: #{document.name} #{e.message}"
-            break
-          end
+
+          doc = @ole_obj.Documents.Item(0)
+          doc.Close(save) if doc
+        rescue => e
+          puts "Error closing document: #{document.name} #{e.message}"
+          break
         end
-      rescue StandardError => e
+      rescue => e
         puts "Error in close_all_drawings: #{e.message}"
       end
     end
@@ -470,22 +468,24 @@ module Autocad
     # @rbs drawing: Drawing | String -- the drawing or drawing name to close
     # @rbs save: bool -- whether to save the drawing
     def close_drawing(drawing, save = true)
-      begin
-        # Get the drawing name
-        drawing_name = drawing.is_a?(String) ? drawing : (drawing.respond_to?(:name) ? drawing.name : nil)
-        return unless drawing_name
-
-        # Try to find the drawing in the Documents collection and close it
-        ole_obj.Documents.each do |doc|
-          if doc.Name == drawing_name
-            doc.Close(save)
-            puts "Successfully closed drawing #{drawing_name}"
-            break
-          end
-        end
-      rescue StandardError => e
-        puts "Error in close_drawing #{drawing_name}: #{e.message}"
+      # Get the drawing name
+      drawing_name = if drawing.is_a?(String)
+        drawing
+      else
+        (drawing.respond_to?(:name) ? drawing.name : nil)
       end
+      return unless drawing_name
+
+      # Try to find the drawing in the Documents collection and close it
+      ole_obj.Documents.each do |doc|
+        if doc.Name == drawing_name
+          doc.Close(save)
+          puts "Successfully closed drawing #{drawing_name}"
+          break
+        end
+      end
+    rescue => e
+      puts "Error in close_drawing #{drawing_name}: #{e.message}"
     end
 
     def close_active_drawing
@@ -560,7 +560,7 @@ module Autocad
       rescue DrawingClose => e
         # Handle DrawingClose errors specifically
         err_fn.call(e, e.drawing_name)
-        return nil
+        nil
       rescue => e
         raise e unless err_fn
         err_fn.call(e, filename)
@@ -608,12 +608,12 @@ module Autocad
     # @rbs prompt: String the prompt that displays in Autocad
     # @rbs name: String the name of the selection
     # @rbs return [SelectionSet]
-    def get_selection(prompt: "Select objects", name: "_SS1")
+    def get_selection(prompt: 'Select objects', name: '_SS1')
       prompt(prompt)
       begin
         doc_ole.SelectionSets.Item(name).Delete
       rescue
-        logger.debug("Delete selection failed")
+        logger.debug('Delete selection failed')
       end
 
       selection = doc_ole.SelectionSets.Add(name)
@@ -662,7 +662,7 @@ module Autocad
 
     # @rbs return [Array<Pathname>] all paths in Files.SupportPath
     def support_paths
-      ole_preferences_files.SupportPath.split(";").map { |f| Pathname.new(f) }
+      ole_preferences_files.SupportPath.split(';').map { |f| Pathname.new(f) }
     end
 
     def support_path_files
@@ -677,7 +677,7 @@ module Autocad
 
     # @rbs return [Array<Pathname>] all paths in Files.PrinterConfigPath
     def printer_config_paths
-      ole_preferences_files.PrinterConfigPath.split(";").map { |f| Pathname.new(f) }
+      ole_preferences_files.PrinterConfigPath.split(';').map { |f| Pathname.new(f) }
     end
 
     # from the printer_config_paths, return all plotcfg files
@@ -704,9 +704,9 @@ module Autocad
     def init_ole_and_app_event(visible: @visible, event_handler: @event_handler, tries: 5, sleep_duration: 1)
       ole = nil
       begin
-        ole = WIN32OLE.connect("Autocad.Application")
+        ole = WIN32OLE.connect('Autocad.Application')
       rescue WIN32OLERuntimeError
-        ole = WIN32OLE.new("Autocad.Application")
+        ole = WIN32OLE.new('Autocad.Application')
       end
 
       sleep(sleep_duration)
@@ -721,7 +721,7 @@ module Autocad
       sleep_duration += 1.5
       puts "Error: #{e}. #{tries} tries left."
       retry if tries.positive?
-      raise e, "unable to init ole app"
+      raise e, 'unable to init ole app'
     end
 
     def doc_ole

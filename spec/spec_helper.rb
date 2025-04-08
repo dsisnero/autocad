@@ -99,12 +99,12 @@ module TestHelper
     ensure
       begin
         test_app.close_active_drawing
-      rescue StandardError
+      rescue
         nil
       end
       begin
         ref_app.close_active_drawing
-      rescue StandardError
+      rescue
         nil
       end
     end
@@ -124,7 +124,7 @@ module TestHelper
     ensure
       begin
         app.close_active_drawing
-      rescue StandardError
+      rescue
         nil
       end
       cleanup_test_drawing(original_name)

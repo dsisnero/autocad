@@ -5,12 +5,12 @@
 # $Revision$
 #-----------------------------
 
-require "win32ole"
+require 'win32ole'
 
 class WIN32COMGen
   def initialize(typelib)
     @typelib = typelib
-    @receiver = ""
+    @receiver = ''
   end
   attr_reader :typelib
 
@@ -40,37 +40,37 @@ class WIN32COMGen
         args.push "arg#{i + size_required_params}=nil"
       end
     else
-      args.push "*arg"
+      args.push '*arg'
     end
-    args.join(", ")
+    args.join(', ')
   end
 
   def generate_argtype(typedetails)
-    ts = ""
+    ts = ''
     typedetails.each do |t|
       case t
-      when "CARRAY", "VOID", "UINT", "RESULT", "DECIMAL", "I8", "UI8"
+      when 'CARRAY', 'VOID', 'UINT', 'RESULT', 'DECIMAL', 'I8', 'UI8'
         #	  raise "Sorry type\"" + t + "\" not supported"
         ts << "\"??? NOT SUPPORTED TYPE:`#{t}'\""
-      when "USERDEFINED", "Unknown Type 9"
-        ts << "VT_DISPATCH"
+      when 'USERDEFINED', 'Unknown Type 9'
+        ts << 'VT_DISPATCH'
         break
-      when "SAFEARRAY"
-        ts << "VT_ARRAY|"
-      when "PTR"
-        ts << "VT_BYREF|"
-      when "INT"
-        ts << "VT_I4"
+      when 'SAFEARRAY'
+        ts << 'VT_ARRAY|'
+      when 'PTR'
+        ts << 'VT_BYREF|'
+      when 'INT'
+        ts << 'VT_I4'
       else
         if String === t
-          ts << "VT_" + t
+          ts << 'VT_' + t
         end
       end
     end
     if ts.empty?
-      ts = "VT_VARIANT"
-    elsif ts.end_with?("|")
-      ts += "VT_VARIANT"
+      ts = 'VT_VARIANT'
+    elsif ts.end_with?('|')
+      ts += 'VT_VARIANT'
     end
     ts
   end
@@ -78,9 +78,9 @@ class WIN32COMGen
   def generate_argtypes(method, proptypes)
     types = method.params.collect { |param|
       generate_argtype(param.ole_type_detail)
-    }.join(", ")
+    }.join(', ')
     if proptypes
-      types += ", " if types.size > 0
+      types += ', ' if types.size > 0
       types += generate_argtype(proptypes)
     end
     types
@@ -88,23 +88,23 @@ class WIN32COMGen
 
   def generate_method_body(method, disptype, types = nil)
     "    ret = #{@receiver}#{disptype}(#{method.dispid}, [" +
-      generate_args(method).gsub("=nil", "") +
-      "], [" +
+      generate_args(method).gsub('=nil', '') +
+      '], [' +
       generate_argtypes(method, types) +
       "])\n" +
       "    @lastargs = WIN32OLE::ARGV\n" +
-      "    ret"
+      '    ret'
   end
 
   def generate_method_help(method, type = nil)
-    str = "  # "
+    str = '  # '
     str += type || method.return_type
     str += " #{method.name}"
     if method.event?
-      str += " EVENT"
+      str += ' EVENT'
       str += " in #{method.event_interface}"
     end
-    if method.helpstring && method.helpstring != ""
+    if method.helpstring && method.helpstring != ''
       str += "\n  # "
       str += method.helpstring
     end
@@ -121,8 +121,8 @@ class WIN32COMGen
     method.params.each_with_index { |param, i|
       h = "  #   #{param.ole_type} arg#{i} --- #{param.name}"
       inout = []
-      inout.push "IN" if param.input?
-      inout.push "OUT" if param.output?
+      inout.push 'IN' if param.input?
+      inout.push 'OUT' if param.output?
       h += " [#{inout.join("/")}]"
       h += " ( = #{param.default})" if param.default
       args.push h
@@ -135,20 +135,20 @@ class WIN32COMGen
   def generate_method(method, disptype, io = STDOUT, types = nil)
     io.puts "\n"
     io.puts generate_method_help(method)
-    if method.invoke_kind == "PROPERTYPUT"
+    if method.invoke_kind == 'PROPERTYPUT'
       io.print "  def #{method.name}=("
     else
       io.print "  def #{method.name}("
     end
     io.print generate_args(method)
-    io.puts ")"
+    io.puts ')'
     io.puts generate_method_body(method, disptype, types)
-    io.puts "  end"
+    io.puts '  end'
   end
 
   def generate_propputref_methods(klass, io = STDOUT)
     klass.ole_methods.select { |method|
-      method.invoke_kind == "PROPERTYPUTREF" && method.visible?
+      method.invoke_kind == 'PROPERTYPUTREF' && method.visible?
     }.each do |method|
       generate_method(method, io)
     end
@@ -156,7 +156,7 @@ class WIN32COMGen
 
   def generate_properties_with_args(klass, io = STDOUT)
     klass.ole_methods.select { |method|
-      method.invoke_kind == "PROPERTYGET" &&
+      method.invoke_kind == 'PROPERTYGET' &&
         method.visible? &&
         method.size_params > 0
     }.each do |method|
@@ -164,50 +164,50 @@ class WIN32COMGen
       io.puts "\n"
       io.puts generate_method_help(method, types[0])
       io.puts "  def #{method.name}"
-      if klass.ole_type == "Class"
+      if klass.ole_type == 'Class'
         io.print "    OLEProperty.new(@dispatch, #{method.dispid}, ["
       else
         io.print "    OLEProperty.new(self, #{method.dispid}, ["
       end
       io.print generate_argtypes(method, nil)
-      io.print "], ["
+      io.print '], ['
       io.print generate_argtypes(method, types)
-      io.puts "])"
-      io.puts "  end"
+      io.puts '])'
+      io.puts '  end'
     end
   end
 
   def generate_propput_methods(klass, io = STDOUT)
     klass.ole_methods.select { |method|
-      method.invoke_kind == "PROPERTYPUT" && method.visible? &&
+      method.invoke_kind == 'PROPERTYPUT' && method.visible? &&
         method.size_params == 1
     }.each do |method|
       ms = klass.ole_methods.select { |m|
-        m.invoke_kind == "PROPERTYGET" &&
+        m.invoke_kind == 'PROPERTYGET' &&
           m.dispid == method.dispid
       }
       types = []
       if ms.size == 1
         types = ms[0].return_type_detail
       end
-      generate_method(method, "_setproperty", io, types)
+      generate_method(method, '_setproperty', io, types)
     end
   end
 
   def generate_propget_methods(klass, io = STDOUT)
     klass.ole_methods.select { |method|
-      method.invoke_kind == "PROPERTYGET" && method.visible? &&
+      method.invoke_kind == 'PROPERTYGET' && method.visible? &&
         method.size_params == 0
     }.each do |method|
-      generate_method(method, "_getproperty", io)
+      generate_method(method, '_getproperty', io)
     end
   end
 
   def generate_func_methods(klass, io = STDOUT)
     klass.ole_methods.select { |method|
-      method.invoke_kind == "FUNC" && method.visible?
+      method.invoke_kind == 'FUNC' && method.visible?
     }.each do |method|
-      generate_method(method, "_invoke", io)
+      generate_method(method, '_invoke', io)
     end
   end
 
@@ -221,24 +221,24 @@ class WIN32COMGen
 
   def generate_constants(klass, io = STDOUT)
     klass.variables.select { |v|
-      v.visible? && v.variable_kind == "CONSTANT"
+      v.visible? && v.variable_kind == 'CONSTANT'
     }.each do |v|
-      io.print "  "
+      io.print '  '
       io.print v.name.sub(/^./) { $&.upcase }
-      io.print " = "
+      io.print ' = '
       io.puts v.value
     end
   end
 
   def class_name(klass)
     klass_name = klass.name
-    if klass.ole_type == "Class" &&
+    if klass.ole_type == 'Class' &&
         klass.guid &&
         klass.progid
-      klass_name = klass.progid.tr(".", "_")
+      klass_name = klass.progid.tr('.', '_')
     end
     if /^[A-Z]/ !~ klass_name || Module.constants.include?(klass_name)
-      klass_name = "OLE" + klass_name
+      klass_name = 'OLE' + klass_name
     end
     klass_name
   end
@@ -259,11 +259,11 @@ STR
   end
 
   def define_include
-    "  include WIN32OLE::VARIANT"
+    '  include WIN32OLE::VARIANT'
   end
 
   def define_instance_variables
-    "  attr_reader :lastargs"
+    '  attr_reader :lastargs'
   end
 
   def define_method_missing
@@ -279,9 +279,9 @@ STR
     io.puts "class #{class_name(klass)} # #{klass.name}"
     io.puts define_include
     io.puts define_instance_variables
-    io.puts "  attr_reader :dispatch"
-    io.puts "  attr_reader :clsid"
-    io.puts "  attr_reader :progid"
+    io.puts '  attr_reader :dispatch'
+    io.puts '  attr_reader :clsid'
+    io.puts '  attr_reader :progid'
     io.puts define_initialize(klass)
     io.puts define_method_missing
   end
@@ -294,18 +294,18 @@ STR
 
   def generate_class(klass, io = STDOUT)
     io.puts "\n# #{klass.helpstring}"
-    if klass.ole_type == "Class" &&
+    if klass.ole_type == 'Class' &&
         klass.guid &&
         klass.progid
-      @receiver = "@dispatch."
+      @receiver = '@dispatch.'
       define_class(klass, io)
     else
-      @receiver = ""
+      @receiver = ''
       define_module(klass, io)
     end
     generate_constants(klass, io)
     generate_methods(klass, io)
-    io.puts "end"
+    io.puts 'end'
   end
 
   def generate(io = STDOUT)
@@ -314,10 +314,10 @@ STR
 
     ole_classes(typelib).select { |klass|
       klass.visible? &&
-        (klass.ole_type == "Class" ||
-         klass.ole_type == "Interface" ||
-         klass.ole_type == "Dispatch" ||
-         klass.ole_type == "Enum")
+        (klass.ole_type == 'Class' ||
+         klass.ole_type == 'Interface' ||
+         klass.ole_type == 'Dispatch' ||
+         klass.ole_type == 'Enum')
     }.each do |klass|
       generate_class(klass, io)
     end
@@ -328,7 +328,7 @@ STR
   end
 end
 
-require "win32ole"
+require 'win32ole'
 if __FILE__ == $0
   if ARGV.size == 0
     warn "usage: #{$0} Type Library [...]"

@@ -4,7 +4,7 @@ module Autocad
   class EventHandler
     def initialize
       @handlers = {}
-      @file = File.open("event_handler.log", "w")
+      @file = File.open('event_handler.log', 'w')
     end
 
     # @rbs event: String -- the event name to handle

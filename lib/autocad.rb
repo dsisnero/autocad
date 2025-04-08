@@ -84,15 +84,15 @@ module ACAD
   # Keep the module for backward compatibility
 end
 
-require "logger"
-require "autocad/version"
-require "win32ole"
-require "pathname"
-require "autocad/app"
-require "autocad/errors"
-require "autocad/point3d"
-require "autocad/layer"
-require "autocad/message_box"
+require 'logger'
+require 'autocad/version'
+require 'win32ole'
+require 'pathname'
+require 'autocad/app'
+require 'autocad/errors'
+require 'autocad/point3d'
+require 'autocad/layer'
+require 'autocad/message_box'
 
 def Point3d(...)
   Autocad::Point3d.new(...)
@@ -128,7 +128,7 @@ module Autocad
     # @rbs return void
     # @raise [RuntimeError] Invalid mode
     def dgn2pdf(dir_or_file, outdir: dir_or_file, mode: :dir)
-      raise "Mode on of :dir or :file" unless [:dir, :file].include? mode
+      raise 'Mode on of :dir or :file' unless [:dir, :file].include? mode
       if mode == :dir
         drawings = drawings_in_dir(dir_or_file)
         with_drawings(drawings) do |drawing|
@@ -222,7 +222,7 @@ module Autocad
     # @rbs return Array[Pathname]
     def drawings_in_dir(dir)
       dirpath = Pathname.new(dir).expand_path
-      dirpath.glob("*.d{gn,wg,xf}").sort_by { _1.basename(".*").to_s.downcase }
+      dirpath.glob('*.d{gn,wg,xf}').sort_by { _1.basename('.*').to_s.downcase }
     end
 
     # Open single drawing

@@ -16,12 +16,12 @@
 # and, you'll have to watch "config/Guardfile" instead of "Guardfile"
 
 guard :bundler do
-  require "guard/bundler"
-  require "guard/bundler/verify"
+  require 'guard/bundler'
+  require 'guard/bundler/verify'
   helper = Guard::Bundler::Verify.new
 
-  files = ["Gemfile"]
-  files += Dir["*.gemspec"] if files.any? { |f| helper.uses_gemspec?(f) }
+  files = ['Gemfile']
+  files += Dir['*.gemspec'] if files.any? { |f| helper.uses_gemspec?(f) }
 
   # Assume files are symlinked from somewhere
   files.each { |file| watch(helper.real_path(file)) }
@@ -33,7 +33,7 @@ end
 # watch(%r{ext\/.+\.c})
 #   end
 #
-guard :minitest, test_folders: "spec/unit", env: {"EXCLUDE_DIR" => "spec/ui"} do
+guard :minitest, test_folders: 'spec/unit', env: {'EXCLUDE_DIR' => 'spec/ui'} do
   # with Minitest::Unit
   # watch(%r{^test/(.*)\/?test_(.*)\.rb$})
   # watch(%r{^lib/(.*/)?([^/]+)\.rb$})     { |m| "test/#{m[1]}test_#{m[2]}.rb" }
@@ -42,7 +42,7 @@ guard :minitest, test_folders: "spec/unit", env: {"EXCLUDE_DIR" => "spec/ui"} do
   # with Minitest::Spec
   watch(%r{^spec/unit/(.*)_spec\.rb$}) { |m| "spec/unit/#{m[1]}_spec.rb" }
   watch(%r{^lib/(.+)\.rb$}) { |m| "spec/unit/#{m[1]}_spec.rb" }
-  watch(%r{^spec/(.+)spec_helper\.rb$}) { "spec" }
+  watch(%r{^spec/(.+)spec_helper\.rb$}) { 'spec' }
 
   # Rails 4
   # watch(%r{^app/(.+)\.rb$})                               { |m| "test/#{m[1]}_test.rb" }

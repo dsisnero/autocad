@@ -1,22 +1,22 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require "bundler/setup"
-require "autocad"
-require "faa/cleanup"
-require "debug"
+require 'bundler/setup'
+require 'autocad'
+require 'faa/cleanup'
+require 'debug'
 
 # Connect to an existing AutoCAD application instead of creating a new one
 app = Autocad::App.new(create: false)
 drawing = app.current_drawing
 
-puts "Connected to existing AutoCAD application"
+puts 'Connected to existing AutoCAD application'
 puts "Current drawing: #{drawing.name}" if drawing
 
 # Start IRB session with the app and drawing variables available
-require "irb"
+require 'irb'
 IRB.start(__FILE__)
 
 # No need to explicitly close anything when exiting
 # The OLE connection will be released when the Ruby process ends
-puts "Disconnected from AutoCAD. The application remains running."
+puts 'Disconnected from AutoCAD. The application remains running.'

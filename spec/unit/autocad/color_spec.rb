@@ -59,7 +59,7 @@ describe Autocad::Layer do
   after(:all) do
     begin
       @drawing.close(save: false) if @drawing
-    rescue StandardError => e
+    rescue => e
       puts "Error closing drawing: #{e.message}"
     end
     @app.quit

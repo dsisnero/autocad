@@ -35,3 +35,5 @@ gem 'webrick', '~> 1.9', groups: %i[development test]
 gem 'acrobat', '~> 0.3', groups: %i[development test]
 
 gem 'irb'
+
+gem 'solargraph', '~> 0.53.4'

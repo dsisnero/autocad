@@ -48,14 +48,14 @@ module Autocad
       if File.exist?(path.to_s)
         begin
           File.delete(path.to_s)
-        rescue => ex
+        rescue
           raise "Unable to delete path #{path} - Is it open in another program?"
         end
       end
 
       # Log what we're about to do
       puts "Plotting to file: #{path}"
-      puts "Using plot configuration: #{config_name || 'default'}"
+      puts "Using plot configuration: #{config_name || "default"}"
 
       # Check if the plot configuration exists
       if config_name && !plot_config_exists?(config_name)
@@ -75,7 +75,7 @@ module Autocad
           puts "PDF file created: #{path}, size: #{File.size(path.to_s)} bytes"
         else
           puts "Warning: PDF file was not created at #{path}"
-          raise Autocad::Error.new("PDF file was not created")
+          raise Autocad::Error.new('PDF file was not created')
         end
       rescue => e
         error_msg = "File plot failed: #{e.message}\nPath: #{path}\nConfig: #{config_name}"
@@ -83,7 +83,7 @@ module Autocad
 
         # Check if the file was created despite the error
         if File.exist?(path.to_s) && File.size(path.to_s) > 0
-          puts "Note: PDF file was created despite error"
+          puts 'Note: PDF file was created despite error'
           return # Return successfully if the file was created
         end
 
@@ -109,7 +109,7 @@ module Autocad
 
       while Time.now - start_time < timeout
         # Try to find AutoCAD dialog windows
-        dialog_hwnd = WinAPI.find_window(nil, "AutoCAD")
+        dialog_hwnd = WinAPI.find_window(nil, 'AutoCAD')
 
         if dialog_hwnd && dialog_hwnd != 0
           # Get dialog text
@@ -131,13 +131,11 @@ module Autocad
     # @param name [String] Name of the plot configuration
     # @return [Boolean] True if the configuration exists
     private def plot_config_exists?(name)
-      begin
-        # Try to access the plot configuration by name
-        app.active_drawing.plot_configurations.any? { |pc| pc.name == name }
-      rescue => e
-        puts "Error checking plot configuration: #{e.message}"
-        false
-      end
+      # Try to access the plot configuration by name
+      app.active_drawing.plot_configurations.any? { |pc| pc.name == name }
+    rescue => e
+      puts "Error checking plot configuration: #{e.message}"
+      false
     end
   end
 end

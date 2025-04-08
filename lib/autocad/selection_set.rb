@@ -1,5 +1,5 @@
 # require_relative "selection_filter"
-require_relative "filter"
+require_relative 'filter'
 
 module Autocad
   # Manages named selection criteria for AutoCAD entities
@@ -49,7 +49,7 @@ module Autocad
         filter_text_containing(str)
       else
         filter do |f|
-          f.or(f.type("TEXT"), f.type("MTEXT"))
+          f.or(f.type('TEXT'), f.type('MTEXT'))
         end
       end
     end
@@ -120,7 +120,7 @@ module Autocad
     # @rbs return self
     def filter_text_containing(text)
       filter do |f|
-        f.and(f.has_text(text), f.or(f.type("TEXT"), f.type("MTEXT")))
+        f.and(f.has_text(text), f.or(f.type('TEXT'), f.type('MTEXT')))
       end
     end
 

@@ -1,10 +1,10 @@
 # rbs_inline: enabled
 
-require_relative "event_handler"
-require_relative "enumerator"
-require_relative "model"
-require_relative "selection_set_adapter"
-require "debug"
+require_relative 'event_handler'
+require_relative 'enumerator'
+require_relative 'model'
+require_relative 'selection_set_adapter'
+require 'debug'
 
 module Autocad
   # Represents an AutoCAD drawing document and provides interface for:
@@ -72,7 +72,7 @@ module Autocad
     # @rbs event: String -- event key for handler
     # @rbs &: {() -> void} - handler Proc
     def register_handler(event, &) #:void
-      @event_handler.add_handler(event, &) unless event == "OnQuit"
+      @event_handler.add_handler(event, &) unless event == 'OnQuit'
     end
 
     # Check if the drawing is read-only
@@ -86,7 +86,7 @@ module Autocad
     # @return [Boolean] True if drawing is previously saved
     # @rbs return bool -- true if drawing is previously saved
     def previously_saved?
-      ole_obj.FullName != ""
+      ole_obj.FullName != ''
     end
 
     # Check if the drawing has been modified since the last save
@@ -146,7 +146,7 @@ module Autocad
     # @return [Point3d] The center of the view in world coordinates
     # @rbs return Point3d -- the center of the view in world coordinates
     def view_center
-      center = get_variable("VIEWCTR")
+      center = get_variable('VIEWCTR')
       Point3d(center)
     end
 
@@ -236,7 +236,7 @@ module Autocad
     # @return [Layout] The first paper space layout
     # @rbs return Layout -- The first layout that is not "Model"
     def paper_space_layout
-      layouts.reject { it.name == "Model" }.first
+      layouts.reject { it.name == 'Model' }.first
     end
 
     # Copy the drawing to a new file
@@ -354,7 +354,7 @@ module Autocad
       elsif layer.is_a?(Autocad::Layer)
         layer = layer.to_ole
       end
-      raise "layer not found" unless layer
+      raise 'layer not found' unless layer
       ole_obj.ActiveLayer = layer.to_ole
     end
 
@@ -419,7 +419,7 @@ module Autocad
     # @rbs return void
     def close(save = true)
       # Store the name before marking as closed
-      drawing_name = @ole_obj.respond_to?(:Name) ? @ole_obj.Name : "unknown"
+      drawing_name = @ole_obj.respond_to?(:Name) ? @ole_obj.Name : 'unknown'
       @drawing_closed = true
 
       begin
@@ -551,8 +551,8 @@ module Autocad
     #   title_blocks = drawing.model_block_references.select { |br| br.name == "TITLE_BLOCK" }
     # @rbs return Enumerator[BlockReference] -- all block references in model space
     def model_block_references
-      ss = selection_sets.find { it.name == "model_block_references" }
-      ss ||= create_selection_set("model_block_references")
+      ss = selection_sets.find { it.name == 'model_block_references' }
+      ss ||= create_selection_set('model_block_references')
       ss.filter do |f|
         f.and(f.model_space, f.block_reference)
       end
@@ -569,8 +569,8 @@ module Autocad
     #   end
     # @rbs return Enumerator[BlockReference] -- all block references in paper space
     def paper_block_references
-      ss = selection_sets.find { it.name == "paper_block_references" }
-      ss ||= create_selection_set("paper_block_references")
+      ss = selection_sets.find { it.name == 'paper_block_references' }
+      ss ||= create_selection_set('paper_block_references')
       ss.filter do |f|
         f.and(f.paper_space, f.block_reference)
       end
@@ -585,7 +585,7 @@ module Autocad
     # @example Find all text containing "REVISION"
     #   revision_texts = drawing.select_text_containing("*REVISION*")
     def select_text_containing(str)
-      varname = "@text_containg_#{str}".tr("*", "_")
+      varname = "@text_containg_#{str}".tr('*', '_')
       ss = if instance_variable_defined?(varname)
         instance_variable_get(varname)
       else
@@ -607,7 +607,7 @@ module Autocad
     # @return [SelectionSetAdapter] Selection set with matching text
     def get_select_text_containing(str)
       name = "text_containing_#{str}"
-      varname = "@#{name}".tr("*", "_")
+      varname = "@#{name}".tr('*', '_')
       ss = get_selection_set(name)
       ss.delete if ss
       ss = create_selection_set(name) do |ss|
@@ -790,7 +790,7 @@ module Autocad
     #   filename = drawing.get_input_string(prompt: "Enter filename:", spaces: false)
     # @rbs prompt: String -- the string to prompt the user for String
     # @rbs has_spaces: bool -- whether the string returned can contain spaces
-    def get_input_string(prompt: "Enter a string", spaces: true)
+    def get_input_string(prompt: 'Enter a string', spaces: true)
       utility.GetString(spaces, prompt)
     rescue => ex
       raise Autocad::Error.new("Error getting string input from user #{ex}")
@@ -803,7 +803,7 @@ module Autocad
     # @example Get number of copies
     #   copies = drawing.get_input_integer(prompt: "Enter number of copies:")
     # @rbs prompt: String -- the string to prompt the user for Integer
-    def get_input_integer(prompt: "Enter a integer")
+    def get_input_integer(prompt: 'Enter a integer')
       utility.GetInteger(prompt)
     rescue => ex
       raise Autocad::Error.new("Error getting integer input from user #{ex}")
@@ -815,7 +815,7 @@ module Autocad
     # @raise [Autocad::Error] If input operation fails
     # @example Get a scale factor
     #   scale = drawing.get_float(prompt: "Enter scale factor:")
-    def get_float(prompt: "Enter a float")
+    def get_float(prompt: 'Enter a float')
       utility.GetReal(prompt)
     rescue => ex
       raise Autocad::Error.new("Error getting float input from user #{ex}")
@@ -834,7 +834,7 @@ module Autocad
     # @rbs prompt: String
     # @rbs base_point: Array, Point3d, nil
     # @rbs return [Point3d]
-    def get_point(prompt: "Get point", base_point: nil)
+    def get_point(prompt: 'Get point', base_point: nil)
       if base_point
         array_pt = base_point.to_ary.map { |x| x.to_f } unless base_point.nil?
         base_point = WIN32OLE_VARIANT.array([3], WIN32OLE::VARIANT::VT_R8)
@@ -854,9 +854,9 @@ module Autocad
     #   corner1, corner2 = drawing.get_region
     #   # Use corners for window selection
     def get_region
-      pt = get_point(prompt: "Specify first corner")
+      pt = get_point(prompt: 'Specify first corner')
       prompt("X: #{pt.x}, Y: #{pt.y}, Z: #{pt.z}\n")
-      point2 = utility.GetCorner(pt.to_ole, "Specify opposite corner: ")
+      point2 = utility.GetCorner(pt.to_ole, 'Specify opposite corner: ')
       pt2 = Point3d(point2)
       [pt, pt2]
     end
@@ -923,8 +923,8 @@ module Autocad
     def ole_obj
       if @drawing_closed || @ole_obj.nil?
         # Use a local variable to avoid recursive call to name method
-        drawing_name = @ole_obj.respond_to?(:Name) ? @ole_obj.Name : "unknown"
-        raise DrawingClose.new("Drawing is closed", drawing_name)
+        drawing_name = @ole_obj.respond_to?(:Name) ? @ole_obj.Name : 'unknown'
+        raise DrawingClose.new('Drawing is closed', drawing_name)
       end
 
       # Check if the ole object is still valid
@@ -935,7 +935,7 @@ module Autocad
         @drawing_closed = true
         @ole_obj = nil
         # Use a string directly instead of calling name method
-        raise DrawingClose.new("Drawing is no longer valid: #{e.message}", "unknown")
+        raise DrawingClose.new("Drawing is no longer valid: #{e.message}", 'unknown')
       end
     end
 
@@ -959,7 +959,7 @@ module Autocad
     end
 
     def dwg_name(name)
-      Pathname.new(name).sub_ext(".dwg")
+      Pathname.new(name).sub_ext('.dwg')
     end
 
     def pdf_path(name: nil, dir: nil)
@@ -971,15 +971,16 @@ module Autocad
 
     def get_current_view_size
       h = get_variable("VIEWSIZE")
-      screen_size = Point3d(get_variable("SCREENSIZE"))
+      h = get_variable('VIEWSIZE')
+      screen_size = Point3d(get_variable('SCREENSIZE'))
       w = h * screen_size.x / screen_size.y
       [w, h]
     end
 
     def default_plot_setup
-      {device_name: "AutoCAD PDF (High Quality Print).pc3",
-       media_name: "ANSI_D_(34.00_x_22.00_Inches)",
-       style_sheet: "FAA_Black&Gray.ctb",
+      {device_name: 'AutoCAD PDF (High Quality Print).pc3',
+       media_name: 'ANSI_D_(34.00_x_22.00_Inches)',
+       style_sheet: 'FAA_Black&Gray.ctb',
        plot_type: :layout,
        rotation: 0,
        paper_units: :inches}
@@ -987,7 +988,7 @@ module Autocad
 
     # creates the "faa_ansid_bw" plot configuration
     def create_pdf_plot_configutation #: PlotConfiguration
-      pc = add_plot_configuration("faa_ansid_bw")
+      pc = add_plot_configuration('faa_ansid_bw')
       pc.update(default_plot_setup)
       pc
     end
@@ -1000,21 +1001,21 @@ module Autocad
     # the name or drawing name
     def pdf_name(name = nil) #: Pathname
       name ||= self.name
-      Pathname.new(name).sub_ext(".pdf")
+      Pathname.new(name).sub_ext('.pdf')
     end
 
 
 
     # If you copy the file the name to use
     # @rbs backup_str: String -- the bqckup string to use for copies
-    def copy_name(backup_str = ".copy")
+    def copy_name(backup_str = '.copy')
       lname = name.dup
       ext = File.extname(lname)
       "#{File.basename(lname, ext)}#{backup_str}#{ext}"
     end
 
     def get_block_reference_selection_set
-      ss = get_selection_set("block_reference") || create_selection_set("block_reference")
+      ss = get_selection_set('block_reference') || create_selection_set('block_reference')
       ss.filter do |f|
         f.block_reference
       end

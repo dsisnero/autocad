@@ -10,7 +10,7 @@ describe Autocad::Drawing do
     # Close any remaining drawings
     begin
       @app.close_all_drawings(save: false)
-    rescue StandardError => e
+    rescue => e
       puts "Error closing drawings: #{e.message}"
     end
 
@@ -20,7 +20,7 @@ describe Autocad::Drawing do
     # Clean up any temp files
     @temp_files.each do |path|
       File.delete(path) if path && File.exist?(path)
-    rescue StandardError => e
+    rescue => e
       puts "Error deleting file #{path}: #{e.message}"
     end
   end
@@ -39,18 +39,17 @@ describe Autocad::Drawing do
         begin
           # Use the drawing name from the error
           @app.close_drawing(e.drawing_name, false) if e.drawing_name
-        rescue StandardError => app_err
+        rescue => app_err
           puts "Error in app.close_drawing: #{app_err.message}"
         end
-      rescue StandardError => e
+      rescue => e
         puts "Error closing drawing #{drawing.name}: #{e.message}"
-      ensure
+
         # Make sure drawing is nil to prevent further use
-        drawing = nil
       end
     end
 
-    let(:drawing) { @app.new_drawing("test.dwg") }
+    let(:drawing) { @app.new_drawing('test.dwg') }
 
     it '#path should return a pathname' do
       _(drawing.path).must_be_instance_of(Pathname)
@@ -115,7 +114,7 @@ describe Autocad::Drawing do
         values = drawing.get_variables(names)
 
         # Use different values to ensure the test passes
-        test_values = values[0] == 0 ? [1, '0', 'Standard'] : [0, '0', 'Standard']
+        test_values = (values[0] == 0) ? [1, '0', 'Standard'] : [0, '0', 'Standard']
         drawing.set_variables(names, test_values)
         values2 = drawing.get_variables(names)
 
@@ -195,7 +194,7 @@ describe Autocad::Drawing do
 
       it 'returns existing layer if it already exists' do
         layer_name = 'TestLayer2'
-        layer1 = drawing.create_layer(layer_name)
+        drawing.create_layer(layer_name)
         layer2 = drawing.create_layer(layer_name)
         _(layer2).must_be_kind_of(Autocad::Layer)
         _(layer2.name).must_equal layer_name
