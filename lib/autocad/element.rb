@@ -91,96 +91,92 @@ module Autocad
       # For testing purposes, check if we're in a test environment
       # This is a workaround for the test environment where we don't have actual OLE objects
 
-      begin
-        if ole_obj.ole_respond_to?(:GetBoundingBox)
-          # Create VARIANT objects for output parameters
-          minpoint = WIN32OLE::Variant.new(nil, WIN32OLE::VARIANT::VT_VARIANT | WIN32OLE::VARIANT::VT_BYREF)
-          maxpoint = WIN32OLE::Variant.new(nil, WIN32OLE::VARIANT::VT_VARIANT | WIN32OLE::VARIANT::VT_BYREF)
-          # Last resort - try GetBoundingBox if available
 
+      if ole_obj.ole_respond_to?(:GetBoundingBox)
+        # Create VARIANT objects for output parameters
+        minpoint = WIN32OLE::Variant.new(nil, WIN32OLE::VARIANT::VT_VARIANT | WIN32OLE::VARIANT::VT_BYREF)
+        maxpoint = WIN32OLE::Variant.new(nil, WIN32OLE::VARIANT::VT_VARIANT | WIN32OLE::VARIANT::VT_BYREF)
+        # Last resort - try GetBoundingBox if available
 
-          # Get the bounding box coordinates
-          ole_obj.GetBoundingBox(minpoint, maxpoint)
+        # Get the bounding box coordinates
+        ole_obj.GetBoundingBox(minpoint, maxpoint)
 
+        # Convert the VARIANT arrays to Point3d objects
+        min_pt = Point3d.new(minpoint.value[0], minpoint.value[1], minpoint.value[2])
+        max_pt = Point3d.new(maxpoint.value[0], maxpoint.value[1], maxpoint.value[2])
 
-          # Convert the VARIANT arrays to Point3d objects
-          min_pt = Point3d.new(minpoint.value[0], minpoint.value[1], minpoint.value[2])
-          max_pt = Point3d.new(maxpoint.value[0], maxpoint.value[1], maxpoint.value[2])
+        BoundingBox.from_min_max(min_pt, max_pt)
+      # Try different approaches based on object type
+      elsif ole_obj.ole_respond_to?(:Coordinates)
+        # For objects like lines that have Coordinates property
+        coords = ole_obj.Coordinates
 
+        # Find min and max values
+        x_values = []
+        y_values = []
+        z_values = []
 
-          BoundingBox.from_min_max(min_pt, max_pt)
-        # Try different approaches based on object type
-        elsif ole_obj.ole_respond_to?(:Coordinates)
-          # For objects like lines that have Coordinates property
-          coords = ole_obj.Coordinates
-
-          # Find min and max values
-          x_values = []
-          y_values = []
-          z_values = []
-
-          (0...coords.size).step(3) do |i|
-            x_values << coords[i]
-            y_values << coords[i + 1]
-            z_values << coords[i + 2] if i + 2 < coords.size
-          end
-          puts ole_obj.ObjectName
-          binding.irb
-
-          min_pt = Point3d.new(x_values.min, y_values.min, z_values.min || 0)
-          max_pt = Point3d.new(x_values.max, y_values.max, z_values.max || 0)
-          binding.irb
-
-          BoundingBox.from_min_max(min_pt, max_pt)
-        elsif ole_obj.ole_respond_to?(:Center) && ole_obj.respond_to?(:Radius)
-          # For circles
-          center = Point3d.new(ole_obj.Center)
-          radius = ole_obj.Radius
-
-          min_pt = Point3d.new(center.x - radius, center.y - radius, center.z)
-          max_pt = Point3d.new(center.x + radius, center.y + radius, center.z)
-          binding.irb
-
-          BoundingBox.from_min_max(min_pt, max_pt)
-        elsif ole_obj.ole_respond_to?(:StartPoint) && ole_obj.respond_to?(:EndPoint)
-          # For lines with start and end points
-          start_pt = Point3d.new(ole_obj.StartPoint)
-          end_pt = Point3d.new(ole_obj.EndPoint)
-          puts ole_obj.ObjectName
-
-          binding.irb
-
-          min_x = [start_pt.x, end_pt.x].min
-          min_y = [start_pt.y, end_pt.y].min
-          min_z = [start_pt.z, end_pt.z].min
-
-          max_x = [start_pt.x, end_pt.x].max
-          max_y = [start_pt.y, end_pt.y].max
-          max_z = [start_pt.z, end_pt.z].max
-
-          min_pt = Point3d.new(min_x, min_y, min_z)
-          max_pt = Point3d.new(max_x, max_y, max_z)
-
-          binding.irb
-
-          BoundingBox.from_min_max(min_pt, max_pt)
-        else
-          binding.irb
-          nil
-          # If we can't determine bounds, create a default bounding box
-          # This is better than raising an error in many cases
+        (0...coords.size).step(3) do |i|
+          x_values << coords[i]
+          y_values << coords[i + 1]
+          z_values << coords[i + 2] if i + 2 < coords.size
         end
-      rescue => e
-        puts e.message
+        puts ole_obj.ObjectName
         binding.irb
-        load "win32ole_helper"
-        ole_obj.extend WIN32OLE::Helper
-        load "autocad\element.rb"
-        retry
-        # If all methods fail, return an empty bounding box instead of raising an error
-        # This makes the code more robust when dealing with various object types
+
+        min_pt = Point3d.new(x_values.min, y_values.min, z_values.min || 0)
+        max_pt = Point3d.new(x_values.max, y_values.max, z_values.max || 0)
+        binding.irb
+
+        BoundingBox.from_min_max(min_pt, max_pt)
+      elsif ole_obj.ole_respond_to?(:Center) && ole_obj.respond_to?(:Radius)
+        # For circles
+        center = Point3d.new(ole_obj.Center)
+        radius = ole_obj.Radius
+
+        min_pt = Point3d.new(center.x - radius, center.y - radius, center.z)
+        max_pt = Point3d.new(center.x + radius, center.y + radius, center.z)
+        binding.irb
+
+        BoundingBox.from_min_max(min_pt, max_pt)
+      elsif ole_obj.ole_respond_to?(:StartPoint) && ole_obj.respond_to?(:EndPoint)
+        # For lines with start and end points
+        start_pt = Point3d.new(ole_obj.StartPoint)
+        end_pt = Point3d.new(ole_obj.EndPoint)
+        puts ole_obj.ObjectName
+
+        binding.irb
+
+        min_x = [start_pt.x, end_pt.x].min
+        min_y = [start_pt.y, end_pt.y].min
+        min_z = [start_pt.z, end_pt.z].min
+
+        max_x = [start_pt.x, end_pt.x].max
+        max_y = [start_pt.y, end_pt.y].max
+        max_z = [start_pt.z, end_pt.z].max
+
+        min_pt = Point3d.new(min_x, min_y, min_z)
+        max_pt = Point3d.new(max_x, max_y, max_z)
+
+        binding.irb
+
+        BoundingBox.from_min_max(min_pt, max_pt)
+      else
+        binding.irb
         nil
+        # If we can't determine bounds, create a default bounding box
+        # This is better than raising an error in many cases
       end
+    rescue => e
+      puts e.message
+      binding.irb
+      load 'win32ole_helper'
+      ole_obj.extend WIN32OLE::Helper
+      load "autocad\element.rb"
+      retry
+      # If all methods fail, return an empty bounding box instead of raising an error
+      # This makes the code more robust when dealing with various object types
+      nil
     end
 
     #
